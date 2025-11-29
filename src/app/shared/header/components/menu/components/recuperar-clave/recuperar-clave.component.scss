@@ -1,0 +1,39 @@
+
+:host{
+
+    .contentInicial{
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        padding: 30px;
+
+        .content{
+
+            form{
+                display: flex;
+                flex-flow: column;
+                gap: 10px;
+                
+                .email{
+                    height: 30px;
+
+                }
+                .error{
+                    color: red;
+                }
+                .r{
+                    background-color: red;
+                    color: white;
+                    padding: 10px;
+                }
+            }
+        }
+    }
+    
+    p {
+        text-align: center;
+    }
+    .recuperarTxt{
+        margin-top: 30px;
+    }
+}

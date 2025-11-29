@@ -1,0 +1,25 @@
+@import '../../../styles.scss'; 
+
+header{
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 100%;
+    height: 100%;
+    color: white;
+    box-shadow: 0px 0px 10px black;
+    background: rgb(51 51 51);
+}
+
+app-titulo{
+    width: 38vh;
+}
+
+app-menu{
+    display: flex;
+    width: 15%;
+    flex-flow: row wrap;
+   align-items: center;
+   justify-content: center;
+}

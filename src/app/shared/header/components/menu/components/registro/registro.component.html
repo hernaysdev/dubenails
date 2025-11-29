@@ -1,0 +1,33 @@
+<div class="registro">
+    <form [formGroup]="formRegister">
+        <label name="usuario">Usuario:</label>
+        <input 
+        class="inputs"
+        formControlName="nombre"
+        maxlength="12"
+         type="text" placeholder="Nombre Usuario...." />
+
+        <label name="correo">Correo:</label>
+        <input class="inputs" formControlName="correo" type="text" placeholder="correo@gmail.com" />
+
+        <label name="Clave">Clave:</label>
+        <input class="inputs" ormControlName="password" type="password" placeholder="Minimo 6 digitos"  />
+
+        <label name="Clave2">Repetir Clave:</label>
+        <input class="inputs" ormControlName="password2" type="password" placeholder="Minimo 6 digitos"  />
+
+        <label name="telefono">Telefono:</label>
+        <input 
+        class="inputs"
+        formControlName="telefono"
+        maxlength="10"
+        onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
+         type="text" placeholder="1234567890" />
+
+        <label name="direccion">Dirección:</label>
+        <input class="inputs" formControlName="direccion" type="text" placeholder="direccion...." />
+
+        <input type="submit" value="Registrarse" (click)="enviar()">
+        <p class="errorMessage" *ngIf="messageError">{{messageError}}</p>
+    </form>
+</div>

@@ -1,0 +1,86 @@
+<div class="modalGeneric modalP" *ngIf="modalServicios">
+    <div class="contenido">
+        <div>
+            <div class="headerAgenda">
+                <span *ngIf="rol === 'admin' && rol" (click)="disabledDay()" [class.h3Admin]="rol === 'admin' && rol"
+                    [class.habilitar]="!habilitar" [class.desabilitar]="habilitar">
+                    {{(habilitar) ? 'Desabilitar' : 'Habilitar'}}
+                </span>
+                <h3>Detalle de horas</h3>
+                <span (click)="hideModalServicios()">x</span>
+            </div>
+            <strong class="diaName">{{dia.diaName}} - {{dia.day}}</strong>
+
+            <div *ngFor="let clientes of clienteDetalle; let i = index" [class.backgroundBody]="i%2 === 0">
+                <div *ngIf="habilitar && clientes.estado && clientes.nombre !== 'nombre'||
+                 rol === 'admin' && clientes.estado && clientes.nombre !== 'nombre'; else message" class="bodyAgenda">
+                    <p>
+                        <span>
+                            <strong>Nombre:</strong>
+                            <span *ngIf="
+                            dia.day === day || rol === 'admin' || nombre === clientes.nombre;  else privado"> {{clientes.nombre}} </span>
+                            <ng-template #privado> Reservado</ng-template>
+
+                        </span>
+                        <span *ngIf="sumaServicios !== 0 && rol === 'admin'" class="valorServicio">
+                            ${{clientes.valor}}.000</span>
+                    </p>
+                    <p><strong>Servicio:</strong> {{clientes.servicio}}</p>
+
+                    <p><strong>hora:</strong> {{ clientes.hora | pipes}}
+                        - {{clientes.tramo | pipes}}</p>
+
+                    <p class="telefono" *ngIf="rol === 'admin' && rol && clientes.telefono">
+                        <strong>Telefono: </strong>{{clientes.telefono}}
+                    </p>
+
+                    <p *ngIf="rol === 'admin' && rol && clientes.nuevo && clientes.nuevo === true">
+                        <strong>Estado: </strong><span [class.nuevaAgenda]="clientes.nuevo === true">{{(clientes.nuevo)
+                            ? 'Nuevo' : 'Visto'}}</span>
+                    </p>
+                    <!-- <app-cancelar-hora *ngIf="rol === 'admin' && rol" [dia]="dia" [telefono]="clientes.telefono" -->
+
+                         <!-- para que usuario pueda cancelar su hora-->
+                         <!--  *ngIf="rol === 'admin' && rol || idUserLogin === clientes.usuario._id"--> 
+
+                        <app-cancelar-hora  
+                        *ngIf="rol === 'admin'"
+                        [dia]="dia" 
+                        [telefono]="clientes.telefono"
+                        [nombre]="clientes.nombre" 
+                        [servicio]="clientes.servicio"
+                        [hora]="clientes.hora"
+                        [mes]="clientes.mes"
+                        [botonCancelars]="retornaBoton" 
+                        (returnData)="returnData($event)">
+                    </app-cancelar-hora>
+                </div>
+
+
+                <ng-template #message>
+                    <div class="backgroundBody2">
+                        <h3 *ngIf="!habilitar">No estamos atendiendo en este dia</h3>
+                        <span *ngIf="!habilitar" [innerHtml]="symbol" [ngStyle]="{'font-size': '220px',
+                                                                    'text-aling': 'center'}">
+                        </span>
+                    </div>
+                </ng-template>
+
+            </div>
+            <strong *ngIf="sumaServicios !== 0 && rol === 'admin'"> Resumen del dia - Total:
+                ${{sumaServicios}}.000</strong>
+            <p class="sinRegistro" *ngIf="clienteDetalle.length === 0">{{sinAgenda}}</p>
+        </div>
+        <button *ngIf="
+                dia.day >= day && dia.diaName && habilitar === true && rol
+            ||  month < dia.month && dia.diaName && habilitar === true && rol
+            ||  month > dia.month && dia.diaName && habilitar === true && rol
+            || desabilitarDia === true && habilitar === true"
+            
+            (click)="modalActive()">AGENDAR</button>
+    </div>
+    <app-modal-register *ngIf="modalRegisters" [dia]="dia" [horas]="horas" [horasCopias]="horasCopias"
+        (cerrarDetalle)="cerrarDetalles($event)"
+        (registerModal)="hideModalRegister($event)"></app-modal-register>
+
+</div>

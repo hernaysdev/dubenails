@@ -1,0 +1,123 @@
+<div class="modal" fadeIn>
+  <div class="content_titulo">
+    <h3>Registro de horas</h3>
+    <span (click)="hideModal()">x</span>
+  </div>
+  <form [formGroup]="formGroup">
+    <label name="nombre">Nombre</label>
+    <br>
+    <input
+    class="inputs" 
+    type="text"
+    (keyup)="find($event,'nombre')"
+    placeholder="nombre..." 
+    formControlName="nombre"
+     >
+
+    <div @MyInsertRemoveTrigger
+      *ngFor="let usuariosR of listEmail">
+      <p 
+      *ngIf="typeConsult === 'nombre'"
+      (click)="selectData(usuariosR.correo, usuariosR.nombre, usuariosR.telefono)" >
+        <strong class="emailStyles">
+          {{usuariosR.nombre}}
+        </strong>
+      </p>
+    </div>
+
+    <br>
+    <label name="hora">Hora</label>
+    <br>
+    <input class="inputs" formControlName="hora" type="button" (click)="mostrarHoras()">
+    <br>
+
+    <div class="modalGeneric modalHora" *ngIf="modalHoras">
+      <div class="modalHoras">
+        <div>
+          <h3>Selección de Horas</h3>
+          <span (click)="hideModalHoras()">x</span>
+        </div>
+        <ul class="listaHoras">
+          <li *ngFor="let hora of listaHora" (click)="SeleccionHora($event.target)">{{(hora.indexOf('.') > 0) ?
+            hora.slice(0 ,hora.length-2) + ':30' : hora+':00'}}</li>
+        </ul>
+      </div>
+    </div>
+
+    <label name="servicio">Servicios</label>
+    <br>
+    <input class="inputs" formControlName="servicio" type="button" (click)="mostrarServicios()">
+    <br>
+
+    <div class="modalGeneric modalHora" *ngIf="modalServicios">
+      <div class="modalHoras modalServicio">
+        <div>
+          <h3>Selección de Horas</h3>
+          <span (click)="hideModalServicios()">x</span>
+        </div>
+        <ul class="listaHoras ulServicios">
+          <li *ngFor="let servicio of lista" (click)="SeleccionServicio($event.target)">{{servicio.nombre}}</li>
+        </ul>
+      </div>
+    </div>
+
+    <label name="telefono">Telefono</label>
+    <br>
+    <input class="inputs" type="text" placeholder="telefono..."
+      onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" formControlName="telefono">
+    <br>
+
+    <label name="correo">Correo</label>
+    <br>
+    <input 
+    (input)="find($event,'correo')" 
+    class="inputs" 
+    type="text" 
+    placeholder="correo..." 
+    [value]="findEmail"
+    formControlName="correo">
+
+    <div
+    @MyInsertRemoveTrigger
+    *ngFor="let usuariosR of listEmail ">
+      <p 
+      *ngIf="typeConsult === 'correo'"
+      class="emailStyles"
+      (click)="selectData(usuariosR.correo, usuariosR.nombre, usuariosR.telefono)" (value)="usuariosR.correo">
+        {{usuariosR.correo}}</p>
+    </div>
+    <br>
+    <button class="submit" (click)="handleModal()">Registrar Hora</button>
+    <!-- <label  *ngIf="rol !== 'admin'" name="correo">Correo</label>
+    <br *ngIf="rol !== 'admin'">
+    <input *ngIf="rol !== 'admin'" class="inputs" type="text" placeholder="correo..." formControlName="correo" autocomplete="off">
+    <br *ngIf="rol !== 'admin'">
+    <button class="submit" (click)="handleModal()">Registrar Hora</button> -->
+    <!-- <button *ngIf="rol === 'admin'" class="submit" (click)="enviarDatos()">Registrar Hora</button> -->
+    <!-- <button *ngIf="rol !== 'admin'" class="submit" (click)="pagar()">Pagar Abono</button> -->
+  </form>
+
+  <div class=" success error" *ngIf="horaDisponible.length > 0">
+    <p>{{horaDisponible}}</p>
+  </div>
+</div>
+
+<div *ngIf="showModal" class="modalNotifica">
+  <div>
+    <h3>Confirma tu Hora</h3>
+
+    <p class="messageModal">Este servicio solo puede ser cancelado 24 horas antes de su cita. debe contactarse con
+      nosotros para poder cancelar. <span class="textConfirmar">Confirme si desea agendar.</span></p>
+
+    <div class="messageServices">
+      <p>Servicio: {{serviceSelection}}</p>
+      <p>Fecha: {{dia.day}} de {{mes}}</p>
+      <p>Hora: {{hourSelection}}</p>
+    </div>
+
+    <div>
+      <button class="btn" (click)="closeModal()">No</button>
+      <button class="btn" (click)="enviarDatos()">Si</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,47 @@
+    /* padding: 10px; */
+    
+    .cancelarAgenda{
+        padding: 2px;
+        margin-top: 5px;
+        border-radius: 5px;
+        background: #ff0000;
+        color: white;
+        font-size: 14px;
+
+    }
+   
+    .modalCancelar{
+    position: absolute;
+    background: black;
+    opacity: 0.8;
+    color: white;
+    left: 0%;
+    top: 0%;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+
+    div{
+        button{
+            margin:10px;
+            width: 150px;
+        }
+    }
+    }
+
+    .disabledButton{
+        display: none;
+    }
+
+    .telefono{
+        background: #17b717;
+    color: white;
+    text-align: center;
+    font-size: 14px;
+    padding: 2px;
+    width: 50%;
+    }

@@ -1,0 +1,45 @@
+<div class="body fondoBody" #body>
+
+    <div id="regalo" #caja>
+        <div class="nombres">
+            <h2>De: {{de}}</h2>
+            <h2>Para: {{para}}</h2>
+        </div>
+        <h1>Felicitadades Abre tu Regalo</h1>
+        <img #regalo class="regalo" src="../../../assets/img/regalo.png" (click)="abrirRegalo()">
+
+        <span>Espero lo disfrutes......</span>
+    </div>
+
+    <img id="fuegos" #fuegos>
+
+    <h1 id="cajah" #cajah>Gratitulación</h1>
+    <div id="card" #card>
+        <div class="logo">
+            <h1 id="gift">GiftCard</h1>
+        </div>
+        <div class="head">
+            <h3 id="cirugia">{{para}}</h3>
+            <h3 class="santiago nombre">{{nombreServicio}}</h3>
+        </div>
+        <ul _ngcontent-ybw-c43="" id="ul">
+            <li>
+                <img src="../../../assets/img/icono-ubicacion.png"> 50 Starling Court, Henrico
+            </li>
+            <li>
+                <img src="../../../assets/img/icono-instagram.png">dube.nails
+            </li>
+            <li>
+                <img src="../../../assets/img/icono-whatsapp.png"> +1 (678) 206 4296
+            </li></ul>
+
+    </div>
+
+
+    <audio #audio controls id="audio">
+        <source autoplay
+            src="../../../assets/img/MUSICA ELECTRONICA PARA HACER EJERCICIO (Alan Walker - Dennis 2014)_160k.mp3"
+            type="audio/mp3">
+    </audio>
+    <script src="index.js"></script>
+</div>

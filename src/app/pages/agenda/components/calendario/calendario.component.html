@@ -1,0 +1,47 @@
+
+
+        <div class="boxTitulo">
+            <form class="buscador" [formGroup]="formGroup">
+                <input  type="text" (keyup)="searchUser($event)" formControlName="usuario">
+            </form>
+            <div class="contentUsers">
+                <p
+                *ngFor="let users of usersFilter"
+                (click)="selectUser(users.dia, users.nombre)"
+                >
+                   {{users.nombre}} 
+                </p>
+            </div>
+            <div class="contentTitulo">
+                <button *ngIf="mesNumber !== mesAgenda" class="buttonNextPrev" (click)="dateNext(0)" ><</button>    
+                 <h3 class="mes">{{this.mes.toUpperCase()}}</h3> 
+                <button *ngIf="mesNumber === mesAgenda" class="buttonNextPrev"(click)="dateNext(+1)">></button>
+            </div>
+            <h4 *ngIf="rolUsuario === 'admin'" class="montoTotal"> Total ${{sumaValorMes | number}}</h4>
+        </div>
+<div class="calendario">
+    <div class="contenidoAgenda" *ngFor="let diaAgenda of dias">
+        <div class="dias"
+        [class.filter]="colorFilterDia.includes(diaAgenda.dia.toString())"
+        [class.ocupado]="diaAgenda.dia < day && mesNumber === mesAgenda
+        || diaAgenda.diaName === 'domingo'  || diaAgenda.dia  < day +1 && rolUsuario !== 'admin' && mesNumber === mesAgenda" 
+        (click)="modalAgenda(diaAgenda.dia , mesAgenda , diaAgenda.diaName,  day, mesNumber, mesAgenda)">
+                <div class="diaSemana">{{diaAgenda.diaName}}</div>
+                <p>{{diaAgenda.dia}}</p>
+        </div>
+    </div>
+</div>
+
+<app-detalles *ngIf="showModalDetalle"
+[dia]="dia"
+[desabilitarDia]="desabilitarDia"
+(detalleComponent)="detalleComponents($event)"
+></app-detalles> 
+
+<app-registrar-usuario 
+*ngIf="this.rolUsuario === ''"
+(registroExitoso)="registroExitoso($event)"
+></app-registrar-usuario>
+<div class="btnInicio" *ngIf="this.rolUsuario === ''">
+    <button (click)="navigateInicio()"> Ir al Inicio </button>
+</div>

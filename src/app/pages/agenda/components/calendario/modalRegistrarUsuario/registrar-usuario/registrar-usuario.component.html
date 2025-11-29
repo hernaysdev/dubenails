@@ -1,0 +1,7 @@
+<div class="contentModalRegistro">
+    <div>
+        <h1>Registrate</h1>
+    </div>
+    <app-registro *ngIf="this.showRegistro"
+    (registroExitoso)="onChange($event)">  </app-registro>
+</div>

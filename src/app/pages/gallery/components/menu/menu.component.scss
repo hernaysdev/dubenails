@@ -1,0 +1,95 @@
+:host {
+    .contentMenu {
+        .listPrice {
+            font-size: 28px;
+            font-weight: normal;
+            margin-top: 20px;
+            margin-bottom: -20px;
+        }
+
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        align-items: CENTER;
+        gap: 40px;
+
+        .boxMenu {
+            h1 {
+                width: 90%;
+                font-size: 24px;
+            }
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            gap: 15px;
+
+            ul {
+                display: flex;
+                flex-direction: column;
+                width: 90%;
+                gap: 5px;
+
+                li {
+                    width: 95%;
+                    display: flex;
+                    justify-content: space-between;
+                    cursor: pointer;
+                    background: #ccc;
+                    color: black;
+                    padding: 10px;
+                    text-align: center;
+                    border-radius: 5px;
+                    transition: 300ms;
+                    font-weight: bold;
+                    font-size: 15px;
+                }
+
+                li:hover {
+                    background: #3f5b45;
+                    color: white;
+                }
+
+                .decoracion{
+                    display: block;
+                    background-color: transparent;
+                    text-align: justify;
+                    cursor:default;
+                                }
+                .decoracion:hover {
+                    display: block;
+                    background: transparent !important;
+                    color: black !important;
+                }
+
+            }
+        }
+
+        .contentIcons {
+            display: flex;
+            flex-direction: column;
+            align-items: baseline;
+            gap: 10px;
+
+            div {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+
+                img {
+                    display: block;
+                    width: 40px;
+                }
+
+                a {
+                    color: #000000;
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+
+}

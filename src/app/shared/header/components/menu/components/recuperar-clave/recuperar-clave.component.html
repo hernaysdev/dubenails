@@ -1,0 +1,47 @@
+<div *ngIf="url !== 'recuperar'" class="contentInicial">
+    <div class="header">
+        <p>Introduce tu correo electrónico y te enviaremos una nueva contraseña</p>
+    </div>
+
+    <div class="content">
+        <form [formGroup]="form">
+            <label for="correo">Correo electrónico</label>
+            <input 
+            formControlName="email"
+            class="email" 
+            placeholder="Correo electrónico">
+            <p *ngIf="error" class="error">Correo Invalido</p>
+            <input type="submit" value="Enviar" (click)="OnSubmit()">
+        </form>
+    </div>
+</div>
+
+
+<div *ngIf="url === 'recuperar'" class="contentInicial">
+    <div class="header">
+        <h1>Restablecer contraseña</h1>
+        <p class="recuperarTxt">Gracias Por favor ingrese su nueva contraseña</p>
+    </div>
+
+    <div class="content">
+        <form [formGroup]="formTwo">
+            <label for="correo">Nueva Contraseña</label>
+            <input 
+            type="password"
+            formControlName="password"
+            class="email" 
+            placeholder=""
+            (keyup)="write($event)"
+            >
+            <label for="correo">Confirmar contraseña</label>
+            <input 
+            type="password"
+            formControlName="password2"
+            class="email" 
+            placeholder=""
+            (keyup)="write($event)">
+            <p *ngIf="errorTwo" class="error r">contraseña Invalida</p>
+            <input type="submit" value="Enviar" (click)="OnSubmitTwo()">
+        </form>
+    </div>
+</div>

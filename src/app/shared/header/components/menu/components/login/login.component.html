@@ -1,0 +1,25 @@
+<div class="registro">
+    <form [formGroup]="formLogin">
+        <label name="alias">Nombre Usuario:</label>
+        <input 
+        class="inputs"
+        preventCutCopyPaste
+        autocomplete="off"
+        type="text" placeholder="Nombre Usuario...."
+        id="usuario"
+        name="usuario"
+        formControlName="usuario"
+        />
+
+        <label name="clave">Contraseña:</label>
+        <input 
+        class="inputs"
+        type="password" placeholder="contraseña...."
+        preventCutCopyPaste
+        autocomplete="off"
+        formControlName="clave" />
+        <input type="submit" value="Iniciar" (click)="login()">
+        <p *ngIf="msgError" class="msgError">{{msgError}}</p>
+    </form>
+
+</div>

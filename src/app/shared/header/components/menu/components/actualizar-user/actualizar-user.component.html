@@ -1,0 +1,18 @@
+<div class="registro">
+    <form [formGroup]="formRegister">
+        <label name="alias">Nombre Usuario:</label>
+        <input class="inputs" type="text" placeholder="Alias...." />
+
+        <label name="correo">Correo:</label>
+        <input class="inputs" formControlName="correo" type="text" placeholder="correo...." />
+
+        <label name="telefono">Telefono:</label>
+        <input class="inputs" formControlName="telefono" type="text" placeholder="Telefono...." />
+
+        <label name="direccion">Dirección:</label>
+        <input class="inputs" formControlName="direccion" type="text" placeholder="direccion...." />
+
+        <input type="submit" value="Actualizar" (click)="enviar()">
+        <!-- <p class="errorMessage" *ngIf="messageError">{{messageError}}</p> -->
+    </form>
+</div>

@@ -1,0 +1,105 @@
+<nav [class.menuActive]="menu" class="menu" *ngIf="!usuarioActivo;else usuario">
+
+    <ng-container *ngIf="menu ; else menuActive">
+        <span (click)="cerrarModal()">x</span>
+        <h3>{{tituloMenu}}</h3>
+        <section style="width: 90%;">
+            <hr class="lineaMenu">
+        </section>
+        
+        <ul *ngIf="lista">
+            <li (click)="login()">
+                <a >Inicia Sesión</a>
+            </li>
+            <li (click)="showRegister()">
+                <a >Registrate</a>
+            </li>
+            <li (click)="RecuperarClave()">
+                <a >Recuperar Contraseña</a>
+            </li>
+        </ul>
+
+        <app-registro 
+        *ngIf="showRegistro"
+        (userActive)="loginUser($event)"
+        ></app-registro>
+        <app-login (userActive)="loginUser($event)" *ngIf="showlogin" > </app-login>
+        <app-recuperar-clave *ngIf="showRecuperarClave"></app-recuperar-clave>
+    </ng-container>
+
+    <ng-template #menuActive>
+        <div class="menuFalse" (click)="showMenu()">
+            <p></p>
+            <p></p>
+            <p></p>
+        </div>
+    </ng-template>
+
+</nav>
+
+
+<ng-template #usuario>
+    <nav [class.menuActive]="menu" class="menu" #usuario>
+
+        <ng-container *ngIf="menu ; else menuActive">
+            <span (click)="cerrarModal()">x</span>
+            <h3>{{tituloMenu}}</h3>
+            <section style="width: 90%;">
+                <hr class="lineaMenu">
+            </section>
+            <div *ngIf="perfil" class="perfil">
+                    <img id="imgPerfil" *ngIf="usuarioData.image" class="usuario_img" [src]="usuarioData.image" (click)="zoomImg()"/>
+                    <div class="informacion">
+                        <h3>Información</h3>
+                        <div>
+                            <p>
+                                <span>Nombre:     <br>  {{usuarioData.nombre}}</span>
+                                <span>Correo:     <br>  {{usuarioData.correo}}</span>
+                                <span>Teléfono:   <br>  {{usuarioData.telefono}}</span>
+                                <span>Dirección:  <br>  {{usuarioData.direccion}}</span>
+                            </p>
+                        </div>
+                    </div>
+            </div>
+            
+            <ul *ngIf="lista">
+                <li (click)="actualizarFoto()">
+                    <a >Subir Foto de Perfil</a>
+                </li>
+                <li (click)="actualizarUser()">
+                    <a >Actualizar Perfil</a>
+                </li>
+                <li (click)="RegistrarArticulos()">
+                    <a >Subir En Muro</a>
+                </li>
+                <li *ngIf="rolUser === 'admin'" (click)="crearGiftCard()">
+                    <a >Crear GiftCard</a>
+                </li>
+                <li (click)="salir()">
+                    <a >Cerrar Sessión</a>
+                </li>
+            </ul>
+            <app-registrar-articulos 
+            (success)="cargaArticulo($event)"
+            [idUser]="id" *ngIf="showRegistroArticulos" >
+            </app-registrar-articulos>
+            <app-actualizar-foto
+             [idUser]="id"
+             (imgUser)="imgUserCargada($event)"  
+             *ngIf="showActualizarFoto">
+            </app-actualizar-foto>
+             <app-actualizar-user *ngIf="showActualizarUser">
+             </app-actualizar-user>
+             <app-giftcard *ngIf="showGift"></app-giftcard>
+        </ng-container>
+    
+        <ng-template #menuActive>
+            <div class="menuFalse usuario" [class.userImgNone]="!usuarioData.image" (click)="showMenu()">
+                <img *ngIf="usuarioData.image" class="usuario" [class.imgGrande]="usuarioData.image"
+                [src]="usuarioData.image">
+            </div>
+            <p *ngIf="!usuarioData.image" class="nombreUser">{{usuarioData.nombre}}</p>
+        </ng-template>
+    
+    </nav>
+</ng-template>
