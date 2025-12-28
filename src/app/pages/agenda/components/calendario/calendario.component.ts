@@ -39,6 +39,7 @@ export class CalendarioComponent implements OnInit {
   public formGroup: FormGroup<any>;
   usersFilter: any = [];
   colorFilterDia: any = [];
+  infoYear: string = '';
 
   constructor(
     private agendaService: AgendaService,
@@ -97,6 +98,7 @@ export class CalendarioComponent implements OnInit {
 
   fechas() {
     const year = moment().year();
+    this.infoYear = year.toString()
     const month = moment().month();
     this.mes = moment().format('MMMM');
     this.mesNumber = moment().month();
@@ -113,12 +115,16 @@ export class CalendarioComponent implements OnInit {
   }
 
   dateNext(valor: number) {
+    
     this.formGroup.controls['usuario'].setValue('');
     this.usersFilter = []
     this.colorFilterDia = []
     this.dias = [];
     let month = this.mesNumber;
-    const year = moment().year();
+    let year = moment().year();
+    if(valor === 1 && month === 11){
+      year++
+    }
     month += valor;
     if (month === 12) month = 0;
 
@@ -134,6 +140,7 @@ export class CalendarioComponent implements OnInit {
     }
     this.mesAgenda = month;
 
+    this.infoYear = year.toString(); // solo info
     this.totalMes(this.mesAgenda)
     this.totalUsers(this.mesAgenda) 
   }

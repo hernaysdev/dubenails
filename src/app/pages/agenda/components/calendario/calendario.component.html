@@ -19,6 +19,7 @@
             </div>
             <h4 *ngIf="rolUsuario === 'admin'" class="montoTotal"> Total ${{sumaValorMes | number}}</h4>
         </div>
+        <span class="infoYear">  Año calendario ~ {{infoYear}}</span>
 <div class="calendario">
     <div class="contenidoAgenda" *ngFor="let diaAgenda of dias">
         <div class="dias"
