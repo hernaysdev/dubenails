@@ -75,6 +75,9 @@
                 <li *ngIf="rolUser === 'admin'" (click)="crearGiftCard()">
                     <a >Crear GiftCard</a>
                 </li>
+                <li *ngIf="rolUser === 'admin'" (click)="productos()">
+                    <a >Productos</a>
+                </li>
                 <li (click)="salir()">
                     <a >Cerrar Sessión</a>
                 </li>
@@ -91,6 +94,7 @@
              <app-actualizar-user *ngIf="showActualizarUser">
              </app-actualizar-user>
              <app-giftcard *ngIf="showGift"></app-giftcard>
+             <app-productos *ngIf="showProductos"></app-productos>
         </ng-container>
     
         <ng-template #menuActive>

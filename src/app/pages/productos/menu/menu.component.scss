@@ -1,0 +1,25 @@
+
+    .contentProductos{
+       overflow-y: scroll;
+       margin-top: 30px;
+       margin-bottom: 20px;
+       h2{
+        text-align: center;
+       }
+       nav{
+        display: block;
+        background-color: black;
+        color: white;
+        padding: 5px;
+       ul{
+        display: flex;
+        font-size: 15px;
+        justify-content: space-around;
+        list-style: none;
+        li{
+            text-decoration: none;
+        }
+       }
+    }
+
+    }

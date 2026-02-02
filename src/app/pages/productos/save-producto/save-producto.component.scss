@@ -1,0 +1,21 @@
+.registro{
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+    display: flex;
+    justify-content: center;
+
+
+    form{
+    display: flex;
+    flex-flow: column;
+    width: 80%;
+    height: 55vh;
+    gap: 10px;
+    }
+}
+
+.alertaTiempo{
+        font-size: 10px;
+    color: red;
+}

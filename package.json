@@ -6,12 +6,13 @@
     "start": "ng serve --port 4000",
     "build": " ng build -c production",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "move": "mv ./dist/dube-nails/* ../api-rest-dube/public"
   },
   "private": true,
   "dependencies": {
     "@angular/animations": "^17.3.3",
-    "@angular/cdk": "^17.3.3", 
+    "@angular/cdk": "^17.3.3",
     "@angular/common": "^17.3.3",
     "@angular/compiler": "^17.3.3",
     "@angular/core": "^17.3.3",
@@ -21,6 +22,7 @@
     "@angular/router": "^17.3.3",
     "@angular/service-worker": "^17.3.3",
     "moment": "^2.29.4",
+    "ngx-mask": "^17.0.7",
     "pouchdb-browser": "^7.3.0",
     "rxjs": "~7.5.0",
     "sweetalert2": "^11.5.2",

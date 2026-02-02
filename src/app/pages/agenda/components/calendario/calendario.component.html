@@ -2,7 +2,7 @@
 
         <div class="boxTitulo">
             <form class="buscador" [formGroup]="formGroup">
-                <input  type="text" (keyup)="searchUser($event)" formControlName="usuario">
+                <input class="inputs" type="text" (keyup)="searchUser($event)" formControlName="usuario">
             </form>
             <div class="contentUsers">
                 <p
@@ -19,7 +19,7 @@
             </div>
             <h4 *ngIf="rolUsuario === 'admin'" class="montoTotal"> Total ${{sumaValorMes | number}}</h4>
         </div>
-        <span class="infoYear">  Año calendario ~ {{infoYear}}</span>
+        <span class="infoYear">  calendario ~ {{infoYear}}</span>
 <div class="calendario">
     <div class="contenidoAgenda" *ngFor="let diaAgenda of dias">
         <div class="dias"

@@ -30,7 +30,8 @@ export class AgendaService {
       nuevo: datos.nuevo,
       token: datos.token,
       estado: datos.estado,
-      correo: datos.correo
+      correo: datos.correo,
+      precio: datos.precio
     }
 
     const token = localStorage.getItem('token')

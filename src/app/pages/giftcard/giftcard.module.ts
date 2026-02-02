@@ -5,7 +5,7 @@ import { GiftcardComponent } from './giftcard.component';
 
 @NgModule({
   declarations: [
-    GiftcardComponent
+    GiftcardComponent,
   ],
   imports: [
     CommonModule,

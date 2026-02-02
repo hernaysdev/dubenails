@@ -1,0 +1,18 @@
+<table>
+    <thead>
+        <tr>
+            <th>Productos</th>
+            <th>Precio</th>
+            <th>Tiempo</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let producto of dataSource">
+            <td>{{producto.nombre}}</td>
+            <td>{{producto.precio}}$</td>
+            <td>{{producto.tiempo.toString().length > 1 ? producto.tiempo.toString().split('.')[0] + ':30hr' : producto.tiempo+':00hr'}}</td>
+            <button (click)="deleteProducto(producto._id)">Eliminar</button>
+        </tr>
+    </tbody>
+</table>

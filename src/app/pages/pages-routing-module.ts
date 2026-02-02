@@ -34,6 +34,10 @@ const pagesRoutes: Routes = [
     loadChildren : () => import('./giftcard/giftcard.module').then(m => m.GiftcardModule)
   },
   {
+    path:'productos',
+    loadChildren : () => import('./productos/productos.module').then(m => m.ProductosModule)
+  },
+  {
     path:'recuperar/:email',
     component: RecuperarClaveComponent
   }

@@ -23,7 +23,7 @@
 
                         </span>
                         <span *ngIf="sumaServicios !== 0 && rol === 'admin'" class="valorServicio">
-                            ${{clientes.valor}}.000</span>
+                            ${{clientes.valor | number}}</span>
                     </p>
                     <p><strong>Servicio:</strong> {{clientes.servicio}}</p>
 

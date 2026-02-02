@@ -56,7 +56,9 @@
           <span (click)="hideModalServicios()">x</span>
         </div>
         <ul class="listaHoras ulServicios">
-          <li *ngFor="let servicio of lista" (click)="SeleccionServicio($event.target)">{{servicio.nombre}}</li>
+          <li *ngFor="let servicio of lista" (click)="SeleccionServicio($event.target, servicio)">
+            {{servicio.nombre}} -  {{servicio.tiempo.toString().length > 1 ? servicio.tiempo.toString().split('.')[0] + ':30hr' : servicio.tiempo+':00hr'}}
+          </li>
         </ul>
       </div>
     </div>

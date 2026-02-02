@@ -7,6 +7,7 @@ import { PagoService } from 'src/app/services/pago.service';
 import * as moment from 'moment';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { animate, animation, keyframes, state, style, transition, trigger, ɵBrowserAnimationBuilder } from '@angular/animations';
+import { ProductosService } from 'src/app/services/productos.service';
 
 @Component({
   selector: 'app-modal-register',
@@ -42,8 +43,8 @@ import { animate, animation, keyframes, state, style, transition, trigger, ɵBro
     // animacion por objectos que se insentar o remueven con condicionales ( for , if )
     trigger('MyInsertRemoveTrigger', [
       transition(':enter', [
-        style({opacity: 0}),
-        animate('300ms', style({opacity: 1}))
+        style({ opacity: 0 }),
+        animate('300ms', style({ opacity: 1 }))
       ]),
 
     ])
@@ -68,18 +69,7 @@ export class ModalRegisterComponent implements OnInit {
   captur: ElementRef<HTMLInputElement> = '' as any;
 
   public formGroup: FormGroup<any>;
-  public lista: any[] = [
-    { nombre: 'Manicura (solo limpieza)', numberServicio: 1 },
-    { nombre: 'Manicura luxury', numberServicio: 1.5 },
-    { nombre: 'kapping gel', numberServicio: 1.5 },
-    { nombre: 'Acrilicas', numberServicio: 2.5 },
-    { nombre: 'Polygel', numberServicio: 2 },
-    { nombre: 'Pedicura clasica', numberServicio: 1.5 },
-    { nombre: 'Pedicura + kapping', numberServicio: 2 },
-    { nombre: 'Retoque', numberServicio: 1 },
-    { nombre: 'Retiro esmaltado', numberServicio: 0.5 },
-    { nombre: 'Retiro acrilica o poligel', numberServicio: 0.5 }
-  ];
+  public lista: any[] = [];
   public success: boolean = false;
   public error: string = '';
   public horaDisponible: string = '';
@@ -92,7 +82,8 @@ export class ModalRegisterComponent implements OnInit {
   public idUser: string = '';
   public rol: string = '';
   public token: string = '';
-  public anima : boolean = false;
+  public anima: boolean = false;
+  public servicioSelected: any;
 
 
   constructor(
@@ -101,7 +92,8 @@ export class ModalRegisterComponent implements OnInit {
     private eventsService: EventsService,
     private sharedService: SharedService,
     private pagoService: PagoService,
-    private usuariosService: UsuariosService
+    private usuariosService: UsuariosService,
+    private _productosService: ProductosService
   ) {
     moment.locale('es');
     this.formGroup = this.formBuilder.group({
@@ -116,6 +108,7 @@ export class ModalRegisterComponent implements OnInit {
   ngOnInit(): void {
     this.cambiosForm();
     this.setDataCliente();
+    this.getProductos()
 
     let contador = 0.5;
     this.horas.forEach((h: any) => {
@@ -128,25 +121,22 @@ export class ModalRegisterComponent implements OnInit {
     })
   }
 
-  hideModal() {
-    this.registerModal.emit(false);
+  getProductos() {
+    this._productosService.getProductos().subscribe({
+      next: (productos: any) => {
+        console.log(productos)
+        this.lista = productos
+      },
+      err: (err: any) => {
+        console.log('entrando al error ')
+        console.log(err)
+
+      }
+    })
   }
 
-  formatearServicio(servicio: string) {
-    let numberServicio = 0;
-    switch (servicio) {
-      case 'Manicura (solo limpieza)': numberServicio = 1; break;
-      case 'Manicura luxury': numberServicio = 1.5; break;
-      case 'kapping gel': numberServicio = 1.5; break;
-      case 'Acrilicas': numberServicio = 2.5; break;
-      case 'Polygel': numberServicio = 2; break;
-      case 'Pedicura clasica': numberServicio = 1.5; break;
-      case 'Pedicura + kapping': numberServicio = 2; break;
-      case 'Retoque': numberServicio = 1; break;
-      case 'Retiro acrilica o poligel': numberServicio = 0.5; break;
-      case 'Retiro esmaltado': numberServicio = 0.5; break;
-    }
-    return numberServicio;
+  hideModal() {
+    this.registerModal.emit(false);
   }
 
   handleModal() {
@@ -165,11 +155,12 @@ export class ModalRegisterComponent implements OnInit {
     const dia = Number(this.dia.day);
     const mes = Number(this.dia.month);
     const hora = Number(this.horaSelecciona);
-    const horaServicio = this.lista.filter(e => e.nombre === servicio)[0].numberServicio;
+    const horaServicio = this.servicioSelected.tiempo
     this.traerData(Number(hora), nombre, servicio, dia, horaServicio, telefono, mes, correo)
   }
 
   async traerData(horaNueva: number, nombre: string, servicio: string, dia: number, horaServicio: number, telefono: any, mes: number, correo: any) {
+    const { precio } = this.servicioSelected;
     this.agendaService.getDatosDay(this.dia).subscribe({
       next: (data: any) => {
         if (Array.isArray(data)) {
@@ -190,14 +181,14 @@ export class ModalRegisterComponent implements OnInit {
           }
         }
         if (this.horaDisponible === '') {
-          this.agendarHora(nombre, horaNueva, servicio, dia, horaServicio, telefono, mes, this.idUser, correo);
+          this.agendarHora(nombre, horaNueva, servicio, dia, horaServicio, telefono, mes, this.idUser, correo, precio);
           this.cerrarDetalle.emit(false);
         }
 
       }, error: (error: any) => {
         this.showModal = false;
         if (error === 'No se encontraron registros.') {
-          this.agendarHora(nombre, horaNueva, servicio, dia, horaServicio, telefono, mes, this.idUser, correo)
+          this.agendarHora(nombre, horaNueva, servicio, dia, horaServicio, telefono, mes, this.idUser, correo, precio)
         }
       }
     })
@@ -207,14 +198,11 @@ export class ModalRegisterComponent implements OnInit {
     this.formGroup.controls['nombre'].valueChanges.subscribe(valor => {
       if (valor.length >= 1)
         this.success = false;
-
     })
     this.formGroup.controls['hora'].valueChanges.subscribe(valor => {
       if (valor.length >= 1)
         this.success = false;
-
     })
-
     this.formGroup.controls['servicio'].valueChanges.subscribe(valor => {
       if (valor.length >= 1)
         this.success = false;
@@ -249,23 +237,19 @@ export class ModalRegisterComponent implements OnInit {
     this.modalServicios = false;
   }
 
-  SeleccionServicio(event: any) {
+  SeleccionServicio(event: any, servicio:any) {
+    this.servicioSelected = servicio;
     this.formGroup.controls['servicio'].setValue(event.innerText);
     this.modalServicios = false;
   }
 
-  agendarHora(nombre: string, horaNueva: any, servicio: string, dia: number, horaServicio: any, telefono: any, mes: number, id: string, correo: any) {
-    /* if (!this.lista.includes(servicio)) {
-      this.horaDisponible = 'El servicio es obligatorio';
-      this.success = false;
-      return
-    } */
+  agendarHora(nombre: string, horaNueva: any, servicio: string, dia: number, horaServicio: any, telefono: any, mes: number, id: string, correo: any, precio:any) {
 
     const nuevo = (this.rol === 'admin') ? false : true;
     const token = this.token;
     const estado = true;
     // const estado = (this.rol === 'admin') ? true : false;
-    this.agendaService.recibirDatos({ nombre, horaNueva, servicio, dia, horaServicio, telefono, mes, id, nuevo, token, estado, correo }).subscribe({
+    this.agendaService.recibirDatos({ nombre, horaNueva, servicio, dia, horaServicio, telefono, mes, id, nuevo, token, estado, correo, precio }).subscribe({
       next: (msg: string) => {
         this.formGroup.controls['nombre'].setValue('');
         this.formGroup.controls['hora'].setValue('');
@@ -286,10 +270,8 @@ export class ModalRegisterComponent implements OnInit {
         this.success = false;
         this.eventsService.alertMessage('error', msg)
       }
-
     })
   }
-
 
   setDataCliente() {
     this.sharedService.getRolUser().subscribe(data => {
@@ -328,7 +310,6 @@ export class ModalRegisterComponent implements OnInit {
             open(data.urlRedirect);
           }, 500)
         }
-
       }, error: (error) => {
       }
     })
@@ -339,20 +320,20 @@ export class ModalRegisterComponent implements OnInit {
   }
 
   find(event: any, type: string): any {
-     if(type === 'correo'){
-     const  { correo } = this.formGroup.value;
+    if (type === 'correo') {
+      const { correo } = this.formGroup.value;
       this.findEmail = correo;
       this.typeConsult = 'correo';
-      if(!correo.trim().length){
+      if (!correo.trim().length) {
         this.listEmail = [];
         return false
       };
       this.findUsers(this.findEmail, type);
-    }else{
-      const  { nombre } = this.formGroup.value;
+    } else {
+      const { nombre } = this.formGroup.value;
       this.findUsuario = nombre;
       this.typeConsult = 'nombre';
-      if(!nombre.trim().length) {
+      if (!nombre.trim().length) {
         this.listEmail = [];
         return false
       };
@@ -360,8 +341,7 @@ export class ModalRegisterComponent implements OnInit {
     }
   }
 
-
-  findUsers(search: any, type: string){
+  findUsers(search: any, type: string) {
     this.usuariosService.findUsuarioExpress(search, type).subscribe({
       next: (value: any) => {
         if (value === typeof toString()) {
@@ -390,7 +370,7 @@ export class ModalRegisterComponent implements OnInit {
     this.listEmail = []
   }
 
-  OnWobbleStart(){
+  OnWobbleStart() {
     this.anima = true;
   }
 }

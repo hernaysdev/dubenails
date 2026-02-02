@@ -24,6 +24,7 @@ export class MenuComponent implements OnInit {
   public showActualizarUser: boolean = false;
   public showActualizarFoto: boolean = false;
   public showGift: boolean = false;
+  showProductos: boolean = false;
   public rolUser: string = '';
   public perfil: boolean = false;
   @Output('id') id: any;
@@ -139,6 +140,12 @@ export class MenuComponent implements OnInit {
         this.lista = false;
         this.menu = false;
         break;
+      case 'Productos':
+        this.showProductos = false;
+        this.tituloMenu = 'Menu';
+        this.lista = false;
+        this.menu = false;
+        break;
       case 'Recuperar Contraseña':
         this.showRecuperarClave = false;
         this.tituloMenu = 'Menu';
@@ -225,6 +232,11 @@ export class MenuComponent implements OnInit {
     this.showGift = true;
   }
 
+  productos() {
+    this.cerrarModal();
+    this.router.navigate(['/productos'])
+  }
+
   RecuperarClave() {
     this.showRecuperarClave = true;
     this.lista = false;
@@ -243,6 +255,7 @@ export class MenuComponent implements OnInit {
           this.showRegistroArticulos = false;
           this.showActualizarUser = false;
           this.showGift = false;
+          this.showProductos = false;
           this.showRecuperarClave = false;
     }
 
