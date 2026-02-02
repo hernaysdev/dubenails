@@ -7,7 +7,7 @@
     "build": " ng build -c production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "move": "mv ./dist/dube-nails/* ../api-rest-dube/public"
+    "move": "npm run build && mv ./dist/dube-nails/* ../api-rest-dube/public"
   },
   "private": true,
   "dependencies": {
