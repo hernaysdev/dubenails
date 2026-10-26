@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { RecuperarClaveComponent } from '../shared/header/components/menu/components/recuperar-clave/recuperar-clave.component';
-
+import { loginGuard } from '../guard/login.guard';
 
 
 const pagesRoutes: Routes = [
@@ -15,6 +15,7 @@ const pagesRoutes: Routes = [
   },
   {
     path: 'agenda',
+    canActivate: [loginGuard],
     loadChildren: () => import('./agenda/agenda.module').then(m => m.AgendaModule)
   },
   {
@@ -38,6 +39,10 @@ const pagesRoutes: Routes = [
     loadChildren : () => import('./productos/productos.module').then(m => m.ProductosModule)
   },
   {
+    path:'registrar',
+    loadChildren : () => import('./registrarUser/registrar-user.module').then(m => m.RegistrarUserModule)
+  },
+  {
     path:'recuperar/:email',
     component: RecuperarClaveComponent
   }
@@ -46,4 +51,4 @@ const pagesRoutes: Routes = [
   imports: [RouterModule.forChild(pagesRoutes)],
   exports: [RouterModule]
 })
-export class PagesRouter { }
+export class PagesRoutingModule { }

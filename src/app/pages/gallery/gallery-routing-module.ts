@@ -5,7 +5,7 @@ import { MenuComponent } from "./components/menu/menu.component";
 
 const galleryRoutes: Routes = [
     {
-        path:'home',
+        path:'',
         component:GalleryComponent
     }
 ];

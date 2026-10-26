@@ -7,7 +7,8 @@
     "build": " ng build -c production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "move": "npm run build && mv ./dist/dube-nails/* ../api-rest-dube/public"
+    "move": "npm run build && rm -r ../api-rest-dube/public/* && mv ./dist/dube-nails/* ../api-rest-dube/public",
+    "test:ci": "ng test --watch=false --browsers=ChromeHeadless --include=src/app/services/agenda.service.spec.ts --include=src/app/pages/agenda/components/calendario/calendario.component.spec.ts --include=src/app/pages/agenda/components/modal-register/modal-register.component.spec.ts"
   },
   "private": true,
   "dependencies": {
@@ -21,6 +22,9 @@
     "@angular/platform-browser-dynamic": "^17.3.3",
     "@angular/router": "^17.3.3",
     "@angular/service-worker": "^17.3.3",
+    "@capacitor/camera": "^8.0.0",
+    "@capacitor/cli": "^8.0.2",
+    "@capacitor/core": "^8.0.2",
     "moment": "^2.29.4",
     "ngx-mask": "^17.0.7",
     "pouchdb-browser": "^7.3.0",

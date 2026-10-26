@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  urlLocal: `https://134.209.64.30:1000/`,
-  // urlLocal : 'http://localhost:1000/'
+  // urlLocal: `https://134.209.64.30:1000/`,
+  urlLocal : 'http://localhost:1000/'
 };
 
 /*

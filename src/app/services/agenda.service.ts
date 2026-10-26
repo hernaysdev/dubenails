@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map, Observable, pipe, throwError } from 'rxjs';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 import { EventsService } from './events.service';
+import { SharedService } from './shared.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,8 @@ export class AgendaService {
 
   constructor(
     private http: HttpClient,
-    public eventsService: EventsService
+    public eventsService: EventsService,
+    private sharedService: SharedService
   ) { }
 
   recibirDatos(datos: any): any {
@@ -31,7 +33,8 @@ export class AgendaService {
       token: datos.token,
       estado: datos.estado,
       correo: datos.correo,
-      precio: datos.precio
+      precio: datos.precio,
+      year: datos.year
     }
 
     const token = localStorage.getItem('token')
@@ -72,7 +75,7 @@ export class AgendaService {
 
   getDatosDay(dataDay: any): any {
     const token = localStorage.getItem('token')
-    return this.http.get<any>(`${this.url}/${dataDay.day}/${dataDay.month}`,{headers:{
+    return this.http.get<any>(`${this.url}/getday/${dataDay.day}/${dataDay.month}/${dataDay.year}`,{headers:{
       authorization: token ? token : ''
     }})
       .pipe(
@@ -93,7 +96,7 @@ export class AgendaService {
 
   habilitarDia(dataDay: any): any {
     const token = localStorage.getItem('token')
-    return this.http.get<any>(`${this.url}/${dataDay.day}/${dataDay.month}/${dataDay.habilitar}`, {headers:{
+    return this.http.get<any>(`${this.url}/${dataDay.day}/${dataDay.month}/${dataDay.habilitar}?year=${dataDay.year}`, {headers:{
       authorization: token ? token : ''
     }})
       .pipe(
@@ -125,17 +128,22 @@ export class AgendaService {
       )
   }
 
-  getTotalValorMes(mes: number) {
+  getTotalValorMes(mes: number,year: number) {
     const token = localStorage.getItem('token')
-    return this.http.get<any>(`${this.url}/${mes}`,{headers:{
+    const body = {
+    mes, year
+  }
+    return this.http.post<any>(`${this.url}/valormes`,body ,{headers:{
       authorization: token ? token : ''
-    }}).pipe(
+    },}).pipe(
       map((data) => {
         let sumaValor = 0;
         data.filter((element: any) => element.valor !== null)
           .map((dataValor: any) => {
             sumaValor = sumaValor + dataValor.valor;
           })
+
+          console.log('responde')
         return sumaValor
 
       })
@@ -146,10 +154,11 @@ export class AgendaService {
 
   }
 
-  getUsersMes(mes: number) {
+  getUsersMes(mes: number, year: number) {
+    this.sharedService.setDataAgenda([]);
     const token = localStorage.getItem('token')
-    console.log('urll', `${this.url}/users/${mes}`)
-    return this.http.post<any>(`${this.url}/users/${mes}`,{},{headers:{
+    console.log('urll', `${this.url}/users/${mes}/${year}`)
+    return this.http.post<any>(`${this.url}/users/${mes}/${year}`,{},{headers:{
       authorization: token ? token : ''
     }
   }
@@ -209,6 +218,7 @@ export class AgendaService {
       token: datos.token,
       estado: datos.estado,
       correo: datos.correo,
+      year: datos.year,
       diaHabilitado
     }
 

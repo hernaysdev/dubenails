@@ -1,0 +1,22 @@
+.contentRegistro {
+    margin-top: 40px;
+
+    h2 {
+        margin-bottom: 20px;
+    }
+
+    .spanContent {
+        display: block;
+        width: 100%;
+        display: flex;
+        flex-flow: row wrap;
+        width: 100%;
+        justify-content: center;
+        margin-top: 20px;
+
+        button{
+            width: 80%;
+        }
+
+    }
+}

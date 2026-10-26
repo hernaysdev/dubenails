@@ -1,8 +1,9 @@
-import { Component, EventEmitter, Inject, model, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Inject, model, OnInit, Output } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { EventsService } from 'src/app/services/events.service';
 import { SharedService } from 'src/app/services/shared.service';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-registro',
   templateUrl: './registro.component.html',
@@ -14,6 +15,7 @@ export class RegistroComponent implements OnInit {
   public messageExito: string = '';
   @Output() registroExitoso = new EventEmitter();
   @Output('userActive') userActive: EventEmitter<any> = new EventEmitter();
+  router = inject(Router)
   constructor(
     private formBuilder: FormBuilder,
     private usuariosService: UsuariosService,
@@ -47,6 +49,7 @@ export class RegistroComponent implements OnInit {
       this.messageError = 'las contraseñas no coinciden';
       return
     }
+
     const body = {
       nombre: nombre.toLowerCase(),
       correo: correo.toLowerCase(),
@@ -90,6 +93,7 @@ export class RegistroComponent implements OnInit {
         this.sharedService.setRolUser(data);
         this.eventsService.showRegistro.emit(data);
         this.userActive.emit(true)
+        this.router.navigate(['/agenda'])
         this.eventsService.cerrarModalLogin.emit(false);
       }
     })

@@ -1,8 +1,9 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { FormGroup , FormBuilder ,  Validators } from '@angular/forms';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { EventsService } from 'src/app/services/events.service';
 import { SharedService } from 'src/app/services/shared.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -13,6 +14,7 @@ export class LoginComponent implements OnInit {
  @Output('userActive')  userActive : EventEmitter<any> = new EventEmitter();
   public formLogin : FormGroup ;
   public msgError : string = '';
+  router = inject(Router)
   constructor(
     private formBuilder : FormBuilder,
     private usuariosService : UsuariosService,
@@ -39,7 +41,8 @@ export class LoginComponent implements OnInit {
                  localStorage.setItem('token' , data?.token );
                  this.sharedService.setRolUser(data);
                  this.eventsService.cerrarModalLogin.emit(false);
-                 this.userActive.emit(true)
+                 this,this.eventsService.showRegistro.emit(true)
+                 this.router.navigate(['/agenda'])
     },
     error: (error) => {
        this.msgError = error.msg;

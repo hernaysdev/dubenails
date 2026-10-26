@@ -5,6 +5,7 @@ import { SharedService } from 'src/app/services/shared.service';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { EventsService } from 'src/app/services/events.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-calendario',
@@ -17,9 +18,9 @@ export class CalendarioComponent implements OnInit {
   public dias: any[] = [];
   public day: any;
   public mes: any;
-  public mesNumber: any;
+  public mesActual: any;
   public mesAgenda: any;
-  public year: any;
+  public year!: number;
   public modalRegisters: boolean = false;
   public dataAgenda: any[] = [];
   public selectDia: any;
@@ -40,6 +41,7 @@ export class CalendarioComponent implements OnInit {
   usersFilter: any = [];
   colorFilterDia: any = [];
   infoYear: string = '';
+  yearActual!: number;
 
   constructor(
     private agendaService: AgendaService,
@@ -54,34 +56,34 @@ export class CalendarioComponent implements OnInit {
     })
 
     this.formGroup = this.formBuilder.group({
-          usuario: [''],
-        })
+      usuario: [''],
+    })
   }
 
-  ngOnInit(): void {
-    this.eventsService.setValorMontoTotal.subscribe(valor => {
-      if(valor){
-       this.totalMes(this.mesCalculo);
-       this.totalUsers(this.mesCalculo)
-      }
-    })
+  ngOnInit() {
     moment.locale('es');
     this.fechas();
     this.verificarUsuario();
-    if(this.rolUsuario === ''){
 
-    }
-    this.sharedService.getDeleteAgenda().subscribe( res => {
+    this.eventsService.setValorMontoTotal.subscribe(async (valor) => {
+      if (valor) {
+        this.totalUsers(this.mesCalculo)
+        await this.totalMes(this.mesCalculo, this.year, this.rolUsuario);
+      }
+    })
+    this.sharedService.getDeleteAgenda().subscribe(res => {
       this.showModalDetalle = res;
     })
   }
 
+
+  // el rol llega async (menu consulta /auth/authorization): vale null hasta que responde,
+  // por eso se escucha en vez de leerlo una sola vez
   verificarUsuario() {
     this.sharedService.getRolUser().subscribe((rol) => {
-      if (rol) {
-        this.rolUsuario = (rol.rol) ? rol.rol : '';
-        this.totalMes(this.mesAgenda);
-      }
+      if (rol === null || rol === undefined) return;
+      this.rolUsuario = rol?.rol ?? '';
+      this.totalMes(this.mesAgenda, this.year, this.rolUsuario);
     })
   }
 
@@ -97,52 +99,65 @@ export class CalendarioComponent implements OnInit {
   }
 
   fechas() {
-    const year = moment().year();
-    this.infoYear = year.toString()
+    this.year = moment().year();
+    this.yearActual = this.year;
+    this.infoYear = this.year.toString()
     const month = moment().month();
     this.mes = moment().format('MMMM');
-    this.mesNumber = moment().month();
-    this.mesAgenda = this.mesNumber;
+    this.mesActual = moment().month();
+    this.mesAgenda = this.mesActual;
     this.day = new Date().getDate();
-    const dias = moment([year, month]).daysInMonth();
+    const dias = moment([this.year, month]).daysInMonth();
 
     for (let i = 1; i <= dias; i++) {
       this.dias.push({
         dia: i,
-        diaName: moment([year, month, i]).format('dddd')
+        diaName: moment([this.year, month, i]).format('dddd')
       });
     }
   }
 
   dateNext(valor: number) {
-    
+    // reinicia los valores de todo
     this.formGroup.controls['usuario'].setValue('');
     this.usersFilter = []
     this.colorFilterDia = []
     this.dias = [];
-    let month = this.mesNumber;
-    let year = moment().year();
-    if(valor === 1 && month === 11){
-      year++
-    }
-    month += valor;
-    if (month === 12) month = 0;
+    console.log('this.mesActual: ', this.mesActual)
+    let month = this.mesAgenda;
 
-    let monthNext = moment([year, month]).format('MMMM');
+    if (valor === 1 && month === 11) this.year++ // cambia al siguiente year
+    console.log('mes arriba:', month)
+
+    // sube mes a mes
+    if (valor === 1) month += valor;
+    else month--; // regresa el mes
+
+    if (valor === 0 && month === -1) {
+      month = 11 // controla cuando cambia de year y regresa y colocar enero en -1
+      this.year--
+    }
+
+    if (month === 12) month = 0; // cuando el mes es 12 transforma a 0 para iniciar en enero
+
+    console.log('month', month)
+    let monthNext = moment([this.year, month]).format('MMMM');
     this.mes = monthNext;
-    const monthDay = moment([year, month]).daysInMonth();
+    const monthDay = moment([this.year, month]).daysInMonth();
 
     for (let i = 1; i <= monthDay; i++) {
       this.dias.push({
         dia: i,
-        diaName: moment([year, month, i]).format('dddd')
+        diaName: moment([this.year, month, i]).format('dddd')
       });
     }
-    this.mesAgenda = month;
 
-    this.infoYear = year.toString(); // solo info
-    this.totalMes(this.mesAgenda)
-    this.totalUsers(this.mesAgenda) 
+    console.log('this.mes: ', this.mes)
+    this.mesAgenda = month;
+    console.log('this.mesAgenda: ', this.mesAgenda)
+    this.infoYear = this.year.toString(); // solo info
+    this.totalMes(this.mesAgenda, this.year, this.rolUsuario)
+    this.totalUsers(this.mesAgenda)
   }
 
   detalleComponents(event: any) {
@@ -150,38 +165,44 @@ export class CalendarioComponent implements OnInit {
     this.showModalDetalle = false;
   }
 
-  modalAgenda(day: any, month: string, diaName: string, eventday:any,mesNumber:any, mesAgenda:any):any {
+  modalAgenda(day: any, month: string, diaName: string, eventday: any, mesActual: any, mesAgenda: any): any {
 
-        if( day < eventday && mesNumber === mesAgenda && this.rolUsuario !== 'admin'
-          || day < eventday +1 && this.rolUsuario !== 'admin' && mesNumber === mesAgenda
-          || diaName === 'domingo' && this.rolUsuario !== 'admin'){
-            this.desabilitarDia = true;
-            return false;
-        }
-    this.dia = { day, month, diaName };
+    const esMesEnCurso = mesActual === mesAgenda && this.yearActual === this.year;
+    if (day < eventday && esMesEnCurso && this.rolUsuario !== 'admin'
+      || day < eventday + 1 && this.rolUsuario !== 'admin' && esMesEnCurso
+      || diaName === 'domingo' && this.rolUsuario !== 'admin') {
+      this.desabilitarDia = true;
+      return false;
+    }
+    this.dia = { day, month, diaName, year: this.year };
     this.showModalDetalle = true;
   }
 
-  totalMes(mes: number) {
-    this.mesCalculo = mes;
-    if (this.rolUsuario === 'admin') {
-      this.agendaService.getTotalValorMes(mes).subscribe({
-        next: (valor: number) => {
-          this.sumaValorMes = valor;
-          this.totalUsers(mes)
-        },
-        error: (error: any) => { }
-      })
+  async totalMes(mes: number, year: number, rol: string) {
+    try {
+      this.mesCalculo = mes;
+      if (rol === 'admin') {
+        const valor = await firstValueFrom(this.agendaService.getTotalValorMes(mes, year))
+        this.sumaValorMes = valor;
+        this.totalUsers(mes);
+        return false;
+      }
+    } catch (err) {
+      throw err;
     }
+    return false;
   }
 
-  public usuarios : any;
+  public usuarios: any;
   totalUsers(mes: number) {
+    console.log('entra de nuevo a esta funcion')
+    const year = this.year;
     this.mesCalculo = mes;
     if (this.rolUsuario === 'admin') {
-      this.agendaService.getUsersMes(mes).subscribe({
+      this.agendaService.getUsersMes(mes, year).subscribe({
         next: (data) => {
-            this.usuarios = data
+          console.log('Usuarios data:', data)
+          this.usuarios = data
         },
         error: (error: any) => { }
       })
@@ -189,34 +210,35 @@ export class CalendarioComponent implements OnInit {
   }
 
 
-  registroExitoso(event:any){
+  registroExitoso(event: any) {
     this.rolUsuario = event;
   }
 
-  navigateInicio(){
+  navigateInicio() {
     this.router.navigateByUrl('home')
   }
 
-  searchUser(event:  any): any{
+  searchUser(event: any): any {
     const { usuario } = this.formGroup.value;
     console.log('.....', usuario)
-   if(!usuario.trim().length){
-        this.usersFilter = [];
-        this.usersFilter = []
-        this.colorFilterDia = []
-        return false;
-      }
+    if (!usuario.trim().length) {
+      this.usersFilter = [];
+      this.usersFilter = []
+      this.colorFilterDia = []
+      return false;
+    }
 
     this.filter(usuario)
   }
 
-  filter(usuario:string){
+  filter(usuario: string) {
     let user = []
     let dias = [''];
-    this.usuarios.forEach( (users:any) => {
-      if(users.nombre.indexOf(usuario) === 0){
+    console.log('usuarios', this.usuarios)
+    this.usuarios.forEach((users: any) => {
+      if (users.nombre.indexOf(usuario) === 0) {
         user.push(users)
-        if(!dias.includes(users.dia)){
+        if (!dias.includes(users.dia)) {
           dias.push(users.dia)
         }
         this.usersFilter = user;
@@ -225,7 +247,7 @@ export class CalendarioComponent implements OnInit {
     })
   }
 
-  selectUser(dia:any,usuario:any){
+  selectUser(dia: any, usuario: any) {
     this.formGroup.controls['usuario'].setValue(usuario)
     this.usersFilter = []
     this.colorFilterDia = [dia]

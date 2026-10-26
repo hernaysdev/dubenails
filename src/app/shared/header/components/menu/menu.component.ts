@@ -182,6 +182,7 @@ export class MenuComponent implements OnInit {
 
 
   loginUser(event: any) {
+    console.log('esto emite:', event)
     this.getusuario();
     setTimeout(() => {
       this.usuarioActivo = event;

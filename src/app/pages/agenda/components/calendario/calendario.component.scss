@@ -55,20 +55,21 @@
     width: 100%;
     flex-flow: row wrap;
     margin-top: 20px;
-    justify-content: center;
+    justify-content: space-around;
 
     .contentTitulo{
         display: flex;
         width: 40%;
-        justify-content: end;
+        justify-content: space-evenly;
         align-items: center;
     }
 
     .montoTotal{
-        width: 30%;
+        width: 10%;
         display: flex;
         color: #00b700;
         justify-content: end;
+        align-items: end;
     }
 }
 

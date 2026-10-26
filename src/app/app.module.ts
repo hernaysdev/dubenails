@@ -7,7 +7,6 @@ import { AppComponent } from './app.component';
 
 import { environment } from '../environments/environment';
 
-import { PagesModule } from './pages/pages.module';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { SharedModule } from './shared/shared.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -20,7 +19,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     BrowserModule,
     AppRoutingModule,
     SharedModule,
-    PagesModule,
     HttpClientModule,
     BrowserAnimationsModule,
     ServiceWorkerModule.register('ngsw-worker.js', {

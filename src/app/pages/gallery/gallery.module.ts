@@ -4,6 +4,7 @@ import { GalleryRoutes } from './gallery-routing-module';
 import { GalleryComponent } from './gallery.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MenuComponent } from './components/menu/menu.component';
+import { RouterModule } from '@angular/router';
 
 
 @NgModule({
@@ -14,7 +15,8 @@ import { MenuComponent } from './components/menu/menu.component';
     CommonModule,
     GalleryRoutes,
     ScrollingModule,
-    MenuComponent
+    MenuComponent,
+    RouterModule
   ]
 })
 export class GalleryModule { }

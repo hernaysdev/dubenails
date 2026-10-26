@@ -10,6 +10,7 @@ export class AgendaComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+    console.log('cargando agenda')
   }
 
 }

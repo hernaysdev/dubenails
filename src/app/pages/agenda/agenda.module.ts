@@ -7,7 +7,7 @@ import { ModalRegisterComponent } from './components/modal-register/modal-regist
 import { CancelarHoraComponent } from './components/cancelar-hora/cancelar-hora.component';
 import { DetallesComponent } from './components/detalles/detalles.component';
 import { PipesPipe } from 'src/app/pipes.pipe';
-import { AgendaRoutes } from './agenda-routing';
+import { AgendaRoutingModule } from './agenda-routing';
 import { AgendaComponent } from './agenda.component';
 import { RegistrarUsuarioComponent } from './components/calendario/modalRegistrarUsuario/registrar-usuario/registrar-usuario.component';
 import { SharedModule } from 'src/app/shared/shared.module';
@@ -27,7 +27,7 @@ import { RegistroComponent } from 'src/app/shared/header/components/menu/compone
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    AgendaRoutes,
+    AgendaRoutingModule,
     SharedModule
   ],
   exports :[

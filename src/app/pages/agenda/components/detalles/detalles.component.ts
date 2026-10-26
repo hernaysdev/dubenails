@@ -111,6 +111,7 @@ export class DetallesComponent implements OnInit {
       next: (data: any) => {
         if(Array.isArray(data) && data.length !== 0){
           this.sharedService.setDataAgenda(data);
+          console.log('setdata', data)
           this.clienteDetalle = data;
           data.forEach((element: any) => {
             if (element.nuevo && this.rol === 'admin' && this.nombre !== 'hernays') {
@@ -132,6 +133,7 @@ export class DetallesComponent implements OnInit {
 
     this.eventsService.successDatos.subscribe(valor => {
       if (valor) {
+        console.log('00000000',this.dia)
         this.agendaService.getDatosDay(this.dia).subscribe({
           next: (data: any) => {
             if(Array.isArray(data) && data.length !== 0){
@@ -168,6 +170,7 @@ export class DetallesComponent implements OnInit {
           horaServicio: 2, 
           telefono:'121212', 
           mes: this.dia.month, 
+          year: this.dia.year,
           id: this.idUserLogin, 
           nuevo: false , 
           token: '' , 
@@ -184,6 +187,7 @@ export class DetallesComponent implements OnInit {
     const dataDay = {
       day: this.dia.day.toString(),
       month: this.dia.month,
+      year: this.dia.year,
       habilitar: !this.habilitar
     }
     this.agendaService.habilitarDia(dataDay).subscribe({

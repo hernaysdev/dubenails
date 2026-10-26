@@ -43,6 +43,7 @@ public botonCancelar : boolean = false;
         dia : this.dia.day , 
         nombre : this.nombre, 
         mes: this.mes,
+        year: this.dia.year,
         servicio: this.servicio,
         hora: this.hora
       }

@@ -4,12 +4,12 @@ import { AgendaComponent } from './agenda.component';
 
 const agendaRoutes: Routes = [
     {
-       path: 'agenda', component : AgendaComponent
+       path: '', component : AgendaComponent
     }
 ];
 
 @NgModule({
-    imports: [RouterModule.forRoot(agendaRoutes)],
+    imports: [RouterModule.forChild(agendaRoutes)],
     exports: [RouterModule]
 })
-export class AgendaRoutes { }
+export class AgendaRoutingModule { }

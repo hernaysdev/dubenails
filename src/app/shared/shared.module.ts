@@ -5,7 +5,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FooterComponent } from './footer/footer.component';
 import { HeaderComponent } from './header/header.component';
 import { ContentComponent } from './content/content.component';
-import { AppRoutingModule } from '../app-routing.module';
 import { MenuComponent } from './header/components/menu/menu.component';
 import { TituloComponent } from './header/components/titulo/titulo.component';
 import { RegistroComponent } from './header/components/menu/components/registro/registro.component';
@@ -16,6 +15,7 @@ import { SpinnerModule } from './spinner/spinner.module';
 import { RegistrarArticulosComponent } from './header/components/menu/components/registrar-articulos/registrar-articulos.component';
 import { GiftcardComponent } from './header/components/menu/components/giftcard/giftcard.component';
 import { RecuperarClaveComponent } from "./header/components/menu/components/recuperar-clave/recuperar-clave.component";
+import { RouterModule } from '@angular/router';
 
 
 
@@ -36,17 +36,18 @@ import { RecuperarClaveComponent } from "./header/components/menu/components/rec
   ],
   imports: [
     CommonModule,
-    AppRoutingModule,
     ReactiveFormsModule,
     SpinnerModule,
     FormsModule,
-    RecuperarClaveComponent
+    RecuperarClaveComponent,
+    RouterModule
 ],
   exports:[
     FooterComponent,
     HeaderComponent,
     ContentComponent,
-    RegistroComponent
+    RegistroComponent,
+    LoginComponent
   ],
   schemas:[
     CUSTOM_ELEMENTS_SCHEMA

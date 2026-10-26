@@ -140,7 +140,7 @@ export class ModalRegisterComponent implements OnInit {
   }
 
   handleModal() {
-    const year = moment().year();
+    const year = this.dia.year ?? moment().year();
     this.mes = moment([year, this.dia.month]).format('MMMM');
     this.showModal = true;
     const { servicio } = this.formGroup.value;
@@ -161,6 +161,8 @@ export class ModalRegisterComponent implements OnInit {
 
   async traerData(horaNueva: number, nombre: string, servicio: string, dia: number, horaServicio: number, telefono: any, mes: number, correo: any) {
     const { precio } = this.servicioSelected;
+    // year del mes visto en el calendario (no el actual): permite agendar enero desde diciembre
+    const year = this.dia.year ?? moment().year()
     this.agendaService.getDatosDay(this.dia).subscribe({
       next: (data: any) => {
         if (Array.isArray(data)) {
@@ -181,14 +183,14 @@ export class ModalRegisterComponent implements OnInit {
           }
         }
         if (this.horaDisponible === '') {
-          this.agendarHora(nombre, horaNueva, servicio, dia, horaServicio, telefono, mes, this.idUser, correo, precio);
+          this.agendarHora(nombre, horaNueva, servicio, dia, horaServicio, telefono, mes, this.idUser, correo, precio, year);
           this.cerrarDetalle.emit(false);
         }
 
       }, error: (error: any) => {
         this.showModal = false;
         if (error === 'No se encontraron registros.') {
-          this.agendarHora(nombre, horaNueva, servicio, dia, horaServicio, telefono, mes, this.idUser, correo, precio)
+          this.agendarHora(nombre, horaNueva, servicio, dia, horaServicio, telefono, mes, this.idUser, correo, precio, year)
         }
       }
     })
@@ -243,13 +245,13 @@ export class ModalRegisterComponent implements OnInit {
     this.modalServicios = false;
   }
 
-  agendarHora(nombre: string, horaNueva: any, servicio: string, dia: number, horaServicio: any, telefono: any, mes: number, id: string, correo: any, precio:any) {
+  agendarHora(nombre: string, horaNueva: any, servicio: string, dia: number, horaServicio: any, telefono: any, mes: number, id: string, correo: any, precio:any, year:number) {
 
     const nuevo = (this.rol === 'admin') ? false : true;
     const token = this.token;
     const estado = true;
     // const estado = (this.rol === 'admin') ? true : false;
-    this.agendaService.recibirDatos({ nombre, horaNueva, servicio, dia, horaServicio, telefono, mes, id, nuevo, token, estado, correo, precio }).subscribe({
+    this.agendaService.recibirDatos({ nombre, horaNueva, servicio, dia, horaServicio, telefono, mes, id, nuevo, token, estado, correo, precio, year }).subscribe({
       next: (msg: string) => {
         this.formGroup.controls['nombre'].setValue('');
         this.formGroup.controls['hora'].setValue('');

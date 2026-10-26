@@ -1,0 +1,6 @@
+{
+  "appId": "com.tuapp.id",
+  "appName": "TuApp",
+  "webDir": "dist/dube-nails",
+  "bundledWebRuntime": false
+}
