@@ -39,6 +39,11 @@ const pagesRoutes: Routes = [
     loadChildren : () => import('./productos/productos.module').then(m => m.ProductosModule)
   },
   {
+    // reserva guiada: publica, la sesion se pide al confirmar
+    path:'reservar',
+    loadChildren : () => import('./reservar/reservar.module').then(m => m.ReservarModule)
+  },
+  {
     path:'registrar',
     loadChildren : () => import('./registrarUser/registrar-user.module').then(m => m.RegistrarUserModule)
   },

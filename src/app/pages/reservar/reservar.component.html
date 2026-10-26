@@ -1,0 +1,93 @@
+<section class="reservar">
+  <header class="cabecera">
+    <button *ngIf="paso !== 'servicio' && paso !== 'listo'" class="volver" type="button" (click)="volver()" aria-label="Volver">‹</button>
+    <div>
+      <p class="eyebrow" *ngIf="paso !== 'listo'">Paso {{ numeroPaso }} de 4</p>
+      <h1>
+        <ng-container [ngSwitch]="paso">
+          <span *ngSwitchCase="'servicio'">¿Qué te hacemos?</span>
+          <span *ngSwitchCase="'dia'">¿Qué día?</span>
+          <span *ngSwitchCase="'hora'">¿A qué hora?</span>
+          <span *ngSwitchCase="'datos'">Confirma tu hora</span>
+          <span *ngSwitchCase="'listo'">¡Hora reservada!</span>
+        </ng-container>
+      </h1>
+    </div>
+  </header>
+  <div class="progreso" *ngIf="paso !== 'listo'" aria-hidden="true">
+    <span *ngFor="let p of pasos; let i = index" [class.on]="i < numeroPaso"></span>
+  </div>
+
+  <p class="error" *ngIf="error" role="alert">{{ error }}</p>
+  <p class="cargando" *ngIf="cargando">Cargando…</p>
+
+  <!-- 1. Servicio -->
+  <div *ngIf="paso === 'servicio'" class="lista">
+    <button *ngFor="let s of servicios" type="button" class="opcion" [class.sel]="servicio?.id === s.id" (click)="elegirServicio(s)">
+      <span class="nombre">{{ s.nombre }}</span>
+      <span class="precio">${{ s.precio }}</span>
+      <span class="meta">{{ duracion(s.duracion) }}</span>
+    </button>
+  </div>
+
+  <!-- 2. Dia -->
+  <div *ngIf="paso === 'dia' && servicio">
+    <p class="meta">{{ servicio.nombre }} · {{ duracion(servicio.duracion) }}</p>
+    <div class="mes">
+      <button type="button" class="volver" (click)="cambiarMes(-1)" [disabled]="!puedeRetroceder" aria-label="Mes anterior">‹</button>
+      <strong>{{ nombreMes }}</strong>
+      <button type="button" class="volver" (click)="cambiarMes(1)" [disabled]="!puedeAvanzar" aria-label="Mes siguiente">›</button>
+    </div>
+    <div class="cal">
+      <span class="dow" *ngFor="let d of ['D','L','M','M','J','V','S']">{{ d }}</span>
+      <span *ngFor="let b of blancos"></span>
+      <button *ngFor="let d of dias" type="button" class="dia" [class.libre]="d.libres > 3" [class.pocos]="d.libres > 0 && d.libres <= 3"
+        [disabled]="!d.libres" (click)="elegirDia(d)" [attr.aria-label]="d.dia + (d.libres ? ', ' + d.libres + ' horas libres' : ', sin horas')">{{ d.dia }}</button>
+    </div>
+    <p class="leyenda"><i class="v"></i>Hay horas <i class="a"></i>Quedan pocas · Domingo cerrado</p>
+  </div>
+
+  <!-- 3. Hora -->
+  <div *ngIf="paso === 'hora' && servicio">
+    <p class="meta">{{ fechaElegida }} · solo horas donde caben {{ duracion(servicio.duracion) }}</p>
+    <div class="horas">
+      <button *ngFor="let h of horas" type="button" class="hora" [class.sel]="horaElegida === h" (click)="elegirHora(h)">{{ hora(h) }}</button>
+    </div>
+    <p class="meta" *ngIf="!cargando && !horas.length">Ese día ya no tiene horas para este servicio. Elige otro día.</p>
+  </div>
+
+  <!-- 4. Datos -->
+  <div *ngIf="paso === 'datos' && servicio && horaElegida !== null" class="lista">
+    <dl class="resumen">
+      <dt>Servicio</dt><dd>{{ servicio.nombre }}</dd>
+      <dt>Día</dt><dd>{{ fechaElegida }}</dd>
+      <dt>Hora</dt><dd>{{ hora(horaElegida) }} a {{ hora(horaElegida + servicio.duracion) }}</dd>
+      <dt>Precio</dt><dd>${{ servicio.precio }}</dd>
+    </dl>
+
+    <ng-container *ngIf="!usuario">
+      <p class="meta">Inicia sesión para confirmar. Tu selección queda guardada.</p>
+      <app-login *ngIf="!mostrarRegistro" [destino]="null" (userActive)="cargarUsuario()"></app-login>
+      <app-registro *ngIf="mostrarRegistro" [destino]="null" (userActive)="cargarUsuario()"></app-registro>
+      <button type="button" class="enlace" (click)="mostrarRegistro = !mostrarRegistro">
+        {{ mostrarRegistro ? 'Ya tengo cuenta' : '¿No tienes cuenta? Crear una' }}</button>
+    </ng-container>
+
+    <form *ngIf="usuario" [formGroup]="form" (ngSubmit)="confirmar()" class="lista">
+      <label for="r-nombre">Nombre</label>
+      <input id="r-nombre" formControlName="nombre" autocomplete="name">
+      <label for="r-telefono">Teléfono</label>
+      <input id="r-telefono" formControlName="telefono" inputmode="tel" autocomplete="tel">
+      <small class="meta" *ngIf="form.get('telefono')?.touched && form.get('telefono')?.invalid">Escribe un teléfono válido para avisarte si algo cambia.</small>
+      <button type="submit" class="principal" [disabled]="enviando">{{ enviando ? 'Reservando…' : 'Confirmar reserva' }}</button>
+    </form>
+  </div>
+
+  <!-- 5. Listo -->
+  <div *ngIf="paso === 'listo' && servicio && horaElegida !== null" class="lista">
+    <p>Te esperamos el <strong>{{ fechaElegida }}</strong> a las <strong>{{ hora(horaElegida) }}</strong> para {{ servicio.nombre.toLowerCase() }}.</p>
+    <p class="meta" *ngIf="usuario?.correo">Te enviamos la confirmación a {{ usuario?.correo }} y te recordaremos el día anterior.</p>
+    <a class="principal" routerLink="/agenda">Ver la agenda</a>
+    <button type="button" class="enlace" (click)="reservarOtra()">Reservar otra hora</button>
+  </div>
+</section>

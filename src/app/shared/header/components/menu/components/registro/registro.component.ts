@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Inject, model, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Inject, Input, model, OnInit, Output } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { EventsService } from 'src/app/services/events.service';
@@ -10,6 +10,8 @@ import { Router } from '@angular/router';
   styleUrls: ['./registro.component.scss']
 })
 export class RegistroComponent implements OnInit {
+  // a donde ir despues de registrarse; null = quedarse (lo usa el flujo de reserva)
+  @Input() destino: string | null = '/agenda';
   public formRegister: FormGroup;
   public messageError: any;
   public messageExito: string = '';
@@ -93,7 +95,7 @@ export class RegistroComponent implements OnInit {
         this.sharedService.setRolUser(data);
         this.eventsService.showRegistro.emit(data);
         this.userActive.emit(true)
-        this.router.navigate(['/agenda'])
+        if (this.destino) this.router.navigate([this.destino])
         this.eventsService.cerrarModalLogin.emit(false);
       }
     })
