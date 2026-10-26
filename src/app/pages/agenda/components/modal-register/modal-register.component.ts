@@ -268,9 +268,8 @@ export class ModalRegisterComponent implements OnInit {
       },
       error: (msg: string) => {
         this.showModal = false;
-        this.error = msg;
+        this.error = msg || 'No pudimos guardar la hora. Intenta de nuevo.';
         this.success = false;
-        this.eventsService.alertMessage('error', msg)
       }
     })
   }

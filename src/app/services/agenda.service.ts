@@ -176,8 +176,9 @@ export class AgendaService {
 
 
   // ---------- Mis citas (el token lo agrega AuthInterceptor) ----------
+  // la admin recibe todas las reservas (esAdmin: true) con los datos de cada clienta
   misCitas() {
-    return this.http.get<{ citas: any[] }>(`${this.url}/mis-citas`).pipe(map(r => r.citas));
+    return this.http.get<{ citas: any[], esAdmin: boolean }>(`${this.url}/mis-citas`);
   }
 
   cancelarMiCita(id: string) {

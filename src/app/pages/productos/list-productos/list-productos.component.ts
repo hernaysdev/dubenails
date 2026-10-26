@@ -1,57 +1,50 @@
-import { Component } from '@angular/core';
-import { EventsService } from 'src/app/services/events.service';
+import { Component, OnInit } from '@angular/core';
 import { ProductosService } from 'src/app/services/productos.service';
-import { formatoDuracion } from 'src/app/services/disponibilidad.service';
+import { formatoDuracion, partesNombre } from 'src/app/services/disponibilidad.service';
 
+interface Producto { _id: string; nombre: string; precio: number; tiempo: number; }
+
+// Lista de servicios para la admin: mismas tarjetas que la portada, con precio, Editar y Eliminar
 @Component({
   selector: 'app-list-productos',
   standalone: false,
   templateUrl: './list-productos.component.html',
   styleUrl: './list-productos.component.scss'
 })
-export class ListProductosComponent {
-  dataSource: any
+export class ListProductosComponent implements OnInit {
+  dataSource: Producto[] = [];
   readonly duracion = formatoDuracion;
+  readonly partes = partesNombre;
+  cargando = true;
+  confirmando: string | null = null;
+  mensajeOk = '';
+  mensajeError = '';
 
-  constructor(
-    private _productosService: ProductosService,
-    private eventsService: EventsService
-  ){
-
-  }
+  constructor(private _productosService: ProductosService) { }
 
   ngOnInit(): void {
-    this.getProductos()
-    
-    
+    this.getProductos();
   }
 
+  getProductos() {
+    this._productosService.getProductos().subscribe({
+      next: (productos: Producto[]) => { this.dataSource = productos; this.cargando = false; },
+      error: () => { this.cargando = false; this.mensajeError = 'No pudimos cargar los servicios.'; }
+    });
+  }
 
-  deleteProducto(id:any){
-    this._productosService.delete(id).subscribe({
-      next: (resp:any) => {
-        this.eventsService.alertMessage('success','Servicio borrado!!!');
-        this.getProductos()
+  deleteProducto(p: Producto) {
+    this.mensajeOk = ''; this.mensajeError = '';
+    this._productosService.delete(p._id).subscribe({
+      next: () => {
+        this.confirmando = null;
+        this.dataSource = this.dataSource.filter(x => x._id !== p._id);
+        this.mensajeOk = `"${p.nombre.trim()}" se eliminó. Ya no aparece en la portada ni en la reserva.`;
       },
-      error: (err:any) => {
-        console.log(err)
-        this.eventsService.alertMessage('error','No se pudo Borrar el servicio algo salio mal')
+      error: () => {
+        this.confirmando = null;
+        this.mensajeError = `No pudimos eliminar "${p.nombre.trim()}". Intenta de nuevo.`;
       }
-    })
+    });
   }
-
-  getProductos(){
-this._productosService.getProductos().subscribe({
-      next: (productos:any) => {
-        console.log(productos)
-        this.dataSource = productos
-      },
-      err: (err:any) => {
-        console.log('entrando al error ')
-        console.log(err)
-
-      }
-    })
-  }
-
 }

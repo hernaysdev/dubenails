@@ -1,3 +1,5 @@
+<p class="msg-ok aviso-muro" *ngIf="mensajeOk" role="status">{{ mensajeOk }}</p>
+<p class="msg-error aviso-muro" *ngIf="mensajeError" role="alert">{{ mensajeError }}</p>
 <div class="cardNoticias" *ngFor="let data of datas;let index = index">
     <img class="noticiaImg" [src]="data.img" [alt]="data.nombre">
     <div class="content">

@@ -12,7 +12,7 @@ describe('MisCitasComponent', () => {
 
   beforeEach(() => {
     agenda = jasmine.createSpyObj('AgendaService', ['misCitas', 'cancelarMiCita', 'reprogramarMiCita']);
-    agenda.misCitas.and.returnValue(of([cita, { ...cita, id: 'c2', dia: 4 }]));
+    agenda.misCitas.and.returnValue(of({ citas: [cita, { ...cita, id: 'c2', dia: 4 }], esAdmin: false }));
     router = jasmine.createSpyObj('Router', ['navigate']);
     TestBed.configureTestingModule({
       declarations: [MisCitasComponent],
@@ -48,4 +48,20 @@ describe('MisCitasComponent', () => {
     c.reprogramar(cita);
     expect(router.navigate).toHaveBeenCalledWith(['/reservar'], { queryParams: { servicio: 'k1', reprogramar: 'c1' } });
   });
+
+  it('admin: titulo de todas las reservas, agrupadas por dia, y aviso con el nombre de la clienta', () => {
+    agenda.misCitas.and.returnValue(of({ esAdmin: true, citas: [
+      { ...cita, clienta: 'Ana', sinCuenta: false },
+      { ...cita, id: 'c2', hora: 16, clienta: 'Carla', sinCuenta: true },
+      { ...cita, id: 'c3', dia: 4, clienta: 'Bea' },
+    ] }));
+    c.cargar();
+    expect(c.esAdmin).toBeTrue();
+    expect(c.dias.map(d => [d.fecha, d.citas.length])).toEqual([['martes 3 de noviembre', 2], ['miércoles 4 de noviembre', 1]]);
+    agenda.cancelarMiCita.and.returnValue(of({}));
+    c.cancelar(c.citas[1]);
+    expect(c.aviso).toContain('Carla');
+    expect(c.dias[0].citas.length).toBe(1);
+  });
 });
+

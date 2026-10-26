@@ -1,21 +1,31 @@
-<table>
-    <thead>
-        <tr>
-            <th>Productos</th>
-            <th>Precio</th>
-            <th>Tiempo</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let producto of dataSource">
-            <td>{{producto.nombre}}</td>
-            <td>{{producto.precio}}$</td>
-            <td>{{ duracion(producto.tiempo) }}</td>
-            <td class="acciones">
-                <a routerLink="../update" [queryParams]="{ id: producto._id }">Editar</a>
-                <button type="button" (click)="deleteProducto(producto._id)">Eliminar</button>
-            </td>
-        </tr>
-    </tbody>
-</table>
+<section class="lista">
+  <p class="msg-ok" *ngIf="mensajeOk" role="status">{{ mensajeOk }}</p>
+  <p class="msg-error" *ngIf="mensajeError" role="alert">{{ mensajeError }}</p>
+  <p class="meta" *ngIf="cargando">Cargando…</p>
+  <p class="meta" *ngIf="!cargando && !dataSource.length">Aún no hay servicios. Crea el primero en "Nuevo Producto".</p>
+
+  <article *ngFor="let p of dataSource" class="servicio">
+    <div class="texto">
+      <span class="nombre">{{ partes(p.nombre).titulo }}</span>
+      <span class="detalle" *ngIf="partes(p.nombre).detalle">{{ partes(p.nombre).detalle }}</span>
+      <span class="chips">
+        <span class="chip">
+          <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          {{ duracion(p.tiempo) }}
+        </span>
+        <span class="chip">${{ p.precio }}</span>
+      </span>
+    </div>
+
+    <div class="acciones una" *ngIf="confirmando !== p._id">
+      <button type="button" (click)="confirmando = p._id">Eliminar</button>
+    </div>
+    <div class="confirmar" *ngIf="confirmando === p._id">
+      <strong>¿Eliminar este servicio?</strong>
+      <div class="acciones">
+        <button type="button" (click)="confirmando = null">No</button>
+        <button type="button" class="peligro" (click)="deleteProducto(p)">Sí, eliminar</button>
+      </div>
+    </div>
+  </article>
+</section>

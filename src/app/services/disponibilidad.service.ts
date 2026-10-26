@@ -36,3 +36,11 @@ export const formatoDuracion = (horas: number) => {
   if (min < 60) return `${min} min`;
   return min % 60 ? `${Math.floor(min / 60)} h ${min % 60} min` : `${min / 60} h`;
 };
+
+// "Extensión (Polygel / Builder / Acrilico) corto" -> titulo "Extensión" y detalle "Polygel / Builder / Acrilico · corto"
+export const partesNombre = (nombre: string): { titulo: string; detalle: string } => {
+  const limpio = String(nombre).replace(/\s+desde\s*$/i, '').trim();
+  const m = limpio.match(/^([^(]+)\(([^)]*)\)\s*(.*)$/);
+  if (!m) return { titulo: limpio, detalle: '' };
+  return { titulo: m[1].trim(), detalle: [m[2].trim(), m[3].trim()].filter(Boolean).join(' · ') };
+};

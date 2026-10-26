@@ -1,5 +1,7 @@
 
 
 
-    <input class="carga" id="imgUser" type="file" (change)="cargarImg($event)"/>
-    <button class="btn" (click)="submit()">Subir</button>
+    <input class="carga" id="imgUser" type="file" accept="image/*" (change)="cargarImg($event)"/>
+    <button class="btn" (click)="submit()" [disabled]="subiendo">{{ subiendo ? 'Subiendo…' : 'Subir' }}</button>
+    <p class="msg-ok" *ngIf="mensajeOk" role="status">{{ mensajeOk }}</p>
+    <p class="msg-error" *ngIf="mensajeError" role="alert">{{ mensajeError }}</p>

@@ -24,15 +24,24 @@ export class ActualizarFotoComponent implements OnInit {
     this.img = event.target.files[0];
   }
 
+  mensajeOk = '';
+  mensajeError = '';
+  subiendo = false;
+
   submit(){
+    this.mensajeOk = ''; this.mensajeError = '';
+    if (!this.img) { this.mensajeError = 'Elige una imagen primero.'; return; }
+    this.subiendo = true;
     let formData = new FormData();
     formData.append('archivo',this.img)
     this.usuariosService.cargaImg(formData , this.idUser).subscribe({next: (url:string) => {
+      this.subiendo = false;
       this.imgUser.emit(url)
-      this.eventsService.alertMessage('success','Imagen cargada con Exito');
+      this.mensajeOk = 'Tu foto se actualizó.';
       this.img = null;
-    }, error: (err) => {
-      this.eventsService.alertMessage('error','No se pudo cargar la Imagen');
+    }, error: (err: any) => {
+      this.subiendo = false;
+      this.mensajeError = err?.error?.msg || (typeof err === 'string' ? err : '') || 'No pudimos subir la imagen. Prueba con una foto JPG o PNG.';
     }})
   }
 

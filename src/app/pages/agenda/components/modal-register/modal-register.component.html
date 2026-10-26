@@ -99,9 +99,8 @@
     <!-- <button *ngIf="rol !== 'admin'" class="submit" (click)="pagar()">Pagar Abono</button> -->
   </form>
 
-  <div class=" success error" *ngIf="horaDisponible.length > 0">
-    <p>{{horaDisponible}}</p>
-  </div>
+  <p class="msg-error" *ngIf="horaDisponible.length > 0" role="alert">{{ horaDisponible }}</p>
+  <p class="msg-error" *ngIf="error" role="alert">{{ error }}</p>
 </div>
 
 <div *ngIf="showModal" class="modalNotifica">

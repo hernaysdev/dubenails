@@ -64,7 +64,7 @@
             
             <ul *ngIf="lista">
                 <li (click)="misCitas()">
-                    <a >Mis citas</a>
+                    <a >{{ rolUser === 'admin' ? 'Reservas' : 'Mis citas' }}</a>
                 </li>
                 <li (click)="actualizarFoto()">
                     <a >Subir Foto de Perfil</a>

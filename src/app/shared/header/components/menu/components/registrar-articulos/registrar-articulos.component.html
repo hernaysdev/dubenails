@@ -3,10 +3,9 @@
         <label name="titulo">Titulo:</label>
         <input formControlName="nombre" type="text" placeholder="Titulo...." />
          <textarea formControlName="descripcion" placeholder="Descripcion..."></textarea>
-        <input class="carga" id="imgUser" type="file" (change)="cargarImg($event)" />
-        <input type="submit" value="Registrar" (click)="enviar()">
-        <!-- <p *ngIf="messageError" class="errorMessage">{{messageError}}</p>
-        <p *ngIf="messageExito">{{messageExito}}</p> -->
+        <input class="carga" id="imgUser" type="file" accept="image/*" (change)="cargarImg($event)" />
+        <input type="submit" [value]="enviando ? 'Publicando…' : 'Publicar'" [disabled]="enviando" (click)="enviar()">
+        <p class="msg-error" *ngIf="mensajeError" role="alert">{{ mensajeError }}</p>
     </form>
 
 </div>

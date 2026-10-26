@@ -1,35 +1,46 @@
 <section class="citas">
-  <h1>Mis citas</h1>
+  <h1>{{ esAdmin ? 'Todas las reservas' : 'Mis citas' }}</h1>
   <p class="msg-ok" *ngIf="aviso" role="status">{{ aviso }}</p>
   <p class="msg-error" *ngIf="error" role="alert">{{ error }}</p>
   <p class="meta" *ngIf="cargando">Cargando…</p>
 
   <div *ngIf="!cargando && !citas.length" class="vacio">
-    <p>No tienes citas próximas.</p>
+    <p>{{ esAdmin ? 'No hay reservas próximas.' : 'No tienes citas próximas.' }}</p>
     <a class="principal" routerLink="/reservar">Reservar hora</a>
   </div>
 
-  <article *ngFor="let c of citas" class="cita">
-    <p class="cuando">{{ fecha(c) }} · {{ hora(c.hora) }}</p>
-    <p class="meta">{{ c.servicio }} · hasta las {{ hora(c.tramo) }}</p>
+  <div *ngFor="let d of dias" class="dia">
+    <h2 *ngIf="esAdmin">{{ d.fecha }}</h2>
 
-    <ng-container *ngIf="c.puedeModificar; else bloqueada">
-      <div *ngIf="confirmando !== c.id" class="acciones">
-        <button type="button" (click)="reprogramar(c)" [disabled]="!c.servicioId">Reprogramar</button>
-        <button type="button" (click)="confirmando = c.id">Cancelar</button>
-      </div>
-      <div *ngIf="confirmando === c.id" class="confirmar">
-        <strong>¿Cancelar esta cita?</strong>
-        <div class="acciones">
-          <button type="button" (click)="confirmando = null">No, mantener</button>
-          <button type="button" class="peligro" (click)="cancelar(c)">Sí, cancelar</button>
+    <article *ngFor="let c of d.citas" class="cita">
+      <p class="cuando">{{ esAdmin ? hora(c.hora) + ' a ' + hora(c.tramo) : fecha(c) + ' · ' + hora(c.hora) }}</p>
+
+      <ng-container *ngIf="esAdmin; else datosClienta">
+        <p class="clienta">{{ c.clienta }} <span class="etiqueta" *ngIf="c.sinCuenta">Sin cuenta</span></p>
+        <p class="meta">{{ c.servicio }}<ng-container *ngIf="c.telefono"> · Tel. {{ c.telefono }}</ng-container></p>
+      </ng-container>
+      <ng-template #datosClienta>
+        <p class="meta">{{ c.servicio }} · hasta las {{ hora(c.tramo) }}</p>
+      </ng-template>
+
+      <ng-container *ngIf="c.puedeModificar; else bloqueada">
+        <div *ngIf="confirmando !== c.id" class="acciones">
+          <button type="button" (click)="reprogramar(c)" [disabled]="!c.servicioId">Reprogramar</button>
+          <button type="button" (click)="confirmando = c.id">Cancelar</button>
         </div>
-      </div>
-    </ng-container>
-    <ng-template #bloqueada>
-      <p class="meta">Faltan menos de 24 horas. Para cambiarla, escríbenos.</p>
-    </ng-template>
-  </article>
+        <div *ngIf="confirmando === c.id" class="confirmar">
+          <strong>{{ esAdmin ? '¿Cancelar la cita de ' + c.clienta + '?' : '¿Cancelar esta cita?' }}</strong>
+          <div class="acciones">
+            <button type="button" (click)="confirmando = null">No, mantener</button>
+            <button type="button" class="peligro" (click)="cancelar(c)">Sí, cancelar</button>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #bloqueada>
+        <p class="meta">Faltan menos de 24 horas. Para cambiarla, escríbenos.</p>
+      </ng-template>
+    </article>
+  </div>
 
-  <p class="meta" *ngIf="citas.length">Puedes cancelar o reprogramar hasta 24 horas antes de tu cita.</p>
+  <p class="meta" *ngIf="citas.length && !esAdmin">Puedes cancelar o reprogramar hasta 24 horas antes de tu cita.</p>
 </section>

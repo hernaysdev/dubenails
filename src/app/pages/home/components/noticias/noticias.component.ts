@@ -75,14 +75,18 @@ export class NoticiasComponent implements OnInit {
     this.activeMenu = !this.activeMenu;
   }
 
+  mensajeOk = '';
+  mensajeError = '';
+
   borrarArticulo(id:string){
-    this.articulosService.deleteArticulos(id).subscribe({next:(data) => {
-        this.datas = this.datas.filter((element:any) => element.id !== data._id)
-        this.eventsService.alertMessage('success','Articulo borrado');
+    this.mensajeOk = ''; this.mensajeError = '';
+    this.articulosService.deleteArticulos(id).subscribe({next:() => {
         this.datas = this.datas.filter(e => e.id !== id);
-    },error:(error)=> {
-       console.log(error)
-       this.eventsService.alertMessage('error','No se pudo Borrar el Articulo')
+        this.activeMenu = false;
+        this.mensajeOk = 'La publicación se borró del Muro.';
+    },error:()=> {
+       this.activeMenu = false;
+       this.mensajeError = 'No pudimos borrar la publicación. Intenta de nuevo.';
     }})
   }
 
