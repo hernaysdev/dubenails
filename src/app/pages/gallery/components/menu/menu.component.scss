@@ -8,7 +8,7 @@ p { margin: 0; color: #5f585f; }
 .servicios { display: flex; flex-direction: column; gap: 10px; }
 .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #8a7f8a; }
 h2 { margin: -4px 0 6px; font-weight: 700; font-size: 26px; line-height: 1.15; }
-.servicio { display: flex; align-items: center; gap: 14px; padding: 16px; border: 1px solid #e2dde2; border-radius: 16px; background: #fff; text-decoration: none; color: inherit; transition: border-color .15s, transform .15s; }
+.servicio { position: relative; display: flex; align-items: center; gap: 14px; padding: 16px; border: 1px solid #e2dde2; border-radius: 16px; background: #fff; text-decoration: none; color: inherit; transition: border-color .15s, transform .15s; }
 .servicio:hover, .servicio:focus-visible { border-color: #1d1a1d; }
 .servicio:active { transform: scale(.99); }
 .texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
