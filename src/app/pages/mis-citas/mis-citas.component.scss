@@ -20,3 +20,17 @@ h2::first-letter { text-transform: uppercase; }
 .pendiente { font-size: 13px; font-weight: 700; color: #c27a00; }
 .pide-otro { font-size: 13px; font-weight: 700; color: #c2333f; }
 .secundario { width: 100%; border-style: dashed; }
+.pago-estado { font-size: 13px; font-weight: 700; color: #3d363d; }
+.pago-estado.en-revision, .pago-estado.esperando-captura { color: #c27a00; }
+.pago-estado.aprobado { color: #2f7d5b; }
+.pago-estado.rechazado { color: #c2333f; }
+.revisar { width: 100%; background: #c27a00; border-color: #c27a00; color: #fff; }
+.fondo { position: fixed; inset: 0; z-index: 1000; background: rgba(29, 26, 29, .6); display: flex; align-items: flex-end; justify-content: center; }
+.modal { position: relative; width: 100%; max-width: 520px; max-height: 92vh; overflow-y: auto; box-sizing: border-box; background: #fff; border-radius: 20px 20px 0 0; padding: 22px 18px calc(18px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; }
+.modal h2 { margin: 0; font-size: 20px; padding-right: 40px; }
+.modal .monto { margin: 0; font-weight: 700; font-size: 16px; }
+.captura img { display: block; width: 100%; max-height: 55vh; object-fit: contain; border-radius: 12px; background: #f1eef1; }
+.cerrar { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; padding: 0; border-radius: 50%; font-size: 22px; line-height: 1; }
+.aprobar { background: #2f7d5b; border-color: #2f7d5b; color: #fff; }
+textarea { font-family: inherit; font-size: 16px; padding: 10px; border: 1px solid #d8d2d8; border-radius: 10px; resize: vertical; }
+@media (min-width: 600px) { .fondo { align-items: center; } .modal { border-radius: 20px; } }

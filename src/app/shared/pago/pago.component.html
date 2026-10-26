@@ -1,0 +1,34 @@
+<section class="pago" aria-label="Pago de la reserva">
+  <h3>1. ¿Cuánto pagas ahora?</h3>
+  <div class="opciones" role="radiogroup" aria-label="Monto a pagar">
+    <button *ngFor="let o of opciones" type="button" role="radio" class="opcion" [class.sel]="porcentaje === o.porcentaje"
+      [attr.aria-checked]="porcentaje === o.porcentaje" (click)="elegirPorcentaje(o.porcentaje)">
+      <span class="titulo">{{ o.porcentaje === 100 ? 'Total' : 'Anticipo ' + o.porcentaje + '%' }}</span>
+      <span class="monto">{{ dinero(o.monto) }}</span>
+    </button>
+  </div>
+  <p class="meta" *ngIf="porcentaje !== null && resta > 0">El resto ({{ dinero(resta) }}) lo pagas en el salón.</p>
+
+  <h3>2. ¿Cómo pagas?</h3>
+  <div class="medios" *ngIf="medios.length > 1">
+    <button *ngFor="let m of medios" type="button" class="medio" [class.sel]="medio?.id === m.id" [attr.aria-pressed]="medio?.id === m.id" (click)="elegirMedio(m)">{{ m.nombre }}</button>
+  </div>
+  <div class="datos" *ngIf="medio">
+    <span class="meta">{{ medio.nombre }}</span>
+    <p>{{ medio.datos }}</p>
+    <button type="button" class="copiar" (click)="copiarDatos()">{{ copiado ? 'Copiado ✓' : 'Copiar datos' }}</button>
+  </div>
+
+  <h3>3. Adjunta la captura del pago</h3>
+  <label class="subir" *ngIf="!archivo">
+    <input type="file" accept="image/*,.heic,.heif" (change)="elegirArchivo($event)">
+    <span>Elegir imagen</span>
+    <small class="meta">Foto o captura de pantalla del comprobante (hasta 10 MB)</small>
+  </label>
+  <div class="archivo" *ngIf="archivo">
+    <img *ngIf="vistaPrevia" [src]="vistaPrevia" alt="Vista previa de la captura">
+    <span class="nombre">{{ archivo.name }}</span>
+    <button type="button" class="enlace" (click)="quitarArchivo()">Cambiar</button>
+  </div>
+  <p class="msg-error" *ngIf="error" role="alert">{{ error }}</p>
+</section>

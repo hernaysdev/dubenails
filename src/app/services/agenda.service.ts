@@ -5,6 +5,23 @@ import { environment } from 'src/environments/environment';
 import { EventsService } from './events.service';
 import { SharedService } from './shared.service';
 
+// lo que elige la clienta al pagar (componente app-pago)
+export interface PagoElegido { porcentaje: number; medio: string; archivo: File; }
+
+export const formularioPago = (pago: PagoElegido) => {
+  const fd = new FormData();
+  fd.append('porcentaje', String(pago.porcentaje));
+  fd.append('medio', pago.medio);
+  fd.append('captura', pago.archivo, pago.archivo.name);
+  return fd;
+};
+
+// estado del pago de una cita (Mis citas)
+export interface PagoCita {
+  estado: 'esperando-captura' | 'en-revision' | 'aprobado' | 'rechazado';
+  porcentaje: number | null; monto: number | null; medio: string | null; motivoRechazo: string; tieneCaptura: boolean;
+}
+
 export interface LinkConfirmacion {
   url: string; vence: string; venceTexto: string; mensaje: string; whatsapp: string; correoEnviado: boolean;
 }
@@ -44,6 +61,33 @@ export class AgendaService {
   // la admin aparta la hora "por confirmar": la API devuelve el link para la clienta
   agendarPorConfirmar(datos: any): Observable<{ id: string, link: LinkConfirmacion }> {
     return this.http.post<any>(`${this.url}/save`, { ...this.cuerpoReserva(datos), porConfirmar: true })
+      .pipe(catchError((error: any) => throwError(() => error.error?.msg)));
+  }
+
+  // la clienta aparta la hora para pagar: devuelve el id de la cita (luego subirPago)
+  reservarConPago(datos: any): Observable<{ id: string; minutos: number }> {
+    return this.http.post<any>(`${this.url}/save`, { ...this.cuerpoReserva(datos), conPago: true })
+      .pipe(catchError((error: any) => throwError(() => error.error?.msg)));
+  }
+
+  // multipart: captura, porcentaje, medio
+  subirPago(id: string, pago: PagoElegido): Observable<{ estado: string; monto: number }> {
+    return this.http.post<any>(`${this.url}/mis-citas/${id}/pago`, formularioPago(pago))
+      .pipe(catchError((error: any) => throwError(() => ({ status: error.status, msg: error.error?.msg }))));
+  }
+
+  // admin: la captura llega como imagen (la URL de Cloudinary nunca sale de la API)
+  verCaptura(id: string): Observable<Blob> {
+    return this.http.get(`${this.url}/mis-citas/${id}/captura`, { responseType: 'blob' });
+  }
+
+  aprobarPago(id: string): Observable<any> {
+    return this.http.post<any>(`${this.url}/mis-citas/${id}/pago/aprobar`, {})
+      .pipe(catchError((error: any) => throwError(() => error.error?.msg)));
+  }
+
+  rechazarPago(id: string, motivo: string): Observable<{ venceTexto: string; correoEnviado: boolean }> {
+    return this.http.post<any>(`${this.url}/mis-citas/${id}/pago/rechazar`, { motivo })
       .pipe(catchError((error: any) => throwError(() => error.error?.msg)));
   }
 

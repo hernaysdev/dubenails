@@ -1,0 +1,12 @@
+.datos-pago { display: flex; flex-direction: column; gap: 10px; padding: 16px; border: 1px solid #d8d2d8; border-radius: 16px; color: #1d1a1d; }
+h2 { margin: 0; font-size: 20px; }
+p { margin: 0; }
+.meta { font-size: 13px; color: #6c656c; line-height: 1.4; }
+.medio { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 12px; background: #f1eef1; }
+.medio.activo { background: #fff; box-shadow: inset 0 0 0 1px #1d1a1d; }
+.interruptor { display: flex; align-items: center; gap: 10px; font-weight: 700; cursor: pointer; }
+.interruptor input { width: 20px; height: 20px; accent-color: #000; }
+textarea { font: inherit; font-size: 16px; padding: 10px; border-radius: 8px; border: 1px solid #d8d2d8; resize: vertical; }
+.aviso { font-size: 13px; font-weight: 600; color: #c27a00; }
+.principal { padding: 13px; border-radius: 999px; background: #000; color: #fff; border: 0; font: inherit; font-weight: 600; cursor: pointer; }
+.principal:disabled { opacity: .5; }

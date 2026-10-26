@@ -11,7 +11,7 @@ describe('MisCitasComponent', () => {
   const cita: MiCita = { id: 'c1', servicio: 'Kapping', servicioId: 'k1', dia: 3, mes: 10, year: 2026, hora: 14, tramo: 15.5, valor: 40, puedeModificar: true };
 
   beforeEach(() => {
-    agenda = jasmine.createSpyObj('AgendaService', ['misCitas', 'cancelarMiCita', 'reprogramarMiCita', 'enviarLink']);
+    agenda = jasmine.createSpyObj('AgendaService', ['misCitas', 'cancelarMiCita', 'reprogramarMiCita', 'enviarLink', 'verCaptura', 'aprobarPago', 'rechazarPago']);
     agenda.misCitas.and.returnValue(of({ citas: [cita, { ...cita, id: 'c2', dia: 4 }], esAdmin: false }));
     router = jasmine.createSpyObj('Router', ['navigate']);
     TestBed.configureTestingModule({
@@ -92,6 +92,44 @@ describe('MisCitasComponent', () => {
       otro.ngOnInit();
       expect(otro.linkDe['c9']).toEqual(link);
       history.replaceState({}, '');
+    });
+  });
+
+  describe('revision del pago (admin)', () => {
+    const conPago = (): MiCita => ({ ...cita, clienta: 'Ana', porConfirmar: true, pago: { estado: 'en-revision', porcentaje: 15, monto: 6, medio: 'Zelle', motivoRechazo: '', tieneCaptura: true } });
+    beforeEach(() => { c.esAdmin = true; agenda.verCaptura.and.returnValue(of(new Blob(['x'], { type: 'image/jpeg' }))); });
+
+    it('texto del estado del pago', () => {
+      expect(c.textoPago(conPago())).toBe('Pago para revisar · 15% · $6 · Zelle');
+      c.esAdmin = false;
+      expect(c.textoPago(conPago())).toContain('te avisaremos');
+    });
+
+    it('abre la captura y aprueba: la cita queda confirmada', () => {
+      agenda.aprobarPago.and.returnValue(of({}));
+      const x = conPago();
+      c.abrirRevision(x);
+      expect(c.captura).toMatch(/^blob:/);
+      c.aprobarPago();
+      expect(agenda.aprobarPago).toHaveBeenCalledWith('c1');
+      expect(x.pago!.estado).toBe('aprobado');
+      expect(x.porConfirmar).toBeFalse();
+      expect(c.revisando).toBeNull();
+      expect(c.aviso).toContain('quedó confirmada');
+    });
+
+    it('rechazar pide motivo y avisa hasta cuando puede subir otra', () => {
+      agenda.rechazarPago.and.returnValue(of({ venceTexto: '20:15', correoEnviado: true }));
+      const x = conPago();
+      c.abrirRevision(x);
+      c.rechazarPago();
+      expect(agenda.rechazarPago).not.toHaveBeenCalled();
+      expect(c.errorPago).toContain('motivo');
+      c.motivo = 'El monto no coincide';
+      c.rechazarPago();
+      expect(agenda.rechazarPago).toHaveBeenCalledWith('c1', 'El monto no coincide');
+      expect(x.pago!.estado).toBe('rechazado');
+      expect(c.aviso).toContain('20:15');
     });
   });
 });

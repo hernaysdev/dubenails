@@ -19,12 +19,16 @@
       <ng-container *ngIf="esAdmin; else datosClienta">
         <p class="clienta">{{ c.clienta }} <span class="etiqueta" *ngIf="c.sinCuenta">Sin cuenta</span></p>
         <p class="meta">{{ c.servicio }}<ng-container *ngIf="c.telefono"> · Tel. {{ c.telefono }}</ng-container></p>
-        <p class="pendiente" *ngIf="c.porConfirmar">Por confirmar · se libera a las {{ c.venceTexto }}</p>
+        <p class="pendiente" *ngIf="c.porConfirmar && c.venceTexto">Por confirmar · se libera a las {{ c.venceTexto }}</p>
         <p class="pide-otro" *ngIf="c.pideOtroHorario">Pidió otro horario: escríbele para cambiarla</p>
       </ng-container>
       <ng-template #datosClienta>
         <p class="meta">{{ c.servicio }} · hasta las {{ hora(c.tramo) }}</p>
       </ng-template>
+
+      <!-- pago con captura -->
+      <p *ngIf="c.pago" class="pago-estado" [ngClass]="c.pago.estado">{{ textoPago(c) }}</p>
+      <button *ngIf="esAdmin && c.pago?.estado === 'en-revision'" type="button" class="revisar" (click)="abrirRevision(c)">Revisar pago</button>
 
       <ng-container *ngIf="c.puedeModificar; else bloqueada">
         <div *ngIf="confirmando !== c.id" class="acciones">
@@ -63,3 +67,30 @@
 
   <p class="meta" *ngIf="citas.length && !esAdmin">Puedes cancelar o reprogramar hasta 24 horas antes de tu cita.</p>
 </section>
+
+<!-- admin: captura del pago para aprobar o rechazar -->
+<div class="fondo" *ngIf="revisando as c" (click)="cerrarRevision()">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Revisar pago" (click)="$event.stopPropagation()">
+    <button type="button" class="cerrar" (click)="cerrarRevision()" aria-label="Cerrar">×</button>
+    <h2>Pago de {{ c.clienta }}</h2>
+    <p class="meta">{{ c.servicio }} · {{ fecha(c) }}, {{ hora(c.hora) }}</p>
+    <p class="monto">{{ c.pago?.porcentaje }}% · {{ c.pago?.monto !== null ? dinero(c.pago!.monto!) : '' }} · {{ c.pago?.medio }}</p>
+    <p class="meta" *ngIf="cargandoCaptura">Cargando captura…</p>
+    <a *ngIf="captura" [href]="captura" target="_blank" rel="noopener" class="captura"><img [src]="captura" alt="Captura del pago"></a>
+    <p class="msg-error" *ngIf="errorPago" role="alert">{{ errorPago }}</p>
+
+    <div class="acciones" *ngIf="!rechazandoPago">
+      <button type="button" (click)="rechazandoPago = true" [disabled]="procesandoPago">Rechazar</button>
+      <button type="button" class="aprobar" (click)="aprobarPago()" [disabled]="procesandoPago || !captura">{{ procesandoPago ? 'Aprobando…' : 'Aprobar pago' }}</button>
+    </div>
+    <div class="confirmar" *ngIf="rechazandoPago">
+      <label for="motivo-pago"><strong>¿Por qué lo rechazas?</strong></label>
+      <textarea id="motivo-pago" rows="3" maxlength="300" [value]="motivo" (input)="motivo = $any($event.target).value" placeholder="Ej.: el monto no coincide, la imagen no se lee…"></textarea>
+      <p class="meta">La clienta recibe el motivo por correo y tiene 6 horas para subir otra captura.</p>
+      <div class="acciones">
+        <button type="button" (click)="rechazandoPago = false">Volver</button>
+        <button type="button" class="peligro" (click)="rechazarPago()" [disabled]="procesandoPago">{{ procesandoPago ? 'Rechazando…' : 'Rechazar pago' }}</button>
+      </div>
+    </div>
+  </div>
+</div>

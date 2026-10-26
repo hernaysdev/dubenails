@@ -1,11 +1,14 @@
 <section class="confirmar">
   <p class="meta" *ngIf="vista === 'cargando'">Cargando tu reserva…</p>
 
-  <ng-container *ngIf="reserva && (vista === 'pendiente' || vista === 'otro-horario' || vista === 'confirmada')">
-    <span class="etiqueta" [class.ok]="vista === 'confirmada'">{{ vista === 'confirmada' ? 'Confirmada' : 'Por confirmar' }}</span>
+  <ng-container *ngIf="reserva && (vista === 'pendiente' || vista === 'otro-horario' || vista === 'confirmada' || vista === 'en-revision')">
+    <span class="etiqueta" [class.ok]="vista === 'confirmada'">{{ vista === 'confirmada' ? 'Confirmada' : vista === 'en-revision' ? 'Pago en revisión' : 'Por confirmar' }}</span>
     <h1 *ngIf="vista === 'pendiente'">Hola {{ reserva.nombre }}, te apartamos esta hora</h1>
     <h1 *ngIf="vista === 'otro-horario'">Le avisamos a DubeNails</h1>
     <h1 *ngIf="vista === 'confirmada'">¡Listo, {{ reserva.nombre }}! Tu cita está confirmada</h1>
+    <h1 *ngIf="vista === 'en-revision'">Recibimos tu pago</h1>
+    <p *ngIf="vista === 'en-revision'">Tu hora queda apartada mientras lo revisamos. Te avisaremos por correo cuando esté confirmada.</p>
+    <p class="msg-error" *ngIf="vista === 'pendiente' && pagoRechazado" role="alert">No pudimos validar tu pago: {{ reserva.pago?.motivoRechazo }}. Sube otra captura.</p>
 
     <p *ngIf="vista === 'otro-horario'">Te escribirán para buscar otro horario. Mientras, esta hora sigue apartada hasta las {{ reserva.venceTexto }}.</p>
     <p *ngIf="vista === 'confirmada'">Te esperamos. Si dejaste tu correo, te enviamos los detalles.</p>
@@ -18,9 +21,11 @@
       <div *ngIf="reserva.direccion"><dt>Dirección</dt><dd><a [href]="mapa" target="_blank" rel="noopener">{{ reserva.direccion }}</a></dd></div>
     </dl>
 
-    <ng-container *ngIf="vista !== 'confirmada'">
+    <ng-container *ngIf="vista === 'pendiente' || vista === 'otro-horario'">
+      <app-pago *ngIf="conPago" [opciones]="reserva.pago?.opciones || []" [medios]="reserva.medios || []" [total]="reserva.valor || 0" (cambio)="pago = $event"></app-pago>
       <p class="msg-error" *ngIf="error" role="alert">{{ error }}</p>
-      <button type="button" class="principal" (click)="responder('aceptar')" [disabled]="enviando">{{ enviando ? 'Guardando…' : 'Confirmar reserva' }}</button>
+      <button *ngIf="conPago" type="button" class="principal" (click)="enviarPago()" [disabled]="enviando || !pago">{{ enviando ? 'Enviando pago…' : 'Enviar pago y confirmar' }}</button>
+      <button *ngIf="!conPago" type="button" class="principal" (click)="responder('aceptar')" [disabled]="enviando">{{ enviando ? 'Guardando…' : 'Confirmar reserva' }}</button>
       <p class="meta centro" *ngIf="vista === 'pendiente'">Confírmala antes de las {{ reserva.venceTexto }}. Si no, el horario se libera.</p>
 
       <div class="secundarias" *ngIf="!confirmandoRechazo">

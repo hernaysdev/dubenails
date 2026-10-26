@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ReservarComponent } from './reservar.component';
+import { PagoComponent } from 'src/app/shared/pago/pago.component';
 
 @NgModule({
   declarations: [ReservarComponent],
@@ -11,6 +12,7 @@ import { ReservarComponent } from './reservar.component';
     CommonModule,
     ReactiveFormsModule,
     SharedModule,
+    PagoComponent,
     RouterModule.forChild([{ path: '', component: ReservarComponent }]),
   ],
 })

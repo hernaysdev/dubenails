@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ConfirmarService, ReservaPorConfirmar } from 'src/app/services/confirmar.service';
 import { formatoHora } from 'src/app/services/disponibilidad.service';
+import { PagoElegido } from 'src/app/services/agenda.service';
 
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 
-type Vista = 'cargando' | 'pendiente' | 'confirmada' | 'rechazada' | 'otro-horario' | 'vencida' | 'invalido' | 'error';
+type Vista = 'cargando' | 'pendiente' | 'confirmada' | 'rechazada' | 'otro-horario' | 'vencida' | 'invalido' | 'error' | 'en-revision';
 
 // La clienta abre el link que le mando la admin y confirma (o no) la hora apartada. Sin cuenta.
 @Component({
@@ -20,6 +21,7 @@ export class ConfirmarComponent implements OnInit {
   enviando = false;
   confirmandoRechazo = false;
   error = '';
+  pago: PagoElegido | null = null;
   private token = '';
   readonly hora = formatoHora;
 
@@ -35,6 +37,10 @@ export class ConfirmarComponent implements OnInit {
       error: (e) => this.vista = e.status === 404 ? 'invalido' : 'error',
     });
   }
+
+  // si la admin configuro medios de pago, se confirma adjuntando la captura
+  get conPago() { return !!this.reserva?.pago?.requerido; }
+  get pagoRechazado() { return this.reserva?.pago?.estado === 'rechazado'; }
 
   get fecha() {
     const r = this.reserva!;
@@ -64,6 +70,21 @@ export class ConfirmarComponent implements OnInit {
         if (e.status === 410) { this.vista = 'vencida'; return; }
         if (e.status === 404) { this.vista = 'invalido'; return; }
         this.error = e.msg || 'No pudimos guardar tu respuesta. Intenta de nuevo.';
+      },
+    });
+  }
+
+  enviarPago() {
+    if (!this.pago) { this.error = 'Elige cuánto pagas, el medio y adjunta la captura del pago.'; return; }
+    this.error = '';
+    this.enviando = true;
+    this.confirmarService.subirPago(this.token, this.pago).subscribe({
+      next: () => { this.enviando = false; this.vista = 'en-revision'; },
+      error: (e) => {
+        this.enviando = false;
+        if (e.status === 410) { this.vista = 'vencida'; return; }
+        if (e.status === 404) { this.vista = 'invalido'; return; }
+        this.error = e.msg || 'No pudimos subir la captura. Intenta de nuevo.';
       },
     });
   }

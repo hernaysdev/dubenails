@@ -9,7 +9,7 @@
           <span *ngSwitchCase="'dia'">¿Qué día?</span>
           <span *ngSwitchCase="'hora'">¿A qué hora?</span>
           <span *ngSwitchCase="'datos'">{{ reprogramar ? 'Confirma el cambio' : 'Confirma tu hora' }}</span>
-          <span *ngSwitchCase="'listo'">{{ reprogramar ? '¡Cita cambiada!' : '¡Hora reservada!' }}</span>
+          <span *ngSwitchCase="'listo'">{{ reprogramar ? '¡Cita cambiada!' : (pagoEnviado ? '¡Hora apartada!' : '¡Hora reservada!') }}</span>
         </ng-container>
       </h1>
     </div>
@@ -98,14 +98,25 @@
       <label for="r-telefono">Teléfono</label>
       <input id="r-telefono" formControlName="telefono" inputmode="tel" autocomplete="tel">
       <small class="meta" *ngIf="form.get('telefono')?.touched && form.get('telefono')?.invalid">Escribe un teléfono válido para avisarte si algo cambia.</small>
-      <button type="submit" class="principal" [disabled]="enviando">{{ enviando ? 'Reservando…' : 'Confirmar reserva' }}</button>
+
+      <!-- pago con captura (si la admin configuro medios de pago) -->
+      <app-pago *ngIf="conPago" [opciones]="opcionesPago" [medios]="medios" [total]="precioTotal" (cambio)="pago = $event"></app-pago>
+
+      <button type="submit" class="principal" [disabled]="enviando || (conPago && !pago)">
+        {{ enviando ? (conPago ? 'Enviando pago…' : 'Reservando…') : (conPago ? 'Enviar pago y reservar' : 'Confirmar reserva') }}</button>
+      <small class="meta" *ngIf="conPago && !pago">Completa los 3 pasos del pago para reservar.</small>
     </form>
   </div>
 
   <!-- 5. Listo -->
   <div *ngIf="paso === 'listo' && hayServicios && horaElegida !== null" class="lista">
     <p>{{ reprogramar ? 'Tu nueva hora:' : 'Te esperamos el' }} <strong>{{ fechaElegida }}</strong> a las <strong>{{ hora(horaElegida) }}</strong> para {{ nombreServicios.toLowerCase() }}.</p>
-    <p class="meta" *ngIf="usuario?.correo">Te enviamos la confirmación a {{ usuario?.correo }} y te recordaremos 24 horas antes.</p>
+    <ng-container *ngIf="pagoEnviado; else sinPago">
+      <p class="aviso-pago">Recibimos tu pago. Tu hora queda apartada mientras lo revisamos y te avisaremos por correo cuando esté confirmada.</p>
+    </ng-container>
+    <ng-template #sinPago>
+      <p class="meta" *ngIf="usuario?.correo">Te enviamos la confirmación a {{ usuario?.correo }} y te recordaremos 24 horas antes.</p>
+    </ng-template>
     <a class="principal" routerLink="/mis-citas">Ver mis citas</a>
     <button *ngIf="!reprogramar" type="button" class="enlace" (click)="reservarOtra()">Reservar otra hora</button>
   </div>

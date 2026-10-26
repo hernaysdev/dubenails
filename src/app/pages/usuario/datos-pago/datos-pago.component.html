@@ -1,0 +1,20 @@
+<section class="datos-pago">
+  <h2>Datos de pago</h2>
+  <p class="meta">La clienta elige uno al reservar, paga el 15% o el total y adjunta la captura. Tú la apruebas en Mis citas.</p>
+  <p class="meta" *ngIf="cargando">Cargando…</p>
+
+  <div class="medio" *ngFor="let m of medios" [class.activo]="m.activo">
+    <label class="interruptor">
+      <input type="checkbox" [checked]="m.activo" (change)="alternar(m)">
+      <span>{{ m.nombre }}</span>
+    </label>
+    <textarea *ngIf="m.activo" rows="3" maxlength="300" [value]="m.datos" (input)="escribir(m, $event)"
+      [attr.aria-label]="'Datos de ' + m.nombre"
+      [placeholder]="m.id === 'transferencia' ? 'Banco, número de cuenta, routing y titular' : m.id === 'zelle' ? 'Correo o teléfono de Zelle y titular' : 'ID o correo de Binance Pay'"></textarea>
+  </div>
+
+  <p class="aviso" *ngIf="!cargando && !hayActivos">Sin medios activos las reservas se confirman sin pago, como hasta ahora.</p>
+  <p class="msg-ok" *ngIf="mensajeOk" role="status">{{ mensajeOk }}</p>
+  <p class="msg-error" *ngIf="mensajeError" role="alert">{{ mensajeError }}</p>
+  <button type="button" class="principal" (click)="guardar()" [disabled]="guardando || cargando">{{ guardando ? 'Guardando…' : 'Guardar datos de pago' }}</button>
+</section>

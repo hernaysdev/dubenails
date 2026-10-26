@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AgendaService, LinkConfirmacion } from 'src/app/services/agenda.service';
+import { AgendaService, LinkConfirmacion, PagoCita } from 'src/app/services/agenda.service';
+import { dinero } from 'src/app/shared/pago/pago.component';
 import { formatoHora } from 'src/app/services/disponibilidad.service';
 
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -14,6 +15,8 @@ export interface MiCita {
   clienta?: string; telefono?: string; correo?: string; sinCuenta?: boolean;
   // reserva por confirmar (link a la clienta)
   porConfirmar?: boolean; vence?: string | null; venceTexto?: string; pideOtroHorario?: boolean;
+  // pago con captura (null si la cita no lo pide)
+  pago?: PagoCita | null;
 }
 
 // Clienta: sus proximas citas (cancelar o reprogramar hasta 24 h antes).
@@ -23,7 +26,7 @@ export interface MiCita {
   templateUrl: './mis-citas.component.html',
   styleUrls: ['./mis-citas.component.scss']
 })
-export class MisCitasComponent implements OnInit {
+export class MisCitasComponent implements OnInit, OnDestroy {
   citas: MiCita[] = [];
   dias: { fecha: string; citas: MiCita[] }[] = [];
   esAdmin = false;
@@ -36,7 +39,16 @@ export class MisCitasComponent implements OnInit {
   enviandoLink: string | null = null;
   linkDe: Record<string, LinkConfirmacion | undefined> = {};
   readonly hora = formatoHora;
+  readonly dinero = dinero;
   readonly HORAS_PARA_CONFIRMAR = 6;
+  // admin: revision del pago en un modal con la captura
+  revisando: MiCita | null = null;
+  captura: string | null = null;
+  cargandoCaptura = false;
+  rechazandoPago = false;
+  motivo = '';
+  procesandoPago = false;
+  errorPago = '';
 
   constructor(private agendaService: AgendaService, private router: Router) { }
 
@@ -95,6 +107,67 @@ export class MisCitasComponent implements OnInit {
       error: (msg: string) => { this.enviandoLink = null; this.apartando = null; this.error = msg || 'No pudimos crear el link.'; }
     });
   }
+
+  textoPago(c: MiCita) {
+    const p = c.pago;
+    if (!p) return '';
+    const detalle = p.monto !== null ? ` · ${p.porcentaje}% · ${dinero(p.monto)} · ${p.medio}` : '';
+    switch (p.estado) {
+      case 'esperando-captura': return 'Esperando la captura del pago';
+      case 'en-revision': return this.esAdmin ? `Pago para revisar${detalle}` : 'Pago en revisión: te avisaremos al confirmarla';
+      case 'aprobado': return `Pagado${detalle}`;
+      case 'rechazado': return this.esAdmin ? `Pago rechazado (${p.motivoRechazo}): esperando otra captura` : `Pago rechazado: ${p.motivoRechazo}. Revisa tu correo para subir otra captura.`;
+    }
+  }
+
+  abrirRevision(c: MiCita) {
+    this.cerrarRevision();
+    this.revisando = c;
+    this.cargandoCaptura = true;
+    this.agendaService.verCaptura(c.id).subscribe({
+      next: (imagen) => { this.cargandoCaptura = false; this.captura = URL.createObjectURL(imagen); },
+      error: () => { this.cargandoCaptura = false; this.errorPago = 'No pudimos cargar la captura. Intenta de nuevo.'; },
+    });
+  }
+
+  cerrarRevision() {
+    if (this.captura) URL.revokeObjectURL(this.captura);
+    this.captura = null; this.revisando = null;
+    this.rechazandoPago = false; this.motivo = ''; this.errorPago = ''; this.procesandoPago = false;
+  }
+
+  aprobarPago() {
+    const c = this.revisando;
+    if (!c?.pago) return;
+    this.procesandoPago = true; this.errorPago = '';
+    this.agendaService.aprobarPago(c.id).subscribe({
+      next: () => {
+        c.pago!.estado = 'aprobado'; c.porConfirmar = false; c.venceTexto = '';
+        this.aviso = `Pago aprobado: la cita de ${c.clienta} quedó confirmada.`;
+        this.cerrarRevision();
+      },
+      error: (msg: string) => { this.procesandoPago = false; this.errorPago = msg || 'No pudimos aprobar el pago.'; },
+    });
+  }
+
+  rechazarPago() {
+    const c = this.revisando;
+    if (!c?.pago) return;
+    if (!this.motivo.trim()) { this.errorPago = 'Escribe el motivo para que la clienta sepa qué corregir.'; return; }
+    this.procesandoPago = true; this.errorPago = '';
+    this.agendaService.rechazarPago(c.id, this.motivo.trim()).subscribe({
+      next: ({ venceTexto, correoEnviado }) => {
+        c.pago!.estado = 'rechazado'; c.pago!.motivoRechazo = this.motivo.trim(); c.venceTexto = venceTexto;
+        this.aviso = correoEnviado
+          ? `Le avisamos a ${c.clienta} por correo. Tiene hasta las ${venceTexto} para subir otra captura.`
+          : `${c.clienta} no tiene correo: avísale por WhatsApp. Tiene hasta las ${venceTexto} para subir otra captura.`;
+        this.cerrarRevision();
+      },
+      error: (msg: string) => { this.procesandoPago = false; this.errorPago = msg || 'No pudimos rechazar el pago.'; },
+    });
+  }
+
+  ngOnDestroy() { this.cerrarRevision(); }
 
   reprogramar(c: MiCita) {
     if (!c.servicioId) return;

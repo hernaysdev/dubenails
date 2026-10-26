@@ -27,7 +27,7 @@ describe('ConfirmarComponent (link de la clienta)', () => {
   const boton = (f: any, t: string) => [...f.nativeElement.querySelectorAll('button')].find((b: any) => b.textContent.includes(t)) as HTMLButtonElement;
 
   beforeEach(() => {
-    servicio = jasmine.createSpyObj('ConfirmarService', ['ver', 'responder']);
+    servicio = jasmine.createSpyObj('ConfirmarService', ['ver', 'responder', 'subirPago']);
     servicio.ver.and.returnValue(of(reserva));
   });
 
@@ -81,5 +81,35 @@ describe('ConfirmarComponent (link de la clienta)', () => {
     TestBed.resetTestingModule();
     servicio.ver.and.returnValue(throwError(() => ({ status: 404 })));
     expect(texto(crear())).toContain('Este link ya no es válido');
+  });
+
+  describe('con pago', () => {
+    const conPago = { ...reserva, pago: { requerido: true, estado: 'esperando-captura', opciones: [{ porcentaje: 15, monto: 6 }, { porcentaje: 100, monto: 40 }] }, medios: [{ id: 'zelle', nombre: 'Zelle', datos: 'x@y.com' }] };
+
+    it('pide la captura en vez de "Confirmar reserva" y queda en revision', () => {
+      servicio.ver.and.returnValue(of(conPago));
+      servicio.subirPago.and.returnValue(of({ estado: 'en-revision', monto: 6 }));
+      const f = crear();
+      expect(f.nativeElement.querySelector('app-pago')).not.toBeNull();
+      expect(boton(f, 'Confirmar reserva')).toBeUndefined();
+      const c = f.componentInstance;
+      c.pago = { porcentaje: 15, medio: 'zelle', archivo: new File(['x'], 'p.jpg', { type: 'image/jpeg' }) };
+      c.enviarPago();
+      f.detectChanges();
+      expect(servicio.subirPago).toHaveBeenCalledWith('tok123', c.pago);
+      expect(texto(f)).toContain('Recibimos tu pago');
+    });
+
+    it('si la admin lo rechazo muestra el motivo', () => {
+      servicio.ver.and.returnValue(of({ ...conPago, pago: { ...conPago.pago, estado: 'rechazado', motivoRechazo: 'No se lee' } }));
+      expect(texto(crear())).toContain('No pudimos validar tu pago: No se lee');
+    });
+
+    it('en revision: solo informa', () => {
+      servicio.ver.and.returnValue(of({ ...conPago, estado: 'en-revision' }));
+      const f = crear();
+      expect(texto(f)).toContain('Recibimos tu pago');
+      expect(f.nativeElement.querySelector('app-pago')).toBeNull();
+    });
   });
 });

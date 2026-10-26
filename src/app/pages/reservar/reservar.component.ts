@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DiaDisponible, DisponibilidadService, Servicio, formatoDuracion, formatoHora } from 'src/app/services/disponibilidad.service';
-import { AgendaService } from 'src/app/services/agenda.service';
+import { AgendaService, PagoElegido } from 'src/app/services/agenda.service';
+import { ContenidoService, MedioPago } from 'src/app/services/contenido.service';
+import { opcionesDePago } from 'src/app/shared/pago/pago.component';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 
 type Paso = 'servicio' | 'dia' | 'hora' | 'datos' | 'listo';
@@ -45,11 +47,19 @@ export class ReservarComponent implements OnInit {
   error = '';
   // id de la cita que se esta cambiando (viene de Mis citas); null = reserva nueva
   reprogramar: string | null = null;
+  // pago con captura: solo si la admin configuro algun medio de pago
+  medios: MedioPago[] = [];
+  porcentajes: number[] = [];
+  pago: PagoElegido | null = null;
+  // hora ya apartada esperando la captura (si fallo la subida, se reintenta sin volver a reservar)
+  private citaApartada: string | null = null;
+  pagoEnviado = false;
 
   constructor(
     private disponibilidad: DisponibilidadService,
     private agendaService: AgendaService,
     private usuariosService: UsuariosService,
+    private contenidoService: ContenidoService,
     private route: ActivatedRoute,
     private router: Router,
     fb: FormBuilder,
@@ -81,7 +91,14 @@ export class ReservarComponent implements OnInit {
       error: () => { this.cargando = false; this.error = 'No pudimos cargar los servicios. Intenta de nuevo en un momento.'; }
     });
     this.cargarUsuario();
+    this.contenidoService.pagos().subscribe({
+      next: ({ medios, porcentajes }) => { this.medios = medios; this.porcentajes = porcentajes; },
+      error: () => { this.medios = []; },
+    });
   }
+
+  get conPago() { return this.medios.length > 0 && !this.reprogramar; }
+  get opcionesPago() { return opcionesDePago(this.precioTotal, this.porcentajes); }
 
   get numeroPaso() { return this.pasos.indexOf(this.paso) + 1; }
   get nombreMes() { return `${MESES[this.mes]} ${this.year}`; }
@@ -179,27 +196,11 @@ export class ReservarComponent implements OnInit {
     if (!this.usuario || !this.hayServicios || this.dia === null || this.horaElegida === null) return;
     if (this.reprogramar) return this.confirmarCambio();
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    if (this.conPago) return this.reservarConPago();
     const { nombre, telefono } = this.form.value;
     this.enviando = true;
     this.error = '';
-    this.agendaService.recibirDatos({
-      nombre: nombre.trim(),
-      dia: String(this.dia),
-      horaNueva: this.horaElegida,
-      servicio: this.nombreServicios,
-      horaServicio: this.duracionTotal,
-      telefono: telefono.trim(),
-      mes: this.mes,
-      year: this.year,
-      id: this.usuario.id,
-      nuevo: true,
-      token: '',
-      estado: true,
-      correo: this.usuario.correo || '',
-      precio: this.precioTotal,
-      // la API arma nombre, duracion y precio desde estos ids
-      servicioIds: this.elegidos.map(s => s.id),
-    }).subscribe({
+    this.agendaService.recibirDatos(this.datosReserva(nombre, telefono)).subscribe({
       next: () => { this.enviando = false; this.paso = 'listo'; },
       error: (msg: string) => {
         this.enviando = false;
@@ -208,6 +209,61 @@ export class ReservarComponent implements OnInit {
         if (typeof msg === 'string' && msg.includes('tomado')) { this.paso = 'hora'; this.cargarHoras(); }
       }
     });
+  }
+
+  // aparta la hora y sube la captura; queda "pago en revision" hasta que la admin lo apruebe
+  reservarConPago() {
+    if (!this.pago) { this.error = 'Elige cuánto pagas, el medio y adjunta la captura del pago.'; return; }
+    const { nombre, telefono } = this.form.value;
+    this.enviando = true;
+    this.error = '';
+    if (this.citaApartada) { this.subirPago(this.citaApartada); return; }
+    this.agendaService.reservarConPago(this.datosReserva(nombre, telefono)).subscribe({
+      next: ({ id }) => { this.citaApartada = id; this.subirPago(id); },
+      error: (msg: string) => {
+        this.enviando = false;
+        this.error = msg || 'No pudimos apartar la hora. Intenta de nuevo.';
+        if (typeof msg === 'string' && msg.includes('tomado')) { this.paso = 'hora'; this.cargarHoras(); }
+      }
+    });
+  }
+
+  private subirPago(id: string) {
+    this.agendaService.subirPago(id, this.pago!).subscribe({
+      next: () => { this.enviando = false; this.citaApartada = null; this.pagoEnviado = true; this.paso = 'listo'; },
+      error: (e: { status: number; msg?: string }) => {
+        this.enviando = false;
+        if (e.status === 410) {
+          // se acabo el tiempo y la hora se libero: hay que elegir otra
+          this.citaApartada = null;
+          this.error = e.msg || 'Se acabó el tiempo para adjuntar el pago. Elige la hora de nuevo.';
+          this.paso = 'hora'; this.cargarHoras();
+          return;
+        }
+        this.error = (e.msg || 'No pudimos subir la captura.') + ' Tu hora sigue apartada: vuelve a intentarlo.';
+      }
+    });
+  }
+
+  private datosReserva(nombre: string, telefono: string) {
+    return {
+      nombre: nombre.trim(),
+      dia: String(this.dia),
+      horaNueva: this.horaElegida,
+      servicio: this.nombreServicios,
+      horaServicio: this.duracionTotal,
+      telefono: telefono.trim(),
+      mes: this.mes,
+      year: this.year,
+      id: this.usuario!.id,
+      nuevo: true,
+      token: '',
+      estado: true,
+      correo: this.usuario!.correo || '',
+      precio: this.precioTotal,
+      // la API arma nombre, duracion y precio desde estos ids
+      servicioIds: this.elegidos.map(s => s.id),
+    };
   }
 
   confirmarCambio() {
@@ -227,6 +283,7 @@ export class ReservarComponent implements OnInit {
   reservarOtra() {
     if (this.reprogramar) { this.router.navigate(['/mis-citas']); return; }
     this.elegidos = []; this.dia = null; this.horaElegida = null; this.error = '';
+    this.pago = null; this.pagoEnviado = false; this.citaApartada = null;
     this.paso = 'servicio';
   }
 }

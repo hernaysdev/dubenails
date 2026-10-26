@@ -49,4 +49,7 @@
       <button type="submit" class="principal" [disabled]="guardando">{{ guardando ? 'Guardando…' : 'Guardar' }}</button>
     </div>
   </form>
+
+  <!-- admin: medios de pago que ve la clienta al reservar -->
+  <app-datos-pago *ngIf="esAdmin && !editando"></app-datos-pago>
 </section>

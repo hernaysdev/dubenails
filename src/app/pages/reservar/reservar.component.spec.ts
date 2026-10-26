@@ -7,6 +7,7 @@ import { ReservarComponent } from './reservar.component';
 import { DisponibilidadService, formatoDuracion, formatoHora } from 'src/app/services/disponibilidad.service';
 import { AgendaService } from 'src/app/services/agenda.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
+import { ContenidoService } from 'src/app/services/contenido.service';
 
 describe('ReservarComponent (reserva guiada)', () => {
   let c: ReservarComponent;
@@ -19,12 +20,13 @@ describe('ReservarComponent (reserva guiada)', () => {
   const elegir = (...servicios: any[]) => { servicios.forEach(s => c.alternarServicio(s)); c.continuar(); };
 
   let router: jasmine.SpyObj<Router>;
+  let medios: any[] = [];
   const crear = (servicioQuery: string | null = null, conSesion = true, reprogramar: string | null = null, marcar: string | null = null) => {
     disp = jasmine.createSpyObj('DisponibilidadService', ['servicios', 'dias', 'horas']);
     disp.servicios.and.returnValue(of([kapping, pedicura]));
     disp.dias.and.returnValue(of([{ dia: 1, libres: 0 }, { dia: 2, libres: 5 }]));
     disp.horas.and.returnValue(of([9, 9.5, 14]));
-    agenda = jasmine.createSpyObj('AgendaService', ['recibirDatos', 'reprogramarMiCita']);
+    agenda = jasmine.createSpyObj('AgendaService', ['recibirDatos', 'reprogramarMiCita', 'reservarConPago', 'subirPago']);
     router = jasmine.createSpyObj('Router', ['navigate']);
     usuarios = jasmine.createSpyObj('UsuariosService', ['getUsuario']);
     usuarios.getUsuario.and.returnValue(of({ id: 'u1', nombre: 'ana', telefono: 5551234, correo: 'ana@test.com' }) as any);
@@ -37,6 +39,7 @@ describe('ReservarComponent (reserva guiada)', () => {
         { provide: DisponibilidadService, useValue: disp },
         { provide: AgendaService, useValue: agenda },
         { provide: UsuariosService, useValue: usuarios },
+        { provide: ContenidoService, useValue: { pagos: () => of({ medios, porcentajes: [15, 100] }) } },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({ ...(servicioQuery ? { servicio: servicioQuery } : {}), ...(reprogramar ? { reprogramar } : {}), ...(marcar ? { marcar } : {}) }) } } },
       ],
@@ -45,7 +48,7 @@ describe('ReservarComponent (reserva guiada)', () => {
     c.ngOnInit();
   };
 
-  afterEach(() => localStorage.removeItem('token'));
+  afterEach(() => { localStorage.removeItem('token'); medios = []; });
 
   it('recorre servicio -> dia -> hora -> datos pidiendo la disponibilidad correcta', () => {
     crear();
@@ -184,5 +187,68 @@ describe('ReservarComponent (reserva guiada)', () => {
     c.alternarServicio(pedicura);
     c.continuar();
     expect(disp.dias).toHaveBeenCalledWith('k1,p1', c.mes, c.year);
+  });
+
+  describe('pago con captura (la admin configuro medios)', () => {
+    const archivo = new File(['x'], 'pago.jpg', { type: 'image/jpeg' });
+    const pago = { porcentaje: 15, medio: 'zelle', archivo };
+    beforeEach(() => { medios = [{ id: 'zelle', nombre: 'Zelle', datos: 'pagos@dube.com' }]; });
+
+    it('pide el pago y calcula 15% y 100% sobre el total', () => {
+      crear();
+      elegir(kapping, pedicura);
+      expect(c.conPago).toBeTrue();
+      expect(c.opcionesPago).toEqual([{ porcentaje: 15, monto: 10.5 }, { porcentaje: 100, monto: 70 }]);
+    });
+
+    it('sin el pago completo no reserva', () => {
+      crear();
+      elegir(kapping); c.elegirDia({ dia: 2, libres: 5 }); c.elegirHora(14);
+      c.confirmar();
+      expect(agenda.reservarConPago).not.toHaveBeenCalled();
+      expect(c.error).toContain('adjunta la captura');
+    });
+
+    it('aparta la hora, sube la captura y termina con "pago en revision"', () => {
+      crear();
+      agenda.reservarConPago.and.returnValue(of({ id: 'cita-1', minutos: 30 }));
+      agenda.subirPago.and.returnValue(of({ estado: 'en-revision', monto: 6 }));
+      elegir(kapping); c.elegirDia({ dia: 2, libres: 5 }); c.elegirHora(14);
+      c.pago = pago;
+      c.confirmar();
+      expect(agenda.recibirDatos).not.toHaveBeenCalled();
+      expect(agenda.subirPago).toHaveBeenCalledWith('cita-1', pago);
+      expect(c.paso).toBe('listo');
+      expect(c.pagoEnviado).toBeTrue();
+    });
+
+    it('si falla la subida, reintenta sin volver a apartar la hora', () => {
+      crear();
+      agenda.reservarConPago.and.returnValue(of({ id: 'cita-1', minutos: 30 }));
+      agenda.subirPago.and.returnValue(throwError(() => ({ status: 500, msg: 'Error de red.' })));
+      elegir(kapping); c.elegirDia({ dia: 2, libres: 5 }); c.elegirHora(14);
+      c.pago = pago;
+      c.confirmar();
+      expect(c.error).toContain('Tu hora sigue apartada');
+      agenda.subirPago.and.returnValue(of({ estado: 'en-revision', monto: 6 }));
+      c.confirmar();
+      expect(agenda.reservarConPago).toHaveBeenCalledTimes(1);
+      expect(c.paso).toBe('listo');
+    });
+
+    it('si se acabo el tiempo (410), vuelve a elegir hora', () => {
+      crear();
+      agenda.reservarConPago.and.returnValue(of({ id: 'cita-1', minutos: 30 }));
+      agenda.subirPago.and.returnValue(throwError(() => ({ status: 410, msg: 'Se acabó el tiempo.' })));
+      elegir(kapping); c.elegirDia({ dia: 2, libres: 5 }); c.elegirHora(14);
+      c.pago = pago;
+      c.confirmar();
+      expect(c.paso).toBe('hora');
+    });
+
+    it('al reprogramar no pide pago', () => {
+      crear('k1', true, 'cita-9');
+      expect(c.conPago).toBeFalse();
+    });
   });
 });
