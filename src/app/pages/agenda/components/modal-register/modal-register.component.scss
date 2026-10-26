@@ -1,182 +1,43 @@
-// registro de hora (admin): mismo estilo que el resto de la app
-
-.modal {
-    position: relative;
-    width: 100%;
-    max-width: 520px;
-    box-sizing: border-box;
-    margin: 16px;
-    padding: 20px 16px;
-    border-radius: 20px;
-    background: #fff;
-    color: #1d1a1d;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.content_titulo {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-
-    h3 { margin: 2px 0 0; font-size: 22px; font-weight: 700; }
-}
+// registro de hora (admin): mismo estilo que el resto de la app (compacto: el proyecto limita 4 kB por componente)
+.modal { position: relative; width: 100%; max-width: 520px; box-sizing: border-box; margin: 16px; padding: 20px 16px; border-radius: 20px; background: #fff; color: #1d1a1d; display: flex; flex-direction: column; gap: 6px; }
+.content_titulo { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.content_titulo h3 { margin: 2px 0 0; font-size: 22px; }
 .eyebrow { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #6c656c; }
 .cerrar { flex: none; width: 36px; height: 36px; border-radius: 50%; border: 1px solid #d8d2d8; background: #fff; font-size: 22px; line-height: 1; color: #1d1a1d; cursor: pointer; padding: 0; }
-
 form { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
-form br { display: none; }
 label { margin-top: 8px; font-size: 14px; font-weight: 600; }
 .opcional { font-weight: 400; color: #6c656c; }
-
 // pisa el estilo global de inputs (gris y en negrita)
-.inputs {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 12px 14px;
-    border: 1px solid #d8d2d8;
-    border-radius: 12px;
-    background: #fff;
-    box-shadow: none;
-    color: #1d1a1d;
-    font-family: inherit;
-    font-size: 16px !important;
-    font-weight: 400;
-    text-align: left;
-}
-.inputs:focus { outline: 2px solid #1d1a1d; outline-offset: 1px; }
-.selector {
-    cursor: pointer;
-    padding-right: 36px;
-    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%231d1a1d' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center;
-}
-
-// autocompletado de clientas
+.inputs { width: 100%; box-sizing: border-box; padding: 12px 14px; border: 1px solid #d8d2d8; border-radius: 12px; background: #fff; box-shadow: none; color: #1d1a1d; font: inherit; font-size: 16px !important; font-weight: 400; text-align: left; }
+.selector { cursor: pointer; padding-right: 36px; }
+.selector-wrap { position: relative; }
+.selector-wrap::after { content: ""; position: absolute; right: 16px; top: 50%; width: 7px; height: 7px; border: solid #1d1a1d; border-width: 0 2px 2px 0; transform: translateY(-70%) rotate(45deg); pointer-events: none; }
 .campo-buscar { position: relative; }
-.sugerencias {
-    position: absolute; z-index: 3; top: calc(100% + 4px); left: 0; right: 0;
-    background: #fff; border: 1px solid #d8d2d8; border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, .12); overflow: hidden;
-
-    button {
-        display: flex; justify-content: space-between; gap: 8px; width: 100%;
-        padding: 12px 14px; border: 0; border-bottom: 1px solid #f1eef1; background: #fff;
-        font: inherit; font-size: 15px; text-align: left; color: #1d1a1d; cursor: pointer;
-    }
-    span { color: #6c656c; font-size: 13px; }
-}
-.emailStyles { font-weight: 600; }
-
-.submit {
-    margin-top: 14px;
-    padding: 14px;
-    border: 0;
-    border-radius: 999px;
-    background: #000;
-    color: #fff;
-    font: inherit;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.msg-error { margin-top: 8px; }
-
-// selectores de hora y servicio (hoja que sube desde abajo)
-.modalHora {
-    position: fixed;
-    inset: 0;
-    max-width: none;
-    min-height: 0;
-    z-index: 12;
-    align-items: flex-end;
-    background: rgba(29, 26, 29, .6);
-}
-.modalHoras {
-    width: 100%;
-    max-width: 520px;
-    max-height: 80vh;
-    overflow-y: auto;
-    box-sizing: border-box;
-    padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
-    border-radius: 20px 20px 0 0;
-    background: #fff;
-    color: #1d1a1d;
-}
-.titulo-selector {
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
-    h3 { margin: 0; font-size: 18px; }
-}
-.listaHoras {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-
-    li {
-        padding: 12px 4px;
-        border: 1px solid #d8d2d8;
-        border-radius: 10px;
-        text-align: center;
-        font-weight: 600;
-        font-size: 15px;
-        cursor: pointer;
-    }
-    li:hover { background: #000; color: #fff; border-color: #000; }
-}
-.ulServicios {
-    grid-template-columns: 1fr;
-
-    li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 14px; text-align: left; }
-    li:hover .duracion-servicio { color: #fff; }
-}
-.nombre-servicio { pointer-events: none; }
-.duracion-servicio { flex: none; font-size: 13px; font-weight: 400; color: #6c656c; pointer-events: none; }
-
+.sugerencias { position: absolute; z-index: 3; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1px solid #d8d2d8; border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, .12); overflow: hidden; }
+.sugerencias button { display: flex; justify-content: space-between; gap: 8px; width: 100%; padding: 12px 14px; border: 0; border-bottom: 1px solid #f1eef1; background: #fff; font: inherit; font-size: 15px; text-align: left; color: #1d1a1d; cursor: pointer; }
+.sugerencias span { color: #6c656c; font-size: 13px; }
+.submit { margin-top: 14px; padding: 14px; border: 0; border-radius: 999px; background: #000; color: #fff; font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; }
+// selectores de hora y servicio: hoja que sube desde abajo
+.modalHora { position: fixed; inset: 0; max-width: none; min-height: 0; z-index: 12; align-items: flex-end; background: rgba(29, 26, 29, .6); }
+.modalHoras { width: 100%; max-width: 520px; max-height: 80vh; overflow-y: auto; box-sizing: border-box; padding: 18px 16px 24px; border-radius: 20px 20px 0 0; background: #fff; color: #1d1a1d; }
+.titulo-selector { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.titulo-selector h3 { margin: 0; font-size: 18px; }
+.listaHoras { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.listaHoras li { padding: 12px 4px; border: 1px solid #d8d2d8; border-radius: 10px; text-align: center; font-weight: 600; cursor: pointer; }
+.listaHoras li:hover { background: #000; color: #fff; }
+.ulServicios { grid-template-columns: 1fr; }
+.ulServicios li { display: flex; justify-content: space-between; gap: 10px; padding: 14px; text-align: left; }
+.ulServicios span { pointer-events: none; }
+.duracion-servicio { flex: none; font-size: 13px; font-weight: 400; opacity: .7; }
 // confirmacion antes de agendar
-.modalNotifica {
-    position: fixed;
-    inset: 0;
-    z-index: 12;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    background: rgba(29, 26, 29, .6);
-
-    .confirmacion {
-        width: 100%;
-        max-width: 420px;
-        box-sizing: border-box;
-        padding: 20px;
-        border-radius: 20px;
-        background: #fff;
-        color: #1d1a1d;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-
-        h3 { margin: 0; font-size: 20px; }
-    }
-    .messageServices {
-        margin: 0;
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 6px 12px;
-        padding: 12px 14px;
-        border: 1px solid #e2dde2;
-        border-radius: 14px;
-
-        dt { color: #6c656c; }
-        dd { margin: 0; font-weight: 600; text-align: right; }
-    }
-    .messageModal { margin: 0; font-size: 13px; color: #6c656c; }
-    .botones { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .btn { padding: 12px; border-radius: 999px; border: 1px solid #d8d2d8; background: #fff; color: #1d1a1d; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
-    .si { background: #000; border-color: #000; color: #fff; }
-    .btn-link { border: 1px dashed #000; }
-}
+.modalNotifica { position: fixed; inset: 0; z-index: 12; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(29, 26, 29, .6); }
+.confirmacion { width: 100%; max-width: 420px; box-sizing: border-box; padding: 20px; border-radius: 20px; background: #fff; color: #1d1a1d; display: flex; flex-direction: column; gap: 12px; }
+.confirmacion h3 { margin: 0; font-size: 20px; }
+.messageServices { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; padding: 12px 14px; border: 1px solid #e2dde2; border-radius: 14px; }
+.messageServices dt { color: #6c656c; }
+.messageServices dd { margin: 0; font-weight: 600; text-align: right; }
+.messageModal { margin: 0; font-size: 13px; color: #6c656c; }
+.botones { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.btn { padding: 12px; border-radius: 999px; border: 1px solid #d8d2d8; background: #fff; color: #1d1a1d; font: inherit; font-weight: 600; cursor: pointer; }
+.si { background: #000; border-color: #000; color: #fff; }
+.btn-link { border: 1px dashed #000; }

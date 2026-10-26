@@ -20,10 +20,14 @@
     </div>
 
     <label for="ag-servicio">Servicio</label>
-    <input id="ag-servicio" class="inputs selector" formControlName="servicio" type="button" (click)="mostrarServicios()">
+    <div class="selector-wrap">
+      <input id="ag-servicio" class="inputs selector" formControlName="servicio" type="button" (click)="mostrarServicios()">
+    </div>
 
     <label for="ag-hora">Hora</label>
-    <input id="ag-hora" class="inputs selector" formControlName="hora" type="button" (click)="mostrarHoras()">
+    <div class="selector-wrap">
+      <input id="ag-hora" class="inputs selector" formControlName="hora" type="button" (click)="mostrarHoras()">
+    </div>
 
     <label for="ag-telefono">Teléfono</label>
     <input id="ag-telefono" class="inputs" type="text" inputmode="tel" placeholder="Ej. 555 123 4567"
