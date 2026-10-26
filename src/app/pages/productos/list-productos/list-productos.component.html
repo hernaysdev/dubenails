@@ -11,8 +11,11 @@
         <tr *ngFor="let producto of dataSource">
             <td>{{producto.nombre}}</td>
             <td>{{producto.precio}}$</td>
-            <td>{{producto.tiempo.toString().length > 1 ? producto.tiempo.toString().split('.')[0] + ':30hr' : producto.tiempo+':00hr'}}</td>
-            <button (click)="deleteProducto(producto._id)">Eliminar</button>
+            <td>{{ duracion(producto.tiempo) }}</td>
+            <td class="acciones">
+                <a routerLink="../update" [queryParams]="{ id: producto._id }">Editar</a>
+                <button type="button" (click)="deleteProducto(producto._id)">Eliminar</button>
+            </td>
         </tr>
     </tbody>
 </table>

@@ -1,0 +1,11 @@
+.editar { max-width: 520px; margin: 0 auto; padding: 8px 16px 24px; display: flex; flex-direction: column; gap: 10px; color: #1d1a1d; }
+h2 { margin: 4px 0 6px; font-size: 22px; }
+.meta { display: block; font-size: 13px; color: #6c656c; margin: 0; }
+.fila { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px; border: 1px solid #d8d2d8; border-radius: 14px; background: #fff; color: #1d1a1d; font: inherit; text-align: left; cursor: pointer; }
+.fila strong { display: block; }
+.accion { font-weight: 600; font-size: 14px; text-decoration: underline; }
+form { display: flex; flex-direction: column; gap: 8px; }
+label { font-weight: 600; font-size: 14px; margin-top: 4px; }
+select { font-size: 16px; padding: 10px; border-radius: 5px; border: 1px solid #d8d2d8; background: #fff; color: #1d1a1d; }
+.ayuda { color: #8a1c33; font-size: 12px; }
+.volver { align-self: flex-start; background: none; border: 0; padding: 4px 0; color: #1d1a1d; font: inherit; font-weight: 600; cursor: pointer; }

@@ -1,0 +1,37 @@
+<section class="editar">
+  <p class="msg-error" *ngIf="mensajeError && !producto" role="alert">{{ mensajeError }}</p>
+  <p class="meta" *ngIf="cargando">Cargando…</p>
+
+  <!-- elegir servicio -->
+  <ng-container *ngIf="!producto && !cargando">
+    <h2>¿Qué servicio quieres editar?</h2>
+    <button type="button" class="fila" *ngFor="let p of productos" (click)="editar(p)">
+      <span><strong>{{ p.nombre }}</strong><span class="meta">{{ duracion(p.tiempo) }} · ${{ p.precio }}</span></span>
+      <span class="accion">Editar</span>
+    </button>
+  </ng-container>
+
+  <!-- formulario -->
+  <form *ngIf="producto" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+    <button type="button" class="volver" (click)="volver()">‹ Elegir otro servicio</button>
+    <h2>Editar servicio</h2>
+
+    <label for="prod-nombre">Nombre del servicio</label>
+    <input id="prod-nombre" type="text" formControlName="nombre" maxlength="80">
+    <small class="ayuda" *ngIf="invalido('nombre')">Escribe el nombre.</small>
+
+    <label for="prod-precio">Precio</label>
+    <input id="prod-precio" type="number" inputmode="decimal" min="1" formControlName="precio">
+    <small class="ayuda" *ngIf="invalido('precio')">Escribe un precio mayor que 0.</small>
+
+    <label for="prod-tiempo">Duración</label>
+    <select id="prod-tiempo" formControlName="tiempo">
+      <option *ngFor="let d of duraciones" [ngValue]="d.horas">{{ d.texto }}</option>
+    </select>
+    <small class="meta">Define qué horas se ofrecen al reservar: el servicio tiene que caber completo.</small>
+
+    <input type="submit" [value]="guardando ? 'Guardando…' : 'Guardar cambios'" [disabled]="guardando">
+    <p class="msg-ok" *ngIf="mensajeOk" role="status">{{ mensajeOk }}</p>
+    <p class="msg-error" *ngIf="mensajeError" role="alert">{{ mensajeError }}</p>
+  </form>
+</section>

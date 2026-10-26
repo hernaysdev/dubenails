@@ -1,13 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { UpdateService } from './services/update.service';
 import { AgendaService } from './services/agenda.service';
+
+// 60px de margen superior del contenido (cabecera fija) + 80px de la barra inferior
+const ALTO_CABECERA_Y_PIE = 140;
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'duberlys';
   public respuesta: any;
   public iphoneFooter: boolean = false;
@@ -23,11 +26,22 @@ export class AppComponent {
     this.sw.checkForUpdates();
   }
 
-  ngAfterViewInit(): void {
-    this.altura = String(window.screen.height);
-    this.alturaContent = String(window.screen.height - 140 - 40);
-    this._agendaService.checkAgenda();
+  ngOnInit(): void {
+    this.calcularAlturas();
+  }
 
+  ngAfterViewInit(): void {
+    this._agendaService.checkAgenda();
+  }
+
+  // alto visible de la ventana (antes screen.height: el alto de la pantalla del dispositivo, que en
+  // navegadores con barras o ventanas mas chicas dejaba un bloque en blanco al final del scroll).
+  // Se calcula en ngOnInit para no cambiar valores despues del primer render (NG0100).
+  @HostListener('window:resize')
+  calcularAlturas() {
+    const alto = window.innerHeight;
+    this.altura = String(alto);
+    this.alturaContent = String(alto - ALTO_CABECERA_Y_PIE);
   }
 
 }

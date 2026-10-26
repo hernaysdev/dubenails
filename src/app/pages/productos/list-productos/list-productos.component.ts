@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { EventsService } from 'src/app/services/events.service';
 import { ProductosService } from 'src/app/services/productos.service';
+import { formatoDuracion } from 'src/app/services/disponibilidad.service';
 
 @Component({
   selector: 'app-list-productos',
@@ -10,6 +11,7 @@ import { ProductosService } from 'src/app/services/productos.service';
 })
 export class ListProductosComponent {
   dataSource: any
+  readonly duracion = formatoDuracion;
 
   constructor(
     private _productosService: ProductosService,
