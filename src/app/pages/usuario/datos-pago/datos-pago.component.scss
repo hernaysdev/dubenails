@@ -4,9 +4,15 @@ p { margin: 0; }
 .meta { font-size: 13px; color: #6c656c; line-height: 1.4; }
 .medio { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 12px; background: #f1eef1; }
 .medio.activo { background: #fff; box-shadow: inset 0 0 0 1px #1d1a1d; }
-.interruptor { display: flex; align-items: center; gap: 10px; font-weight: 700; cursor: pointer; }
-.interruptor input { width: 20px; height: 20px; accent-color: #000; }
+.fila { display: flex; align-items: center; gap: 8px; }
+.interruptor { display: flex; cursor: pointer; }
+.interruptor input { width: 20px; height: 20px; accent-color: #000; margin: 0; }
+.nombre { flex: 1; min-width: 0; font: inherit; font-size: 16px; font-weight: 700; padding: 8px 10px; border: 1px solid #d8d2d8; border-radius: 8px; background: #fff; }
+.quitar, .confirmar button { font: inherit; font-size: 13px; font-weight: 600; padding: 7px 10px; border-radius: 999px; border: 1px solid #d8d2d8; background: #fff; color: #1d1a1d; cursor: pointer; }
+.confirmar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 14px; font-weight: 600; }
+.peligro { background: #c2333f !important; border-color: #c2333f !important; color: #fff !important; }
 textarea { font: inherit; font-size: 16px; padding: 10px; border-radius: 8px; border: 1px solid #d8d2d8; resize: vertical; }
+.agregar { padding: 11px; border-radius: 999px; border: 1px dashed #1d1a1d; background: #fff; font: inherit; font-weight: 600; cursor: pointer; color: #1d1a1d; }
 .aviso { font-size: 13px; font-weight: 600; color: #c27a00; }
 .principal { padding: 13px; border-radius: 999px; background: #000; color: #fff; border: 0; font: inherit; font-weight: 600; cursor: pointer; }
 .principal:disabled { opacity: .5; }

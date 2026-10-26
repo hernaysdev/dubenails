@@ -13,8 +13,8 @@ export interface Contacto {
 
 // medio de pago que ve la clienta (solo los activos)
 export interface MedioPago { id: string; nombre: string; datos: string; }
-// como lo edita la admin
-export interface MedioPagoAdmin extends MedioPago { activo: boolean; }
+// como lo edita la admin (un medio nuevo aun no tiene id: lo asigna la API)
+export interface MedioPagoAdmin { id?: string; nombre: string; datos: string; activo: boolean; }
 
 // contenido editable por la admin (lectura publica; el token lo agrega AuthInterceptor)
 @Injectable({ providedIn: 'root' })
@@ -42,7 +42,7 @@ export class ContenidoService {
   }
 
   guardarPagos(medios: MedioPagoAdmin[]): Observable<any> {
-    return this.http.put(`${this.url}/pagos`, medios.map(({ id, activo, datos }) => ({ id, activo, datos })))
+    return this.http.put(`${this.url}/pagos`, medios.map(({ id, nombre, activo, datos }) => ({ id, nombre: nombre.trim(), activo, datos: datos.trim() })))
       .pipe(catchError((e: any) => throwError(() => e.error?.msg || 'No pudimos guardar los datos de pago.')));
   }
 }

@@ -3,15 +3,26 @@
   <p class="meta">La clienta elige uno al reservar, paga el 15% o el total y adjunta la captura. Tú la apruebas en Mis citas.</p>
   <p class="meta" *ngIf="cargando">Cargando…</p>
 
-  <div class="medio" *ngFor="let m of medios" [class.activo]="m.activo">
-    <label class="interruptor">
-      <input type="checkbox" [checked]="m.activo" (change)="alternar(m)">
-      <span>{{ m.nombre }}</span>
-    </label>
-    <textarea *ngIf="m.activo" rows="3" maxlength="300" [value]="m.datos" (input)="escribir(m, $event)"
-      [attr.aria-label]="'Datos de ' + m.nombre"
-      [placeholder]="m.id === 'transferencia' ? 'Banco, número de cuenta, routing y titular' : m.id === 'zelle' ? 'Correo o teléfono de Zelle y titular' : 'ID o correo de Binance Pay'"></textarea>
+  <div class="medio" *ngFor="let m of medios; let i = index" [class.activo]="m.activo">
+    <div class="fila">
+      <label class="interruptor" [attr.aria-label]="(m.activo ? 'Desactivar ' : 'Activar ') + (m.nombre || 'medio')">
+        <input type="checkbox" [checked]="m.activo" (change)="alternar(m)">
+      </label>
+      <input class="nombre" type="text" maxlength="40" [value]="m.nombre" (input)="escribirNombre(m, $event)"
+        placeholder="Nombre (ej. Zelle, Cash App, Efectivo)" [attr.aria-label]="'Nombre del medio ' + (i + 1)">
+      <button type="button" class="quitar" *ngIf="eliminando !== i" (click)="eliminando = i" [attr.aria-label]="'Eliminar ' + (m.nombre || 'medio')">Eliminar</button>
+    </div>
+    <div class="confirmar" *ngIf="eliminando === i">
+      <span>¿Eliminar {{ m.nombre || 'este medio' }}?</span>
+      <button type="button" (click)="eliminando = null">No</button>
+      <button type="button" class="peligro" (click)="eliminar(i)">Sí, eliminar</button>
+    </div>
+    <textarea *ngIf="m.activo" rows="3" maxlength="300" [value]="m.datos" (input)="escribirDatos(m, $event)"
+      [attr.aria-label]="'Datos de ' + (m.nombre || 'pago')" placeholder="Lo que la clienta necesita para pagar: correo, número de cuenta, titular…"></textarea>
+    <small class="meta" *ngIf="!m.activo">Desactivado: la clienta no lo ve.</small>
   </div>
+
+  <button type="button" class="agregar" (click)="agregar()" *ngIf="!cargando && medios.length < maxMedios">+ Agregar medio de pago</button>
 
   <p class="aviso" *ngIf="!cargando && !hayActivos">Sin medios activos las reservas se confirman sin pago, como hasta ahora.</p>
   <p class="msg-ok" *ngIf="mensajeOk" role="status">{{ mensajeOk }}</p>
