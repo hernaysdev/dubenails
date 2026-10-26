@@ -211,7 +211,7 @@ describe('ReservarComponent (reserva guiada)', () => {
 
     it('aparta la hora, sube la captura y termina con "pago en revision"', () => {
       crear();
-      agenda.reservarConPago.and.returnValue(of({ id: 'cita-1', minutos: 30 }));
+      agenda.reservarConPago.and.returnValue(of({ id: 'cita-1', pago: true, minutos: 30 }));
       agenda.subirPago.and.returnValue(of({ estado: 'en-revision', monto: 6 }));
       elegir(kapping); c.elegirDia({ dia: 2, libres: 5 }); c.elegirHora(14);
       c.pago = pago;
@@ -224,7 +224,7 @@ describe('ReservarComponent (reserva guiada)', () => {
 
     it('si falla la subida, reintenta sin volver a apartar la hora', () => {
       crear();
-      agenda.reservarConPago.and.returnValue(of({ id: 'cita-1', minutos: 30 }));
+      agenda.reservarConPago.and.returnValue(of({ id: 'cita-1', pago: true, minutos: 30 }));
       agenda.subirPago.and.returnValue(throwError(() => ({ status: 500, msg: 'Error de red.' })));
       elegir(kapping); c.elegirDia({ dia: 2, libres: 5 }); c.elegirHora(14);
       c.pago = pago;
@@ -238,7 +238,7 @@ describe('ReservarComponent (reserva guiada)', () => {
 
     it('si se acabo el tiempo (410), vuelve a elegir hora', () => {
       crear();
-      agenda.reservarConPago.and.returnValue(of({ id: 'cita-1', minutos: 30 }));
+      agenda.reservarConPago.and.returnValue(of({ id: 'cita-1', pago: true, minutos: 30 }));
       agenda.subirPago.and.returnValue(throwError(() => ({ status: 410, msg: 'Se acabó el tiempo.' })));
       elegir(kapping); c.elegirDia({ dia: 2, libres: 5 }); c.elegirHora(14);
       c.pago = pago;
@@ -249,6 +249,28 @@ describe('ReservarComponent (reserva guiada)', () => {
     it('al reprogramar no pide pago', () => {
       crear('k1', true, 'cita-9');
       expect(c.conPago).toBeFalse();
+    });
+  });
+
+  describe('pago y rol', () => {
+    beforeEach(() => { medios = [{ id: 'zelle', nombre: 'Zelle', datos: 'x' }]; });
+
+    it('a la admin no se le pide pago', () => {
+      crear();
+      usuarios.getUsuario.and.returnValue(of({ id: 'a1', nombre: 'admin', rol: 'admin', telefono: 1, correo: 'a@a.com' }) as any);
+      c.cargarUsuario();
+      expect(c.conPago).toBeFalse();
+    });
+
+    it('si la API confirma sin pago, termina sin intentar subir la captura', () => {
+      crear();
+      agenda.reservarConPago.and.returnValue(of({ id: 'cita-1', pago: false }));
+      elegir(kapping); c.elegirDia({ dia: 2, libres: 5 }); c.elegirHora(14);
+      c.pago = { porcentaje: 15, medio: 'zelle', archivo: new File(['x'], 'p.jpg', { type: 'image/jpeg' }) };
+      c.confirmar();
+      expect(agenda.subirPago).not.toHaveBeenCalled();
+      expect(c.paso).toBe('listo');
+      expect(c.pagoEnviado).toBeFalse();
     });
   });
 });

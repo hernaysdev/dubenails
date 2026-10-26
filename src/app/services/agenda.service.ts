@@ -65,7 +65,7 @@ export class AgendaService {
   }
 
   // la clienta aparta la hora para pagar: devuelve el id de la cita (luego subirPago)
-  reservarConPago(datos: any): Observable<{ id: string; minutos: number }> {
+  reservarConPago(datos: any): Observable<{ id: string; pago?: boolean; minutos?: number }> {
     return this.http.post<any>(`${this.url}/save`, { ...this.cuerpoReserva(datos), conPago: true })
       .pipe(catchError((error: any) => throwError(() => error.error?.msg)));
   }

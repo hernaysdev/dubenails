@@ -39,7 +39,7 @@ export class ReservarComponent implements OnInit {
   horas: number[] = [];
   horaElegida: number | null = null;
 
-  usuario: { id: string; nombre: string; telefono: string; correo: string } | null = null;
+  usuario: { id: string; nombre: string; telefono: string; correo: string; esAdmin: boolean } | null = null;
   mostrarRegistro = false;
   form: FormGroup;
   cargando = false;
@@ -97,7 +97,8 @@ export class ReservarComponent implements OnInit {
     });
   }
 
-  get conPago() { return this.medios.length > 0 && !this.reprogramar; }
+  // la admin agenda sin pagar (igual que en la API)
+  get conPago() { return this.medios.length > 0 && !this.reprogramar && !this.usuario?.esAdmin; }
   get opcionesPago() { return opcionesDePago(this.precioTotal, this.porcentajes); }
 
   get numeroPaso() { return this.pasos.indexOf(this.paso) + 1; }
@@ -185,7 +186,7 @@ export class ReservarComponent implements OnInit {
     if (!token) { this.usuario = null; return; }
     this.usuariosService.getUsuario(token).subscribe({
       next: (u: any) => {
-        this.usuario = { id: u.id, nombre: u.nombre, telefono: u.telefono ? String(u.telefono) : '', correo: u.correo };
+        this.usuario = { id: u.id, nombre: u.nombre, telefono: u.telefono ? String(u.telefono) : '', correo: u.correo, esAdmin: u.rol === 'admin' };
         this.form.patchValue({ nombre: this.form.value.nombre || u.nombre, telefono: this.form.value.telefono || this.usuario.telefono });
       },
       error: () => { this.usuario = null; }
@@ -219,7 +220,11 @@ export class ReservarComponent implements OnInit {
     this.error = '';
     if (this.citaApartada) { this.subirPago(this.citaApartada); return; }
     this.agendaService.reservarConPago(this.datosReserva(nombre, telefono)).subscribe({
-      next: ({ id }) => { this.citaApartada = id; this.subirPago(id); },
+      next: ({ id, pago }) => {
+        // la API decide si pide pago: si confirmo la reserva sin pago, no hay captura que subir
+        if (!pago || !id) { this.enviando = false; this.paso = 'listo'; return; }
+        this.citaApartada = id; this.subirPago(id);
+      },
       error: (msg: string) => {
         this.enviando = false;
         this.error = msg || 'No pudimos apartar la hora. Intenta de nuevo.';
