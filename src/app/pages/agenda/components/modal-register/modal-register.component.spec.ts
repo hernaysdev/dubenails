@@ -9,17 +9,20 @@ import { SharedService } from 'src/app/services/shared.service';
 import { PagoService } from 'src/app/services/pago.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { ProductosService } from 'src/app/services/productos.service';
+import { Router } from '@angular/router';
 
 describe('ModalRegisterComponent (year al agendar)', () => {
   let component: ModalRegisterComponent;
   let agendaService: jasmine.SpyObj<AgendaService>;
+  let router: jasmine.SpyObj<Router>;
 
   beforeEach(() => {
     jasmine.clock().install();
     jasmine.clock().mockDate(new Date(2026, 11, 20)); // 20 de diciembre de 2026
-    agendaService = jasmine.createSpyObj('AgendaService', ['getDatosDay', 'recibirDatos']);
+    agendaService = jasmine.createSpyObj('AgendaService', ['getDatosDay', 'recibirDatos', 'agendarPorConfirmar']);
     agendaService.getDatosDay.and.returnValue(of('No se encontraron registros.'));
     agendaService.recibirDatos.and.returnValue(of('ok'));
+    router = jasmine.createSpyObj('Router', ['navigate']);
     const events = jasmine.createSpyObj('EventsService', ['alertMessage'], {
       successDatos: { emit: () => {} }, setValorMontoTotal: { emit: () => {} },
     });
@@ -34,6 +37,7 @@ describe('ModalRegisterComponent (year al agendar)', () => {
         { provide: PagoService, useValue: {} },
         { provide: UsuariosService, useValue: {} },
         { provide: ProductosService, useValue: {} },
+        { provide: Router, useValue: router },
       ],
     }).overrideTemplate(ModalRegisterComponent, '');
 
@@ -61,5 +65,17 @@ describe('ModalRegisterComponent (year al agendar)', () => {
     component.dia = { day: 5, month: 0, diaName: 'martes', year: 2027 };
     await component.traerData(10, 'Ana', 'Kapping', 5, 2, '', 0, '');
     expect(agendaService.recibirDatos).not.toHaveBeenCalled();
+  });
+
+  it('la admin agenda "por confirmar": va a Mis citas con el link listo', async () => {
+    const link = { url: 'https://dubenails.com/confirmar/abc' };
+    agendaService.agendarPorConfirmar.and.returnValue(of({ id: 'c1', link } as any));
+    component.rol = 'admin';
+    component.dia = { day: 5, month: 0, diaName: 'martes', year: 2027 };
+    component.porConfirmar = true;
+    await component.traerData(10, 'Ana', 'Kapping', 5, 2, '', 0, '');
+    expect(agendaService.recibirDatos).not.toHaveBeenCalled();
+    expect(agendaService.agendarPorConfirmar).toHaveBeenCalledWith(jasmine.objectContaining({ mes: 0, year: 2027 }));
+    expect(router.navigate).toHaveBeenCalledWith(['/mis-citas'], { state: { linkNuevo: { citaId: 'c1', link } } });
   });
 });

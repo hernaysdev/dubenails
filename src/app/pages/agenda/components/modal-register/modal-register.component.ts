@@ -8,6 +8,7 @@ import * as moment from 'moment';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { animate, animation, keyframes, state, style, transition, trigger, ɵBrowserAnimationBuilder } from '@angular/animations';
 import { ProductosService } from 'src/app/services/productos.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-modal-register',
@@ -59,6 +60,8 @@ export class ModalRegisterComponent implements OnInit {
   @Input('horas') horas: any;
   @Input('horasCopias') horasCopias: any;
   showModal: boolean = false;
+  // la admin aparta la hora y le manda a la clienta un link para confirmarla
+  porConfirmar = false;
   serviceSelection: string = '';
   hourSelection: string = '';
   mes: any;
@@ -93,7 +96,8 @@ export class ModalRegisterComponent implements OnInit {
     private sharedService: SharedService,
     private pagoService: PagoService,
     private usuariosService: UsuariosService,
-    private _productosService: ProductosService
+    private _productosService: ProductosService,
+    private router: Router
   ) {
     moment.locale('es');
     this.formGroup = this.formBuilder.group({
@@ -147,7 +151,8 @@ export class ModalRegisterComponent implements OnInit {
     this.serviceSelection = servicio;
   }
 
-  async enviarDatos() {
+  async enviarDatos(porConfirmar = false) {
+    this.porConfirmar = porConfirmar && this.rol === 'admin';
     this.formGroup.controls['nombre'].enable();
     this.formGroup.controls['telefono'].enable();
     this.formGroup.controls['correo'].enable();
@@ -251,7 +256,23 @@ export class ModalRegisterComponent implements OnInit {
     const token = this.token;
     const estado = true;
     // const estado = (this.rol === 'admin') ? true : false;
-    this.agendaService.recibirDatos({ nombre, horaNueva, servicio, dia, horaServicio, telefono, mes, id, nuevo, token, estado, correo, precio, year }).subscribe({
+    const datos = { nombre, horaNueva, servicio, dia, horaServicio, telefono, mes, id, nuevo, token, estado, correo, precio, year };
+    if (this.porConfirmar) {
+      // queda "por confirmar": se abre Mis citas con el link listo para enviar por WhatsApp
+      this.agendaService.agendarPorConfirmar(datos).subscribe({
+        next: ({ id: citaId, link }) => {
+          this.eventsService.successDatos.emit(true);
+          this.registerModal.emit(false);
+          this.router.navigate(['/mis-citas'], { state: { linkNuevo: { citaId, link } } });
+        },
+        error: (msg: string) => {
+          this.showModal = false;
+          this.error = msg || 'No pudimos guardar la hora. Intenta de nuevo.';
+        }
+      });
+      return;
+    }
+    this.agendaService.recibirDatos(datos).subscribe({
       next: (msg: string) => {
         this.formGroup.controls['nombre'].setValue('');
         this.formGroup.controls['hora'].setValue('');

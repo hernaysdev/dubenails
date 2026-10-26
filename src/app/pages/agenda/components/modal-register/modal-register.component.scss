@@ -213,6 +213,16 @@ input[type="radio"]{
             margin-top: 10px;
             margin-bottom: 10px;
         }
+        .btn-link{
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px dashed #000;
+            background: #fff;
+            color: #000;
+            font-weight: 600;
+            cursor: pointer;
+        }
         .messageServices{
             display: flex;
     flex-flow: column;

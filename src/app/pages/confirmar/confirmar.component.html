@@ -1,0 +1,55 @@
+<section class="confirmar">
+  <p class="meta" *ngIf="vista === 'cargando'">Cargando tu reserva…</p>
+
+  <ng-container *ngIf="reserva && (vista === 'pendiente' || vista === 'otro-horario' || vista === 'confirmada')">
+    <span class="etiqueta" [class.ok]="vista === 'confirmada'">{{ vista === 'confirmada' ? 'Confirmada' : 'Por confirmar' }}</span>
+    <h1 *ngIf="vista === 'pendiente'">Hola {{ reserva.nombre }}, te apartamos esta hora</h1>
+    <h1 *ngIf="vista === 'otro-horario'">Le avisamos a DubeNails</h1>
+    <h1 *ngIf="vista === 'confirmada'">¡Listo, {{ reserva.nombre }}! Tu cita está confirmada</h1>
+
+    <p *ngIf="vista === 'otro-horario'">Te escribirán para buscar otro horario. Mientras, esta hora sigue apartada hasta las {{ reserva.venceTexto }}.</p>
+    <p *ngIf="vista === 'confirmada'">Te esperamos. Si dejaste tu correo, te enviamos los detalles.</p>
+
+    <dl class="detalle">
+      <div><dt>Servicio</dt><dd>{{ reserva.servicio }}</dd></div>
+      <div><dt>Fecha</dt><dd class="capital">{{ fecha }}</dd></div>
+      <div><dt>Hora</dt><dd>{{ hora(reserva.hora) }} a {{ hora(reserva.tramo) }}</dd></div>
+      <div *ngIf="reserva.valor"><dt>Precio</dt><dd>${{ reserva.valor }}</dd></div>
+      <div *ngIf="reserva.direccion"><dt>Dirección</dt><dd><a [href]="mapa" target="_blank" rel="noopener">{{ reserva.direccion }}</a></dd></div>
+    </dl>
+
+    <ng-container *ngIf="vista !== 'confirmada'">
+      <p class="msg-error" *ngIf="error" role="alert">{{ error }}</p>
+      <button type="button" class="principal" (click)="responder('aceptar')" [disabled]="enviando">{{ enviando ? 'Guardando…' : 'Confirmar reserva' }}</button>
+      <p class="meta centro" *ngIf="vista === 'pendiente'">Confírmala antes de las {{ reserva.venceTexto }}. Si no, el horario se libera.</p>
+
+      <div class="secundarias" *ngIf="!confirmandoRechazo">
+        <button type="button" *ngIf="vista === 'pendiente'" (click)="responder('otro-horario')" [disabled]="enviando">Necesito otro horario</button>
+        <button type="button" (click)="confirmandoRechazo = true" [disabled]="enviando">No puedo asistir</button>
+      </div>
+      <div class="pregunta" *ngIf="confirmandoRechazo">
+        <strong>¿Liberar esta hora?</strong>
+        <div class="secundarias">
+          <button type="button" (click)="confirmandoRechazo = false">Volver</button>
+          <button type="button" class="peligro" (click)="responder('rechazar')" [disabled]="enviando">Sí, no puedo</button>
+        </div>
+      </div>
+    </ng-container>
+
+    <p class="meta">Puedes cancelar o cambiar tu cita hasta 24 horas antes.</p>
+    <a *ngIf="vista === 'confirmada'" class="enlace" routerLink="/home">Ir a DubeNails</a>
+  </ng-container>
+
+  <ng-container *ngIf="vista === 'rechazada' || vista === 'vencida' || vista === 'invalido' || vista === 'error'">
+    <h1 *ngIf="vista === 'rechazada'">Gracias por avisarnos</h1>
+    <h1 *ngIf="vista === 'vencida'">El plazo para confirmar venció</h1>
+    <h1 *ngIf="vista === 'invalido'">Este link ya no es válido</h1>
+    <h1 *ngIf="vista === 'error'">No pudimos cargar tu reserva</h1>
+    <p *ngIf="vista === 'rechazada'">Liberamos el horario. Cuando quieras, reserva otra hora.</p>
+    <p *ngIf="vista === 'vencida'">El horario se liberó. Puedes reservar otra hora o escribirnos.</p>
+    <p *ngIf="vista === 'invalido'">Puede que ya se haya usado o que haya vencido. Escríbenos y te ayudamos.</p>
+    <p *ngIf="vista === 'error'">Revisa tu conexión e intenta de nuevo.</p>
+    <a class="principal" routerLink="/reservar">Reservar otra hora</a>
+    <a *ngIf="whatsappSalon" class="enlace" [href]="whatsappSalon" target="_blank" rel="noopener">Escribir por WhatsApp</a>
+  </ng-container>
+</section>

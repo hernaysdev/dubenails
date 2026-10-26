@@ -5,6 +5,10 @@ import { environment } from 'src/environments/environment';
 import { EventsService } from './events.service';
 import { SharedService } from './shared.service';
 
+export interface LinkConfirmacion {
+  url: string; vence: string; venceTexto: string; mensaje: string; whatsapp: string; correoEnviado: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -20,7 +24,37 @@ export class AgendaService {
   ) { }
 
   recibirDatos(datos: any): any {
-    const body = {
+    const body = this.cuerpoReserva(datos);
+    const token = localStorage.getItem('token')
+    return this.http.post<any>(`${this.url}/save`, body, {
+      headers: {
+        authorization: token ? token : ''
+    }})
+      .pipe(
+        map((resp) => {
+          return resp.msg;
+        }),
+        catchError((error: any) => {
+
+          return throwError(() => error.error.msg);
+        })
+      )
+  }
+
+  // la admin aparta la hora "por confirmar": la API devuelve el link para la clienta
+  agendarPorConfirmar(datos: any): Observable<{ id: string, link: LinkConfirmacion }> {
+    return this.http.post<any>(`${this.url}/save`, { ...this.cuerpoReserva(datos), porConfirmar: true })
+      .pipe(catchError((error: any) => throwError(() => error.error?.msg)));
+  }
+
+  // aparta una cita ya agendada (o reenvia el link con un plazo nuevo)
+  enviarLink(id: string): Observable<LinkConfirmacion> {
+    return this.http.post<LinkConfirmacion>(`${this.url}/mis-citas/${id}/link`, {})
+      .pipe(catchError((error: any) => throwError(() => error.error?.msg)));
+  }
+
+  private cuerpoReserva(datos: any) {
+    return {
       nombre: datos.nombre.trim(),
       dia: datos.dia,
       hora: datos.horaNueva,
@@ -36,24 +70,6 @@ export class AgendaService {
       precio: datos.precio,
       year: datos.year
     }
-
-    const token = localStorage.getItem('token')
-
-
-
-    return this.http.post<any>(`${this.url}/save`, body, {
-      headers: {
-        authorization: token ? token : ''
-    }})
-      .pipe(
-        map((resp) => {
-          return resp.msg;
-        }),
-        catchError((error: any) => {
-
-          return throwError(() => error.error.msg);
-        })
-      )
   }
 
   getDatos(): any {

@@ -19,6 +19,8 @@
       <ng-container *ngIf="esAdmin; else datosClienta">
         <p class="clienta">{{ c.clienta }} <span class="etiqueta" *ngIf="c.sinCuenta">Sin cuenta</span></p>
         <p class="meta">{{ c.servicio }}<ng-container *ngIf="c.telefono"> · Tel. {{ c.telefono }}</ng-container></p>
+        <p class="pendiente" *ngIf="c.porConfirmar">Por confirmar · se libera a las {{ c.venceTexto }}</p>
+        <p class="pide-otro" *ngIf="c.pideOtroHorario">Pidió otro horario: escríbele para cambiarla</p>
       </ng-container>
       <ng-template #datosClienta>
         <p class="meta">{{ c.servicio }} · hasta las {{ hora(c.tramo) }}</p>
@@ -29,6 +31,22 @@
           <button type="button" (click)="reprogramar(c)" [disabled]="!c.servicioId">Reprogramar</button>
           <button type="button" (click)="confirmando = c.id">Cancelar</button>
         </div>
+        <ng-container *ngIf="esAdmin && confirmando !== c.id">
+          <app-compartir-link *ngIf="linkDe[c.id] as link; else botonLink" [link]="link" [clienta]="c.clienta || ''" (cerrar)="linkDe[c.id] = undefined"></app-compartir-link>
+          <ng-template #botonLink>
+            <button *ngIf="apartando !== c.id" type="button" class="secundario" (click)="c.porConfirmar ? enviarLink(c) : apartando = c.id" [disabled]="enviandoLink === c.id">
+              {{ enviandoLink === c.id ? 'Creando link…' : (c.porConfirmar ? 'Reenviar link (otras ' + HORAS_PARA_CONFIRMAR + ' h)' : 'Enviar link para confirmar') }}
+            </button>
+            <div *ngIf="apartando === c.id" class="confirmar">
+              <strong>¿Enviar link para que {{ c.clienta }} confirme?</strong>
+              <p class="meta">La cita quedará "por confirmar". Si no la confirma en {{ HORAS_PARA_CONFIRMAR }} horas, el horario se libera solo.</p>
+              <div class="acciones">
+                <button type="button" (click)="apartando = null">No</button>
+                <button type="button" class="peligro" (click)="enviarLink(c)" [disabled]="enviandoLink === c.id">Sí, crear link</button>
+              </div>
+            </div>
+          </ng-template>
+        </ng-container>
         <div *ngIf="confirmando === c.id" class="confirmar">
           <strong>{{ esAdmin ? '¿Cancelar la cita de ' + c.clienta + '?' : '¿Cancelar esta cita?' }}</strong>
           <div class="acciones">

@@ -11,7 +11,7 @@ describe('MisCitasComponent', () => {
   const cita: MiCita = { id: 'c1', servicio: 'Kapping', servicioId: 'k1', dia: 3, mes: 10, year: 2026, hora: 14, tramo: 15.5, valor: 40, puedeModificar: true };
 
   beforeEach(() => {
-    agenda = jasmine.createSpyObj('AgendaService', ['misCitas', 'cancelarMiCita', 'reprogramarMiCita']);
+    agenda = jasmine.createSpyObj('AgendaService', ['misCitas', 'cancelarMiCita', 'reprogramarMiCita', 'enviarLink']);
     agenda.misCitas.and.returnValue(of({ citas: [cita, { ...cita, id: 'c2', dia: 4 }], esAdmin: false }));
     router = jasmine.createSpyObj('Router', ['navigate']);
     TestBed.configureTestingModule({
@@ -63,5 +63,35 @@ describe('MisCitasComponent', () => {
     expect(c.aviso).toContain('Carla');
     expect(c.dias[0].citas.length).toBe(1);
   });
-});
 
+  describe('link para confirmar (admin)', () => {
+    const link = { url: 'https://dubenails.com/confirmar/abc', vence: '2026-11-03T20:30:00.000Z', venceTexto: '16:30', mensaje: 'Hola', whatsapp: 'https://wa.me/?text=Hola', correoEnviado: false };
+
+    it('crear el link marca la cita por confirmar y deja el panel para compartir', () => {
+      agenda.enviarLink.and.returnValue(of(link));
+      const x = { ...cita, clienta: 'Ana' };
+      c.apartando = 'c1';
+      c.enviarLink(x);
+      expect(agenda.enviarLink).toHaveBeenCalledWith('c1');
+      expect(x.porConfirmar).toBeTrue();
+      expect(x.venceTexto).toBe('16:30');
+      expect(c.linkDe['c1']).toEqual(link);
+      expect(c.apartando).toBeNull();
+    });
+
+    it('si falla, muestra el motivo', () => {
+      agenda.enviarLink.and.returnValue(throwError(() => 'Esa cita ya pasó.'));
+      c.enviarLink(cita);
+      expect(c.error).toBe('Esa cita ya pasó.');
+      expect(c.linkDe['c1']).toBeUndefined();
+    });
+
+    it('al llegar desde la agenda con un link nuevo, lo muestra', () => {
+      history.replaceState({ linkNuevo: { citaId: 'c9', link } }, '');
+      const otro = TestBed.createComponent(MisCitasComponent).componentInstance;
+      otro.ngOnInit();
+      expect(otro.linkDe['c9']).toEqual(link);
+      history.replaceState({}, '');
+    });
+  });
+});

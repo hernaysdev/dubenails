@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AgendaService } from 'src/app/services/agenda.service';
+import { AgendaService, LinkConfirmacion } from 'src/app/services/agenda.service';
 import { formatoHora } from 'src/app/services/disponibilidad.service';
 
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -12,6 +12,8 @@ export interface MiCita {
   valor: number | null; puedeModificar: boolean;
   // solo para la admin
   clienta?: string; telefono?: string; correo?: string; sinCuenta?: boolean;
+  // reserva por confirmar (link a la clienta)
+  porConfirmar?: boolean; vence?: string | null; venceTexto?: string; pideOtroHorario?: boolean;
 }
 
 // Clienta: sus proximas citas (cancelar o reprogramar hasta 24 h antes).
@@ -29,11 +31,21 @@ export class MisCitasComponent implements OnInit {
   error = '';
   aviso = '';
   confirmando: string | null = null;
+  // admin: cita en la que confirma apartar con link, y links listos para compartir por cita
+  apartando: string | null = null;
+  enviandoLink: string | null = null;
+  linkDe: Record<string, LinkConfirmacion | undefined> = {};
   readonly hora = formatoHora;
+  readonly HORAS_PARA_CONFIRMAR = 6;
 
   constructor(private agendaService: AgendaService, private router: Router) { }
 
-  ngOnInit(): void { this.cargar(); }
+  ngOnInit(): void {
+    // al agendar "por confirmar" desde la agenda se llega aqui con el link listo para compartir
+    const nuevo = history.state?.linkNuevo;
+    if (nuevo?.citaId && nuevo?.link) this.linkDe[nuevo.citaId] = nuevo.link;
+    this.cargar();
+  }
 
   cargar() {
     this.cargando = true;
@@ -68,6 +80,19 @@ export class MisCitasComponent implements OnInit {
           : `Cancelamos tu cita del ${this.fecha(c)}. El horario quedó libre.`;
       },
       error: (msg: string) => { this.confirmando = null; this.error = msg || 'No pudimos cancelar la cita.'; }
+    });
+  }
+
+  enviarLink(c: MiCita) {
+    this.error = ''; this.aviso = '';
+    this.enviandoLink = c.id;
+    this.agendaService.enviarLink(c.id).subscribe({
+      next: (link) => {
+        this.enviandoLink = null; this.apartando = null;
+        this.linkDe[c.id] = link;
+        c.porConfirmar = true; c.vence = link.vence; c.venceTexto = link.venceTexto; c.pideOtroHorario = false;
+      },
+      error: (msg: string) => { this.enviandoLink = null; this.apartando = null; this.error = msg || 'No pudimos crear el link.'; }
     });
   }
 

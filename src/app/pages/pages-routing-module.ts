@@ -44,6 +44,11 @@ const pagesRoutes: Routes = [
     loadChildren : () => import('./reservar/reservar.module').then(m => m.ReservarModule)
   },
   {
+    // link que la admin envia para que la clienta confirme la hora apartada (publico, sin cuenta)
+    path:'confirmar/:token',
+    loadChildren : () => import('./confirmar/confirmar.module').then(m => m.ConfirmarModule)
+  },
+  {
     path:'mis-citas',
     canActivate: [loginGuard],
     loadChildren : () => import('./mis-citas/mis-citas.module').then(m => m.MisCitasModule)

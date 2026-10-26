@@ -1,0 +1,9 @@
+<section class="compartir" role="dialog" aria-label="Enviar link de confirmación">
+  <strong>Link listo{{ clienta ? ' para ' + clienta : '' }}</strong>
+  <p class="meta">La hora queda apartada hasta las {{ link.venceTexto }}. Si no la confirma, se libera sola.</p>
+  <p class="meta" *ngIf="link.correoEnviado">También le enviamos el link por correo.</p>
+
+  <a class="whatsapp" [href]="link.whatsapp" target="_blank" rel="noopener">Enviar por WhatsApp</a>
+  <button type="button" (click)="copiar()">{{ copiado ? 'Mensaje copiado ✓' : 'Copiar mensaje con el link' }}</button>
+  <button type="button" class="texto" (click)="cerrar.emit()">Listo</button>
+</section>

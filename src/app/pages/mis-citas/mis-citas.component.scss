@@ -17,3 +17,6 @@ h2::first-letter { text-transform: uppercase; }
 .dia { display: flex; flex-direction: column; gap: 10px; }
 .clienta { font-weight: 700; }
 .etiqueta { display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 999px; background: #f1eef1; font-size: 11px; font-weight: 700; color: #3d363d; vertical-align: middle; }
+.pendiente { font-size: 13px; font-weight: 700; color: #c27a00; }
+.pide-otro { font-size: 13px; font-weight: 700; color: #c2333f; }
+.secundario { width: 100%; border-style: dashed; }

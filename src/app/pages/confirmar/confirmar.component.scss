@@ -1,0 +1,21 @@
+.confirmar { max-width: 520px; margin: 0 auto; padding: 32px 16px 24px; display: flex; flex-direction: column; gap: 14px; color: #1d1a1d; }
+h1 { margin: 0; font-size: 24px; line-height: 1.25; }
+p { margin: 0; line-height: 1.45; }
+.meta { font-size: 13px; color: #6c656c; }
+.centro { text-align: center; }
+.etiqueta { align-self: flex-start; padding: 4px 10px; border-radius: 999px; background: #f1eef1; color: #c27a00; font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; }
+.etiqueta.ok { color: #2f7d5b; }
+.detalle { margin: 0; border: 1px solid #d8d2d8; border-radius: 14px; padding: 4px 14px; }
+.detalle div { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f1eef1; }
+.detalle div:last-child { border-bottom: none; }
+dt { width: 84px; flex: none; font-size: 13px; color: #6c656c; }
+dd { margin: 0; font-weight: 600; }
+dd a { color: inherit; }
+.capital::first-letter { text-transform: uppercase; }
+button, .principal, .enlace { display: block; width: 100%; box-sizing: border-box; text-align: center; padding: 12px; border-radius: 999px; border: 1px solid #d8d2d8; background: #fff; color: #1d1a1d; font-family: inherit; font-weight: 600; font-size: 15px; cursor: pointer; text-decoration: none; }
+button:disabled { opacity: .5; cursor: default; }
+.principal { background: #000; color: #fff; border-color: #000; padding: 14px; }
+.enlace { border: none; text-decoration: underline; font-size: 14px; }
+.secundarias { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.peligro { background: #000; color: #fff; border-color: #000; }
+.pregunta { border: 1px dashed #000; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }

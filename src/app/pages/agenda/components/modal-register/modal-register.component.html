@@ -120,5 +120,7 @@
       <button class="btn" (click)="closeModal()">No</button>
       <button class="btn" (click)="enviarDatos()">Si</button>
     </div>
+    <!-- la clienta confirma con un link; si no lo hace en 6 h, la hora se libera -->
+    <button *ngIf="rol === 'admin'" class="btn btn-link" (click)="enviarDatos(true)">Agendar y enviar link para que confirme</button>
   </div>
 </div>
