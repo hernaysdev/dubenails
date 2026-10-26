@@ -6,11 +6,14 @@ import { AgendaService } from 'src/app/services/agenda.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 
 type Paso = 'servicio' | 'dia' | 'hora' | 'datos' | 'listo';
+// varios servicios seguidos en una misma cita (igual que en la API)
+export const MAX_SERVICIOS = 4;
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 const MESES_ADELANTE = 3;
 
-// Reserva guiada: servicio -> dia -> hora -> datos -> listo. Se puede recorrer sin cuenta;
+// Reserva guiada: servicios -> dia -> hora -> datos -> listo. Se pueden elegir varios servicios seguidos
+// (una sola cita con la duracion y el precio sumados). Se puede recorrer sin cuenta;
 // la sesion se pide en el paso de datos. La disponibilidad viene de /api/disponibilidad.
 @Component({
   selector: 'app-reservar',
@@ -24,7 +27,8 @@ export class ReservarComponent implements OnInit {
   readonly duracion = formatoDuracion;
 
   servicios: Servicio[] = [];
-  servicio: Servicio | null = null;
+  elegidos: Servicio[] = [];
+  readonly maxServicios = MAX_SERVICIOS;
   mes: number; year: number;
   private readonly mesInicial: number; private readonly yearInicial: number;
   dias: DiaDisponible[] = [];
@@ -66,9 +70,10 @@ export class ReservarComponent implements OnInit {
       next: (servicios) => {
         this.servicios = servicios;
         this.cargando = false;
-        const id = this.route.snapshot.queryParamMap.get('servicio');
-        const elegido = servicios.find(s => s.id === id);
-        if (elegido) this.elegirServicio(elegido);
+        // ?servicio=id o id1,id2 (desde la portada o al reprogramar una cita con varios servicios)
+        const ids = (this.route.snapshot.queryParamMap.get('servicio') || '').split(',').filter(Boolean);
+        const elegidos = ids.map(id => servicios.find(s => s.id === id)).filter((s): s is Servicio => !!s);
+        if (elegidos.length) { this.elegidos = elegidos.slice(0, MAX_SERVICIOS); this.continuar(); }
       },
       error: () => { this.cargando = false; this.error = 'No pudimos cargar los servicios. Intenta de nuevo en un momento.'; }
     });
@@ -85,8 +90,24 @@ export class ReservarComponent implements OnInit {
     return `${DIAS[f.getDay()]} ${this.dia} de ${MESES[this.mes]}`;
   }
 
-  elegirServicio(s: Servicio) {
-    this.servicio = s;
+  get hayServicios() { return this.elegidos.length > 0; }
+  get nombreServicios() { return this.elegidos.map(s => s.nombre).join(' + '); }
+  get duracionTotal() { return this.elegidos.reduce((t, s) => t + s.duracion, 0); }
+  get precioTotal() { return this.elegidos.reduce((t, s) => t + s.precio, 0); }
+  private get idsElegidos() { return this.elegidos.map(s => s.id).join(','); }
+
+  estaElegido(s: Servicio) { return this.elegidos.some(e => e.id === s.id); }
+
+  // marca o desmarca; el orden en que los elige es el orden en que se hacen
+  alternarServicio(s: Servicio) {
+    this.error = '';
+    if (this.estaElegido(s)) { this.elegidos = this.elegidos.filter(e => e.id !== s.id); return; }
+    if (this.elegidos.length >= MAX_SERVICIOS) { this.error = `Puedes elegir hasta ${MAX_SERVICIOS} servicios por cita.`; return; }
+    this.elegidos = [...this.elegidos, s];
+  }
+
+  continuar() {
+    if (!this.hayServicios) return;
     this.dia = null; this.horaElegida = null; this.error = '';
     this.paso = 'dia';
     this.cargarDias();
@@ -100,28 +121,28 @@ export class ReservarComponent implements OnInit {
   }
 
   cargarDias() {
-    if (!this.servicio) return;
+    if (!this.hayServicios) return;
     this.blancos = Array(new Date(this.year, this.mes, 1).getDay()).fill(0);
     this.dias = [];
     this.cargando = true;
-    this.disponibilidad.dias(this.servicio.id, this.mes, this.year).subscribe({
+    this.disponibilidad.dias(this.idsElegidos, this.mes, this.year).subscribe({
       next: (dias) => { this.dias = dias; this.cargando = false; },
       error: () => { this.cargando = false; this.error = 'No pudimos cargar los días disponibles.'; }
     });
   }
 
   elegirDia(d: DiaDisponible) {
-    if (!d.libres || !this.servicio) return;
+    if (!d.libres || !this.hayServicios) return;
     this.dia = d.dia; this.horaElegida = null; this.error = '';
     this.paso = 'hora';
     this.cargarHoras();
   }
 
   cargarHoras() {
-    if (!this.servicio || this.dia === null) return;
+    if (!this.hayServicios || this.dia === null) return;
     this.horas = [];
     this.cargando = true;
-    this.disponibilidad.horas(this.servicio.id, this.dia, this.mes, this.year).subscribe({
+    this.disponibilidad.horas(this.idsElegidos, this.dia, this.mes, this.year).subscribe({
       next: (horas) => { this.horas = horas; this.cargando = false; },
       error: () => { this.cargando = false; this.error = 'No pudimos cargar las horas.'; }
     });
@@ -152,7 +173,7 @@ export class ReservarComponent implements OnInit {
   }
 
   confirmar() {
-    if (!this.usuario || !this.servicio || this.dia === null || this.horaElegida === null) return;
+    if (!this.usuario || !this.hayServicios || this.dia === null || this.horaElegida === null) return;
     if (this.reprogramar) return this.confirmarCambio();
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     const { nombre, telefono } = this.form.value;
@@ -162,8 +183,8 @@ export class ReservarComponent implements OnInit {
       nombre: nombre.trim(),
       dia: String(this.dia),
       horaNueva: this.horaElegida,
-      servicio: this.servicio.nombre,
-      horaServicio: this.servicio.duracion,
+      servicio: this.nombreServicios,
+      horaServicio: this.duracionTotal,
       telefono: telefono.trim(),
       mes: this.mes,
       year: this.year,
@@ -172,7 +193,9 @@ export class ReservarComponent implements OnInit {
       token: '',
       estado: true,
       correo: this.usuario.correo || '',
-      precio: this.servicio.precio,
+      precio: this.precioTotal,
+      // la API arma nombre, duracion y precio desde estos ids
+      servicioIds: this.elegidos.map(s => s.id),
     }).subscribe({
       next: () => { this.enviando = false; this.paso = 'listo'; },
       error: (msg: string) => {
@@ -200,7 +223,7 @@ export class ReservarComponent implements OnInit {
 
   reservarOtra() {
     if (this.reprogramar) { this.router.navigate(['/mis-citas']); return; }
-    this.servicio = null; this.dia = null; this.horaElegida = null; this.error = '';
+    this.elegidos = []; this.dia = null; this.horaElegida = null; this.error = '';
     this.paso = 'servicio';
   }
 }

@@ -7,7 +7,7 @@ const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', '
 const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 
 export interface MiCita {
-  id: string; servicio: string; servicioId: string | null;
+  id: string; servicio: string; servicioId: string | null; servicioIds?: string[];
   dia: number; mes: number; year: number; hora: number; tramo: number;
   valor: number | null; puedeModificar: boolean;
   // solo para la admin
@@ -98,6 +98,8 @@ export class MisCitasComponent implements OnInit {
 
   reprogramar(c: MiCita) {
     if (!c.servicioId) return;
-    this.router.navigate(['/reservar'], { queryParams: { servicio: c.servicioId, reprogramar: c.id } });
+    // con varios servicios se buscan horas donde quepan todos
+    const servicio = c.servicioIds?.length ? c.servicioIds.join(',') : c.servicioId;
+    this.router.navigate(['/reservar'], { queryParams: { servicio, reprogramar: c.id } });
   }
 }

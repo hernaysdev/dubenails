@@ -21,18 +21,28 @@
   <p class="msg-error" *ngIf="error" role="alert">{{ error }}</p>
   <p class="cargando" *ngIf="cargando">Cargando…</p>
 
-  <!-- 1. Servicio -->
+  <!-- 1. Servicios (uno o varios, seguidos en la misma cita) -->
   <div *ngIf="paso === 'servicio'" class="lista">
-    <button *ngFor="let s of servicios" type="button" class="opcion" [class.sel]="servicio?.id === s.id" (click)="elegirServicio(s)">
+    <p class="meta" *ngIf="servicios.length">Elige uno o más servicios. Si eliges varios, te los hacemos seguidos.</p>
+    <button *ngFor="let s of servicios" type="button" class="opcion" [class.sel]="estaElegido(s)" [attr.aria-pressed]="estaElegido(s)" (click)="alternarServicio(s)">
+      <span class="check" aria-hidden="true">{{ estaElegido(s) ? '✓' : '' }}</span>
       <span class="nombre">{{ s.nombre }}</span>
       <span class="precio">${{ s.precio }}</span>
       <span class="meta">{{ duracion(s.duracion) }}</span>
     </button>
+
+    <div class="barra" *ngIf="hayServicios">
+      <div>
+        <strong>{{ elegidos.length }} {{ elegidos.length === 1 ? 'servicio' : 'servicios' }} · {{ duracion(duracionTotal) }}</strong>
+        <span class="meta">Total ${{ precioTotal }}</span>
+      </div>
+      <button type="button" class="principal" (click)="continuar()">Continuar</button>
+    </div>
   </div>
 
   <!-- 2. Dia -->
-  <div *ngIf="paso === 'dia' && servicio">
-    <p class="meta">{{ servicio.nombre }} · {{ duracion(servicio.duracion) }}</p>
+  <div *ngIf="paso === 'dia' && hayServicios">
+    <p class="meta">{{ nombreServicios }} · {{ duracion(duracionTotal) }}</p>
     <div class="mes">
       <button type="button" class="volver" (click)="cambiarMes(-1)" [disabled]="!puedeRetroceder" aria-label="Mes anterior">‹</button>
       <strong>{{ nombreMes }}</strong>
@@ -48,21 +58,28 @@
   </div>
 
   <!-- 3. Hora -->
-  <div *ngIf="paso === 'hora' && servicio">
-    <p class="meta">{{ fechaElegida }} · solo horas donde caben {{ duracion(servicio.duracion) }}</p>
+  <div *ngIf="paso === 'hora' && hayServicios">
+    <p class="meta">{{ fechaElegida }} · solo horas donde caben {{ duracion(duracionTotal) }}</p>
     <div class="horas">
       <button *ngFor="let h of horas" type="button" class="hora" [class.sel]="horaElegida === h" (click)="elegirHora(h)">{{ hora(h) }}</button>
     </div>
-    <p class="meta" *ngIf="!cargando && !horas.length">Ese día ya no tiene horas para este servicio. Elige otro día.</p>
+    <p class="meta" *ngIf="!cargando && !horas.length">Ese día ya no tiene horas donde quepa {{ elegidos.length > 1 ? 'todo lo que elegiste' : 'este servicio' }}. Elige otro día.</p>
   </div>
 
   <!-- 4. Datos -->
-  <div *ngIf="paso === 'datos' && servicio && horaElegida !== null" class="lista">
+  <div *ngIf="paso === 'datos' && hayServicios && horaElegida !== null" class="lista">
     <dl class="resumen">
-      <dt>Servicio</dt><dd>{{ servicio.nombre }}</dd>
+      <ng-container *ngIf="elegidos.length === 1; else variosServicios">
+        <dt>Servicio</dt><dd>{{ elegidos[0].nombre }}</dd>
+      </ng-container>
+      <ng-template #variosServicios>
+        <ng-container *ngFor="let s of elegidos; let i = index">
+          <dt>{{ i === 0 ? 'Servicios' : '' }}</dt><dd>{{ s.nombre }} <span class="meta">${{ s.precio }}</span></dd>
+        </ng-container>
+      </ng-template>
       <dt>Día</dt><dd>{{ fechaElegida }}</dd>
-      <dt>Hora</dt><dd>{{ hora(horaElegida) }} a {{ hora(horaElegida + servicio.duracion) }}</dd>
-      <dt>Precio</dt><dd>${{ servicio.precio }}</dd>
+      <dt>Hora</dt><dd>{{ hora(horaElegida) }} a {{ hora(horaElegida + duracionTotal) }}</dd>
+      <dt>{{ elegidos.length > 1 ? 'Total' : 'Precio' }}</dt><dd>${{ precioTotal }}</dd>
     </dl>
 
     <ng-container *ngIf="!usuario">
@@ -86,9 +103,9 @@
   </div>
 
   <!-- 5. Listo -->
-  <div *ngIf="paso === 'listo' && servicio && horaElegida !== null" class="lista">
-    <p>{{ reprogramar ? 'Tu nueva hora:' : 'Te esperamos el' }} <strong>{{ fechaElegida }}</strong> a las <strong>{{ hora(horaElegida) }}</strong> para {{ servicio.nombre.toLowerCase() }}.</p>
-    <p class="meta" *ngIf="usuario?.correo">Te enviamos la confirmación a {{ usuario?.correo }} y te recordaremos el día anterior.</p>
+  <div *ngIf="paso === 'listo' && hayServicios && horaElegida !== null" class="lista">
+    <p>{{ reprogramar ? 'Tu nueva hora:' : 'Te esperamos el' }} <strong>{{ fechaElegida }}</strong> a las <strong>{{ hora(horaElegida) }}</strong> para {{ nombreServicios.toLowerCase() }}.</p>
+    <p class="meta" *ngIf="usuario?.correo">Te enviamos la confirmación a {{ usuario?.correo }} y te recordaremos 24 horas antes.</p>
     <a class="principal" routerLink="/mis-citas">Ver mis citas</a>
     <button *ngIf="!reprogramar" type="button" class="enlace" (click)="reservarOtra()">Reservar otra hora</button>
   </div>

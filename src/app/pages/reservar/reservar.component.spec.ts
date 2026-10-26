@@ -14,11 +14,14 @@ describe('ReservarComponent (reserva guiada)', () => {
   let agenda: jasmine.SpyObj<AgendaService>;
   let usuarios: jasmine.SpyObj<UsuariosService>;
   const kapping = { id: 'k1', nombre: 'Kapping', precio: 40, duracion: 1.5 };
+  const pedicura = { id: 'p1', nombre: 'Pedicura', precio: 30, duracion: 1 };
+  // marca los servicios y continua al calendario
+  const elegir = (...servicios: any[]) => { servicios.forEach(s => c.alternarServicio(s)); c.continuar(); };
 
   let router: jasmine.SpyObj<Router>;
   const crear = (servicioQuery: string | null = null, conSesion = true, reprogramar: string | null = null) => {
     disp = jasmine.createSpyObj('DisponibilidadService', ['servicios', 'dias', 'horas']);
-    disp.servicios.and.returnValue(of([kapping]));
+    disp.servicios.and.returnValue(of([kapping, pedicura]));
     disp.dias.and.returnValue(of([{ dia: 1, libres: 0 }, { dia: 2, libres: 5 }]));
     disp.horas.and.returnValue(of([9, 9.5, 14]));
     agenda = jasmine.createSpyObj('AgendaService', ['recibirDatos', 'reprogramarMiCita']);
@@ -47,7 +50,9 @@ describe('ReservarComponent (reserva guiada)', () => {
   it('recorre servicio -> dia -> hora -> datos pidiendo la disponibilidad correcta', () => {
     crear();
     expect(c.paso).toBe('servicio');
-    c.elegirServicio(kapping);
+    c.continuar();                                 // sin servicios: no avanza
+    expect(c.paso).toBe('servicio');
+    elegir(kapping);
     expect(c.paso).toBe('dia');
     expect(disp.dias).toHaveBeenCalledWith('k1', c.mes, c.year);
     c.elegirDia({ dia: 1, libres: 0 });           // sin cupo: no avanza
@@ -61,14 +66,14 @@ describe('ReservarComponent (reserva guiada)', () => {
 
   it('el servicio de la portada (?servicio=) salta directo al dia', () => {
     crear('k1');
-    expect(c.servicio?.id).toBe('k1');
+    expect(c.elegidos.map(s => s.id)).toEqual(['k1']);
     expect(c.paso).toBe('dia');
   });
 
   it('con sesion, completa nombre y telefono del perfil y confirma con los datos correctos', () => {
     crear();
     agenda.recibirDatos.and.returnValue(of('agenda registrada con exito!!!'));
-    c.elegirServicio(kapping); c.elegirDia({ dia: 2, libres: 5 }); c.elegirHora(14);
+    elegir(kapping); c.elegirDia({ dia: 2, libres: 5 }); c.elegirHora(14);
     expect(c.form.value).toEqual({ nombre: 'ana', telefono: '5551234' });
     c.confirmar();
     expect(agenda.recibirDatos).toHaveBeenCalledWith(jasmine.objectContaining({
@@ -79,7 +84,7 @@ describe('ReservarComponent (reserva guiada)', () => {
 
   it('sin sesion no confirma (se muestra el login en el paso de datos)', () => {
     crear(null, false);
-    c.elegirServicio(kapping); c.elegirDia({ dia: 2, libres: 5 }); c.elegirHora(14);
+    elegir(kapping); c.elegirDia({ dia: 2, libres: 5 }); c.elegirHora(14);
     expect(c.usuario).toBeNull();
     c.confirmar();
     expect(agenda.recibirDatos).not.toHaveBeenCalled();
@@ -87,7 +92,7 @@ describe('ReservarComponent (reserva guiada)', () => {
 
   it('al iniciar sesion en el paso de datos, carga el perfil sin salir de la reserva', () => {
     crear(null, false);
-    c.elegirServicio(kapping); c.elegirDia({ dia: 2, libres: 5 }); c.elegirHora(14);
+    elegir(kapping); c.elegirDia({ dia: 2, libres: 5 }); c.elegirHora(14);
     localStorage.setItem('token', 'tok');
     c.cargarUsuario();
     expect(c.usuario?.id).toBe('u1');
@@ -97,7 +102,7 @@ describe('ReservarComponent (reserva guiada)', () => {
   it('si la hora ya fue tomada, vuelve a elegir hora con la lista actualizada', () => {
     crear();
     agenda.recibirDatos.and.returnValue(throwError(() => 'Ese horario ya está tomado. Elige otra hora.'));
-    c.elegirServicio(kapping); c.elegirDia({ dia: 2, libres: 5 }); c.elegirHora(9);
+    elegir(kapping); c.elegirDia({ dia: 2, libres: 5 }); c.elegirHora(9);
     disp.horas.calls.reset();
     c.confirmar();
     expect(c.paso).toBe('hora');
@@ -107,7 +112,7 @@ describe('ReservarComponent (reserva guiada)', () => {
 
   it('no deja ir a meses pasados ni a mas de 3 meses', () => {
     crear();
-    c.elegirServicio(kapping);
+    elegir(kapping);
     expect(c.puedeRetroceder).toBeFalse();
     c.cambiarMes(1); c.cambiarMes(1); c.cambiarMes(1);
     expect(c.puedeAvanzar).toBeFalse();
@@ -131,5 +136,43 @@ describe('ReservarComponent (reserva guiada)', () => {
     expect(c.paso).toBe('listo');
     c.reservarOtra();
     expect(router.navigate).toHaveBeenCalledWith(['/mis-citas']);
+  });
+
+  describe('varios servicios en la misma cita', () => {
+    it('suma duracion y precio y pide disponibilidad con todos', () => {
+      crear();
+      elegir(kapping, pedicura);
+      expect(c.nombreServicios).toBe('Kapping + Pedicura');
+      expect(c.duracionTotal).toBe(2.5);
+      expect(c.precioTotal).toBe(70);
+      expect(disp.dias).toHaveBeenCalledWith('k1,p1', c.mes, c.year);
+      c.elegirDia({ dia: 2, libres: 5 });
+      expect(disp.horas).toHaveBeenCalledWith('k1,p1', 2, c.mes, c.year);
+    });
+
+    it('al confirmar manda los ids (la API calcula el precio)', () => {
+      crear();
+      agenda.recibirDatos.and.returnValue(of('ok'));
+      elegir(kapping, pedicura); c.elegirDia({ dia: 2, libres: 5 }); c.elegirHora(14);
+      c.confirmar();
+      expect(agenda.recibirDatos).toHaveBeenCalledWith(jasmine.objectContaining({
+        servicio: 'Kapping + Pedicura', horaServicio: 2.5, precio: 70, servicioIds: ['k1', 'p1'],
+      }));
+    });
+
+    it('tocar de nuevo un servicio lo quita; maximo 4', () => {
+      crear();
+      c.alternarServicio(kapping); c.alternarServicio(pedicura); c.alternarServicio(kapping);
+      expect(c.elegidos.map(s => s.id)).toEqual(['p1']);
+      for (let i = 0; i < 4; i++) c.alternarServicio({ id: 'x' + i, nombre: 'X' + i, precio: 1, duracion: 0.5 });
+      expect(c.elegidos.length).toBe(4);
+      expect(c.error).toContain('hasta 4');
+    });
+
+    it('reprogramar una cita con varios servicios (?servicio=k1,p1) los trae elegidos', () => {
+      crear('k1,p1', true, 'cita-9');
+      expect(c.elegidos.map(s => s.id)).toEqual(['k1', 'p1']);
+      expect(c.paso).toBe('dia');
+    });
   });
 });

@@ -68,7 +68,8 @@ export class AgendaService {
       estado: datos.estado,
       correo: datos.correo,
       precio: datos.precio,
-      year: datos.year
+      year: datos.year,
+      ...(datos.servicioIds ? { servicioIds: datos.servicioIds } : {})
     }
   }
 
