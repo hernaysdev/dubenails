@@ -5,6 +5,16 @@ import { Router } from '@angular/router';
 import { SharedService } from 'src/app/services/shared.service';
 import { UsuarioData } from 'src/app/interface/usuarioData.interface';
 
+export const IMG_DEFAULT = '/assets/img/userIcon.jpg';
+
+// las fotos de Cloudinary se normalizan a .jpg; las de Google (u otras) se usan tal cual
+export const normalizarImagen = (url: string | null | undefined): string => {
+  if (!url) return IMG_DEFAULT;
+  if (!url.includes('res.cloudinary.com')) return url;
+  const partes = url.split('.');
+  return partes[0] + '.' + partes[1] + '.' + partes[2] + '.jpg';
+}
+
 @Component({
   selector: 'app-menu',
   templateUrl: './menu.component.html',
@@ -171,12 +181,7 @@ export class MenuComponent implements OnInit {
         this.usuarioActivo = true;
         this.perfil = true;
         this.id = data.id;
-        if (data.image) {
-          const image = data.image.split('.');
-          this.usuarioData.image = image[0] + '.' + image[1] + '.' + image[2] + '.jpg';
-        }else{
-          this.usuarioData.image = '../../../../../assets/img/userIcon.jpg'
-        }
+        this.usuarioData.image = normalizarImagen(data.image);
 
 
       },
@@ -222,6 +227,11 @@ export class MenuComponent implements OnInit {
     this.eventsService.ocultarMenu.subscribe(valor => {
       this.menu = valor;
     })
+  }
+
+  // si la foto no carga (link vencido, bloqueada), se muestra el icono por defecto
+  imagenFallida() {
+    if (this.usuarioData.image !== IMG_DEFAULT) this.usuarioData.image = IMG_DEFAULT;
   }
 
   imgUserCargada(event: string) {

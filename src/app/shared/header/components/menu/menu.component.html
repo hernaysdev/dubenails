@@ -48,7 +48,7 @@
                 <hr class="lineaMenu">
             </section>
             <div *ngIf="perfil" class="perfil">
-                    <img id="imgPerfil" *ngIf="usuarioData.image" class="usuario_img" [src]="usuarioData.image" (click)="zoomImg()"/>
+                    <img id="imgPerfil" *ngIf="usuarioData.image" class="usuario_img" [src]="usuarioData.image" referrerpolicy="no-referrer" (error)="imagenFallida()" (click)="zoomImg()"/>
                     <div class="informacion">
                         <h3>Información</h3>
                         <div>
@@ -100,7 +100,7 @@
         <ng-template #menuActive>
             <div class="menuFalse usuario" [class.userImgNone]="!usuarioData.image" (click)="showMenu()">
                 <img *ngIf="usuarioData.image" class="usuario" [class.imgGrande]="usuarioData.image"
-                [src]="usuarioData.image">
+                [src]="usuarioData.image" referrerpolicy="no-referrer" (error)="imagenFallida()">
             </div>
             <p *ngIf="!usuarioData.image" class="nombreUser">{{usuarioData.nombre}}</p>
         </ng-template>
