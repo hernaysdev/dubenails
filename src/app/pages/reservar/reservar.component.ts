@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DiaDisponible, DisponibilidadService, Servicio, formatoDuracion, formatoHora } from 'src/app/services/disponibilidad.service';
@@ -31,6 +31,8 @@ export class ReservarComponent implements OnInit {
   servicios: Servicio[] = [];
   elegidos: Servicio[] = [];
   readonly maxServicios = MAX_SERVICIOS;
+  // la barra de "Continuar" queda fija justo encima del menu inferior (su alto cambia en iPhone)
+  altoPie = 75;
   mes: number; year: number;
   private readonly mesInicial: number; private readonly yearInicial: number;
   dias: DiaDisponible[] = [];
@@ -73,7 +75,15 @@ export class ReservarComponent implements OnInit {
     });
   }
 
+  @HostListener('window:resize')
+  medirPie() {
+    const pie = document.querySelector('app-footer');
+    const alto = pie ? Math.round(pie.getBoundingClientRect().height) : 0;
+    if (alto > 0) this.altoPie = alto;
+  }
+
   ngOnInit(): void {
+    setTimeout(() => this.medirPie());
     this.reprogramar = this.route.snapshot.queryParamMap.get('reprogramar');
     this.cargando = true;
     this.disponibilidad.servicios().subscribe({

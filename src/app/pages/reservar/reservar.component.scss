@@ -34,8 +34,10 @@ input { font-size: 16px; padding: 12px; border: 1px solid #d8d2d8; border-radius
 .check { grid-row: span 2; align-self: center; width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid #d8d2d8; display: grid; place-items: center; font-size: 14px; font-weight: 700; color: #fff; }
 .opcion.sel .check { background: #000; border-color: #000; }
 .opcion .meta { grid-column: 2; }
-/* resumen de lo elegido, fijo abajo sobre el menu inferior */
-.barra { position: sticky; bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 12px 12px 16px; border-radius: 16px; background: #fff; border: 1px solid #000; box-shadow: 0 6px 20px rgba(0,0,0,.12); }
+/* resumen de lo elegido, fijo abajo sobre el menu inferior (bottom lo pone el componente) */
+.barra { position: fixed; z-index: 0; left: 16px; right: 16px; max-width: 488px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 12px 12px 16px; border-radius: 16px; background: #fff; border: 1px solid #000; box-shadow: 0 6px 20px rgba(0,0,0,.12); }
 .barra div { display: flex; flex-direction: column; gap: 2px; }
 .barra .principal { padding: 12px 22px; font-size: 15px; }
 .aviso-pago { margin: 0; padding: 12px; border-radius: 12px; background: #f1eef1; font-size: 14px; line-height: 1.45; }
+/* espacio para que la barra fija no tape el ultimo servicio */
+.lista.con-barra { padding-bottom: 96px; }

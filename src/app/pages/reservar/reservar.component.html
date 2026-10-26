@@ -22,7 +22,7 @@
   <p class="cargando" *ngIf="cargando">Cargando…</p>
 
   <!-- 1. Servicios (uno o varios, seguidos en la misma cita) -->
-  <div *ngIf="paso === 'servicio'" class="lista">
+  <div *ngIf="paso === 'servicio'" class="lista" [class.con-barra]="hayServicios">
     <p class="meta" *ngIf="servicios.length">Elige uno o más servicios. Si eliges varios, te los hacemos seguidos.</p>
     <button *ngFor="let s of servicios" type="button" class="opcion" [class.sel]="estaElegido(s)" [attr.aria-pressed]="estaElegido(s)" (click)="alternarServicio(s)">
       <span class="check" aria-hidden="true">{{ estaElegido(s) ? '✓' : '' }}</span>
@@ -31,7 +31,8 @@
       <span class="meta">{{ duracion(s.duracion) }}</span>
     </button>
 
-    <div class="barra" *ngIf="hayServicios">
+    <!-- fija abajo, encima del menu: se ve aunque la clienta este arriba de la lista -->
+    <div class="barra" *ngIf="hayServicios" [style.bottom.px]="altoPie + 8">
       <div>
         <strong>{{ elegidos.length }} {{ elegidos.length === 1 ? 'servicio' : 'servicios' }} · {{ duracion(duracionTotal) }}</strong>
         <span class="meta">Total {{ precioTotal | dinero }}</span>
