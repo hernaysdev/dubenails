@@ -15,6 +15,10 @@
             <option *ngFor="let d of duraciones" [ngValue]="d.horas">{{ d.texto }}</option>
         </select>
 
+        <label for="descripcion">Descripción <span class="opcional">(opcional)</span></label>
+        <textarea id="descripcion" formControlName="descripcion" rows="5" maxlength="600" placeholder="Qué incluye, cuánto dura el resultado, cuidados…"></textarea>
+        <small class="meta">Se ve al tocar el servicio en la portada. {{ formProductos.value.descripcion?.length || 0 }}/600</small>
+
         <input type="submit" [value]="guardando ? 'Creando…' : 'Crear servicio'" [disabled]="guardando" (click)="submit()">
         <p class="msg-ok" *ngIf="mensajeOk" role="status">{{ mensajeOk }}</p>
         <p class="msg-error" *ngIf="mensajeError" role="alert">{{ mensajeError }}</p>

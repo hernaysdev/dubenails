@@ -15,6 +15,7 @@
         </span>
         <span class="chip">${{ p.precio }}</span>
       </span>
+      <span class="sin-descripcion" *ngIf="!p.descripcion">Sin descripción: agrégala en Editar</span>
     </div>
 
     <div class="acciones una" *ngIf="confirmando !== p._id">

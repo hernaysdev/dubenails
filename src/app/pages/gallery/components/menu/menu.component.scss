@@ -8,13 +8,23 @@ p { margin: 0; color: #5f585f; }
 .servicios { display: flex; flex-direction: column; gap: 10px; }
 .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #8a7f8a; }
 h2 { margin: -4px 0 6px; font-weight: 700; font-size: 26px; line-height: 1.15; }
-.servicio { position: relative; display: flex; align-items: center; gap: 14px; padding: 16px; border: 1px solid #e2dde2; border-radius: 16px; background: #fff; text-decoration: none; color: inherit; transition: border-color .15s, transform .15s; }
+.servicio { position: relative; display: flex; align-items: center; gap: 14px; padding: 16px; border: 1px solid #e2dde2; border-radius: 16px; background: #fff; text-decoration: none; color: inherit; text-align: left; font: inherit; cursor: pointer; width: 100%; transition: border-color .15s, transform .15s; }
 .servicio:hover, .servicio:focus-visible { border-color: #1d1a1d; }
 .servicio:active { transform: scale(.99); }
 .texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
 .nombre { font-weight: 700; font-size: 17px; line-height: 1.25; }
 .detalle { font-size: 13px; color: #5f585f; }
 .duracion { display: inline-flex; align-items: center; gap: 5px; align-self: flex-start; margin-top: 4px; padding: 4px 10px; border-radius: 999px; background: #f1eef1; font-size: 12px; font-weight: 600; color: #3d363d; }
-.ir { flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%; background: #1d1a1d; color: #fff; display: grid; place-items: center; }
-.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-@media (prefers-reduced-motion: reduce) { .servicio { transition: none; } }
+.ver { flex-shrink: 0; font-size: 13px; font-weight: 600; color: #6c656c; text-decoration: underline; text-underline-offset: 3px; }
+
+/* modal con el detalle del servicio: hoja inferior en el celular, centrado en escritorio */
+.fondo { position: fixed; inset: 0; z-index: 1000; background: rgba(29, 26, 29, .55); display: flex; align-items: flex-end; justify-content: center; }
+.modal { position: relative; width: 100%; max-width: 520px; max-height: 85vh; overflow-y: auto; box-sizing: border-box; background: #fff; border-radius: 20px 20px 0 0; padding: 24px 20px calc(20px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; color: #1d1a1d; animation: subir .2s ease-out; }
+.modal h3 { margin: 0; font-size: 24px; line-height: 1.2; padding-right: 36px; }
+.modal .duracion { margin-top: 0; }
+.descripcion { margin: 6px 0; color: #3d363d; font-size: 15px; line-height: 1.55; white-space: pre-line; }
+.descripcion.vacia { color: #8a7f8a; }
+.cerrar { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid #e2dde2; background: #fff; font-size: 22px; line-height: 1; cursor: pointer; color: #1d1a1d; }
+@keyframes subir { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (min-width: 600px) { .fondo { align-items: center; } .modal { border-radius: 20px; } }
+@media (prefers-reduced-motion: reduce) { .servicio { transition: none; } .modal { animation: none; } }

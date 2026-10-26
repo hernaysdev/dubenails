@@ -41,15 +41,15 @@ describe('UpdateProductosComponent (editar servicio)', () => {
   it('con id carga el formulario con los datos actuales', () => {
     params.next(convertToParamMap({ id: 'p1' }));
     expect(c.producto?._id).toBe('p1');
-    expect(c.form.value).toEqual({ nombre: 'Kapping', precio: 40, tiempo: 1.5 });
+    expect(c.form.value).toEqual({ nombre: 'Kapping', precio: 40, tiempo: 1.5, descripcion: '' });
   });
 
   it('guardar envia solo nombre, precio y tiempo, y avisa', () => {
     params.next(convertToParamMap({ id: 'p1' }));
     servicio.update.and.returnValue(of({ msg: 'Servicio actualizado' }));
-    c.form.patchValue({ nombre: ' Kapping gel ', precio: '45', tiempo: 2 });
+    c.form.patchValue({ nombre: ' Kapping gel ', precio: '45', tiempo: 2, descripcion: '  Incluye limado.  ' });
     c.guardar();
-    expect(servicio.update).toHaveBeenCalledWith({ _id: 'p1', nombre: 'Kapping gel', precio: 45, tiempo: 2 });
+    expect(servicio.update).toHaveBeenCalledWith({ _id: 'p1', nombre: 'Kapping gel', precio: 45, tiempo: 2, descripcion: 'Incluye limado.' });
     expect(c.mensajeOk).toContain('guardados');
     expect(c.producto?.nombre).toBe('Kapping gel');
   });

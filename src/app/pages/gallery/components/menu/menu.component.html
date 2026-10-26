@@ -8,8 +8,9 @@
 
   <div class="servicios" *ngIf="servicios.length">
     <p class="eyebrow">Servicios</p>
-    <h2>Elige y reserva</h2>
-    <a *ngFor="let s of servicios" class="servicio" routerLink="/reservar" [queryParams]="{ servicio: s.id }">
+    <h2>Nuestros servicios</h2>
+    <!-- al tocar un servicio se abre su detalle (lo escribe la admin en Productos) -->
+    <button *ngFor="let s of servicios" type="button" class="servicio" (click)="abrir(s)" aria-haspopup="dialog">
       <span class="texto">
         <span class="nombre">{{ partes(s.nombre).titulo }}</span>
         <span class="detalle" *ngIf="partes(s.nombre).detalle">{{ partes(s.nombre).detalle }}</span>
@@ -18,8 +19,23 @@
           {{ duracion(s.duracion) }}
         </span>
       </span>
-      <span class="ir" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-      <span class="sr">Reservar {{ s.nombre }}</span>
-    </a>
+      <span class="ver" aria-hidden="true">Ver detalle</span>
+    </button>
   </div>
 </section>
+
+<div class="fondo" *ngIf="abierto as s" (click)="cerrar()">
+  <div class="modal" role="dialog" aria-modal="true" [attr.aria-label]="s.nombre" (click)="$event.stopPropagation()">
+    <button #botonCerrar type="button" class="cerrar" (click)="cerrar()" aria-label="Cerrar">×</button>
+    <p class="eyebrow">Servicio</p>
+    <h3>{{ partes(s.nombre).titulo }}</h3>
+    <p class="detalle" *ngIf="partes(s.nombre).detalle">{{ partes(s.nombre).detalle }}</p>
+    <span class="duracion">
+      <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      {{ duracion(s.duracion) }}
+    </span>
+    <p class="descripcion" *ngIf="s.descripcion; else sinDescripcion">{{ s.descripcion }}</p>
+    <ng-template #sinDescripcion><p class="descripcion vacia">Escríbenos si quieres saber más de este servicio.</p></ng-template>
+    <a class="reservar" routerLink="/reservar" [queryParams]="{ servicio: s.id }">Reservar este servicio</a>
+  </div>
+</div>

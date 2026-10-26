@@ -56,7 +56,7 @@ export class ProductosService {
 
 
   // actualiza nombre, precio y tiempo (el token lo agrega AuthInterceptor)
-  update(producto: { _id: string, nombre: string, precio: number, tiempo: number }): Observable<any> {
+  update(producto: { _id: string, nombre: string, precio: number, tiempo: number, descripcion?: string }): Observable<any> {
     return this.http.post<any>(`${this.url}/update`, producto)
       .pipe(catchError((error: any) => throwError(() => error.error?.msg || 'No pudimos guardar los cambios.')));
   }

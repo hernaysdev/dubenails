@@ -5,7 +5,7 @@ import { ProductosService } from 'src/app/services/productos.service';
 import { formatoDuracion } from 'src/app/services/disponibilidad.service';
 import { OPCIONES_DURACION } from '../duraciones';
 
-interface Producto { _id: string; nombre: string; precio: number; tiempo: number; }
+interface Producto { _id: string; nombre: string; precio: number; tiempo: number; descripcion?: string; }
 
 // Editar un servicio: sin ?id muestra la lista para elegir; con ?id el formulario con los datos actuales
 @Component({
@@ -35,6 +35,7 @@ export class UpdateProductosComponent implements OnInit {
       nombre: ['', [Validators.required, Validators.maxLength(80)]],
       precio: [null, [Validators.required, Validators.min(1)]],
       tiempo: [null, [Validators.required]],
+      descripcion: ['', [Validators.maxLength(600)]],
     });
   }
 
@@ -53,8 +54,8 @@ export class UpdateProductosComponent implements OnInit {
     this.mensajeOk = ''; this.mensajeError = '';
     this.producto = this.productos.find(p => p._id === id) || null;
     if (this.producto) {
-      const { nombre, precio, tiempo } = this.producto;
-      this.form.reset({ nombre: nombre.trim(), precio, tiempo: Number(tiempo) });
+      const { nombre, precio, tiempo, descripcion } = this.producto;
+      this.form.reset({ nombre: nombre.trim(), precio, tiempo: Number(tiempo), descripcion: descripcion || '' });
     }
   }
 
@@ -75,8 +76,8 @@ export class UpdateProductosComponent implements OnInit {
     this.mensajeOk = ''; this.mensajeError = '';
     if (!this.producto) return;
     if (this.form.invalid) { this.form.markAllAsTouched(); this.mensajeError = 'Revisa los campos marcados.'; return; }
-    const { nombre, precio, tiempo } = this.form.value;
-    const cambios = { _id: this.producto._id, nombre: nombre.trim(), precio: Number(precio), tiempo: Number(tiempo) };
+    const { nombre, precio, tiempo, descripcion } = this.form.value;
+    const cambios = { _id: this.producto._id, nombre: nombre.trim(), precio: Number(precio), tiempo: Number(tiempo), descripcion: (descripcion || '').trim() };
     this.guardando = true;
     this.productosService.update(cambios).subscribe({
       next: () => {

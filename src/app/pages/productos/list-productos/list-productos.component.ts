@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ProductosService } from 'src/app/services/productos.service';
 import { formatoDuracion, partesNombre } from 'src/app/services/disponibilidad.service';
 
-interface Producto { _id: string; nombre: string; precio: number; tiempo: number; }
+interface Producto { _id: string; nombre: string; precio: number; tiempo: number; descripcion?: string; }
 
 // Lista de servicios para la admin: mismas tarjetas que la portada, con precio, Editar y Eliminar
 @Component({

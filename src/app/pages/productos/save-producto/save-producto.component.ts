@@ -24,7 +24,8 @@ export class SaveProductoComponent {
     this.formProductos = this.fb.group({
       nombre: ['', [Validators.required]],
       precio: [null, [Validators.required, Validators.min(1)]],
-      tiempo: [1, [Validators.required]]
+      tiempo: [1, [Validators.required]],
+      descripcion: ['', [Validators.maxLength(600)]]
     })
 
   }
@@ -35,7 +36,7 @@ export class SaveProductoComponent {
       next: () => {
         this.guardando = false;
         this.mensajeOk = `"${body.nombre}" quedó creado.`;
-        this.formProductos.reset({ nombre: '', precio: null, tiempo: 1 })
+        this.formProductos.reset({ nombre: '', precio: null, tiempo: 1, descripcion: '' })
       },
       error: (msg: any) => {
         this.guardando = false;
@@ -49,8 +50,8 @@ export class SaveProductoComponent {
   submit(){
     this.mensajeOk = ''; this.mensajeError = '';
     if (this.formProductos.invalid) { this.formProductos.markAllAsTouched(); this.mensajeError = 'Completa nombre, precio y duración.'; return; }
-    const { nombre, precio, tiempo } = this.formProductos.value;
-    this.saveProducto({ nombre: nombre.trim(), precio: Number(precio), tiempo: Number(tiempo) })
+    const { nombre, precio, tiempo, descripcion } = this.formProductos.value;
+    this.saveProducto({ nombre: nombre.trim(), precio: Number(precio), tiempo: Number(tiempo), descripcion: (descripcion || '').trim() })
   }
 
 }

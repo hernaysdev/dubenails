@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
-export interface Servicio { id: string; nombre: string; precio: number; duracion: number; }
+export interface Servicio { id: string; nombre: string; precio: number; duracion: number; descripcion?: string; }
 // cerrado: domingo o dia deshabilitado por la admin (un dia lleno o pasado tiene libres 0 pero no es cerrado)
 export interface DiaDisponible { dia: number; libres: number; cerrado?: boolean; }
 
