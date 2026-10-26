@@ -1,7 +1,7 @@
 <div class="contentRegistro">
 <h2 style="text-align: center">{{title}}</h2>
-<app-registro *ngIf="!registrar"></app-registro>
-<app-login *ngIf="registrar"></app-login>
+<app-registro *ngIf="!registrar" [destino]="destino"></app-registro>
+<app-login *ngIf="registrar" [destino]="destino"></app-login>
 <div class="spanContent">
     <button (click)="login()">{{textbuttom}}</button>
 </div>

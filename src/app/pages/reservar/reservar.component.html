@@ -8,8 +8,8 @@
           <span *ngSwitchCase="'servicio'">¿Qué te hacemos?</span>
           <span *ngSwitchCase="'dia'">¿Qué día?</span>
           <span *ngSwitchCase="'hora'">¿A qué hora?</span>
-          <span *ngSwitchCase="'datos'">Confirma tu hora</span>
-          <span *ngSwitchCase="'listo'">¡Hora reservada!</span>
+          <span *ngSwitchCase="'datos'">{{ reprogramar ? 'Confirma el cambio' : 'Confirma tu hora' }}</span>
+          <span *ngSwitchCase="'listo'">{{ reprogramar ? '¡Cita cambiada!' : '¡Hora reservada!' }}</span>
         </ng-container>
       </h1>
     </div>
@@ -73,7 +73,9 @@
         {{ mostrarRegistro ? 'Ya tengo cuenta' : '¿No tienes cuenta? Crear una' }}</button>
     </ng-container>
 
-    <form *ngIf="usuario" [formGroup]="form" (ngSubmit)="confirmar()" class="lista">
+    <button *ngIf="usuario && reprogramar" type="button" class="principal" (click)="confirmar()" [disabled]="enviando">{{ enviando ? 'Cambiando…' : 'Confirmar cambio' }}</button>
+
+    <form *ngIf="usuario && !reprogramar" [formGroup]="form" (ngSubmit)="confirmar()" class="lista">
       <label for="r-nombre">Nombre</label>
       <input id="r-nombre" formControlName="nombre" autocomplete="name">
       <label for="r-telefono">Teléfono</label>
@@ -85,9 +87,9 @@
 
   <!-- 5. Listo -->
   <div *ngIf="paso === 'listo' && servicio && horaElegida !== null" class="lista">
-    <p>Te esperamos el <strong>{{ fechaElegida }}</strong> a las <strong>{{ hora(horaElegida) }}</strong> para {{ servicio.nombre.toLowerCase() }}.</p>
+    <p>{{ reprogramar ? 'Tu nueva hora:' : 'Te esperamos el' }} <strong>{{ fechaElegida }}</strong> a las <strong>{{ hora(horaElegida) }}</strong> para {{ servicio.nombre.toLowerCase() }}.</p>
     <p class="meta" *ngIf="usuario?.correo">Te enviamos la confirmación a {{ usuario?.correo }} y te recordaremos el día anterior.</p>
-    <a class="principal" routerLink="/agenda">Ver la agenda</a>
-    <button type="button" class="enlace" (click)="reservarOtra()">Reservar otra hora</button>
+    <a class="principal" routerLink="/mis-citas">Ver mis citas</a>
+    <button *ngIf="!reprogramar" type="button" class="enlace" (click)="reservarOtra()">Reservar otra hora</button>
   </div>
 </section>

@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-registrar-user',
@@ -9,6 +9,8 @@ import { Router } from '@angular/router';
 })
 export class RegistrarUserComponent {
   router = inject(Router)
+  // el guard manda ?returnUrl= (por ejemplo /mis-citas); despues del login se vuelve ahi
+  destino: string = inject(ActivatedRoute).snapshot.queryParamMap.get('returnUrl') || '/agenda';
   registrar: boolean = true;
   textbuttom: string = 'Registra Nueva Cuenta';
   title:string = 'Iniciar Sesion';

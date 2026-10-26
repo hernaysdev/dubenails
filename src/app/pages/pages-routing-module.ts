@@ -44,6 +44,11 @@ const pagesRoutes: Routes = [
     loadChildren : () => import('./reservar/reservar.module').then(m => m.ReservarModule)
   },
   {
+    path:'mis-citas',
+    canActivate: [loginGuard],
+    loadChildren : () => import('./mis-citas/mis-citas.module').then(m => m.MisCitasModule)
+  },
+  {
     path:'registrar',
     loadChildren : () => import('./registrarUser/registrar-user.module').then(m => m.RegistrarUserModule)
   },

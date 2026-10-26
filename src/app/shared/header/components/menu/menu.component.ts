@@ -249,6 +249,11 @@ export class MenuComponent implements OnInit {
     this.showGift = true;
   }
 
+  misCitas() {
+    this.cerrarModal();
+    this.router.navigate(['/mis-citas'])
+  }
+
   productos() {
     this.cerrarModal();
     this.router.navigate(['/productos'])

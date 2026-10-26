@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
 import { ReservarComponent } from './reservar.component';
@@ -15,12 +15,14 @@ describe('ReservarComponent (reserva guiada)', () => {
   let usuarios: jasmine.SpyObj<UsuariosService>;
   const kapping = { id: 'k1', nombre: 'Kapping', precio: 40, duracion: 1.5 };
 
-  const crear = (servicioQuery: string | null = null, conSesion = true) => {
+  let router: jasmine.SpyObj<Router>;
+  const crear = (servicioQuery: string | null = null, conSesion = true, reprogramar: string | null = null) => {
     disp = jasmine.createSpyObj('DisponibilidadService', ['servicios', 'dias', 'horas']);
     disp.servicios.and.returnValue(of([kapping]));
     disp.dias.and.returnValue(of([{ dia: 1, libres: 0 }, { dia: 2, libres: 5 }]));
     disp.horas.and.returnValue(of([9, 9.5, 14]));
-    agenda = jasmine.createSpyObj('AgendaService', ['recibirDatos']);
+    agenda = jasmine.createSpyObj('AgendaService', ['recibirDatos', 'reprogramarMiCita']);
+    router = jasmine.createSpyObj('Router', ['navigate']);
     usuarios = jasmine.createSpyObj('UsuariosService', ['getUsuario']);
     usuarios.getUsuario.and.returnValue(of({ id: 'u1', nombre: 'ana', telefono: 5551234, correo: 'ana@test.com' }) as any);
     if (conSesion) localStorage.setItem('token', 'tok'); else localStorage.removeItem('token');
@@ -32,7 +34,8 @@ describe('ReservarComponent (reserva guiada)', () => {
         { provide: DisponibilidadService, useValue: disp },
         { provide: AgendaService, useValue: agenda },
         { provide: UsuariosService, useValue: usuarios },
-        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap(servicioQuery ? { servicio: servicioQuery } : {}) } } },
+        { provide: Router, useValue: router },
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({ ...(servicioQuery ? { servicio: servicioQuery } : {}), ...(reprogramar ? { reprogramar } : {}) }) } } },
       ],
     }).overrideTemplate(ReservarComponent, '');
     c = TestBed.createComponent(ReservarComponent).componentInstance;
@@ -116,5 +119,17 @@ describe('ReservarComponent (reserva guiada)', () => {
     expect(formatoDuracion(1.5)).toBe('1 h 30 min');
     expect(formatoDuracion(0.5)).toBe('30 min');
     expect(formatoDuracion(2)).toBe('2 h');
+  });
+
+  it('modo reprogramar: confirma el cambio de la cita en vez de crear una nueva', () => {
+    crear('k1', true, 'cita-9');
+    agenda.reprogramarMiCita.and.returnValue(of({ msg: 'Cita reprogramada' }));
+    c.elegirDia({ dia: 2, libres: 5 }); c.elegirHora(14);
+    c.confirmar();
+    expect(agenda.recibirDatos).not.toHaveBeenCalled();
+    expect(agenda.reprogramarMiCita).toHaveBeenCalledWith('cita-9', { dia: 2, mes: c.mes, year: c.year, hora: 14 });
+    expect(c.paso).toBe('listo');
+    c.reservarOtra();
+    expect(router.navigate).toHaveBeenCalledWith(['/mis-citas']);
   });
 });

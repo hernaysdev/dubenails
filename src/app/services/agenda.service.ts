@@ -175,6 +175,21 @@ export class AgendaService {
   } 
 
 
+  // ---------- Mis citas (el token lo agrega AuthInterceptor) ----------
+  misCitas() {
+    return this.http.get<{ citas: any[] }>(`${this.url}/mis-citas`).pipe(map(r => r.citas));
+  }
+
+  cancelarMiCita(id: string) {
+    return this.http.post<any>(`${this.url}/mis-citas/${id}/cancelar`, {})
+      .pipe(catchError((error: any) => throwError(() => error.error?.msg)));
+  }
+
+  reprogramarMiCita(id: string, cambio: { dia: number, mes: number, year: number, hora: number }) {
+    return this.http.post<any>(`${this.url}/mis-citas/${id}/reprogramar`, cambio)
+      .pipe(catchError((error: any) => throwError(() => error.error?.msg)));
+  }
+
   actualizarEstado(data: any): any {
     const token = localStorage.getItem('token')
     return this.http.post<any>(`${this.url}/estado`, data, {headers:{

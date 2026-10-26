@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DiaDisponible, DisponibilidadService, Servicio, formatoDuracion, formatoHora } from 'src/app/services/disponibilidad.service';
 import { AgendaService } from 'src/app/services/agenda.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
@@ -39,12 +39,15 @@ export class ReservarComponent implements OnInit {
   cargando = false;
   enviando = false;
   error = '';
+  // id de la cita que se esta cambiando (viene de Mis citas); null = reserva nueva
+  reprogramar: string | null = null;
 
   constructor(
     private disponibilidad: DisponibilidadService,
     private agendaService: AgendaService,
     private usuariosService: UsuariosService,
     private route: ActivatedRoute,
+    private router: Router,
     fb: FormBuilder,
   ) {
     const hoy = new Date();
@@ -57,6 +60,7 @@ export class ReservarComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.reprogramar = this.route.snapshot.queryParamMap.get('reprogramar');
     this.cargando = true;
     this.disponibilidad.servicios().subscribe({
       next: (servicios) => {
@@ -149,6 +153,7 @@ export class ReservarComponent implements OnInit {
 
   confirmar() {
     if (!this.usuario || !this.servicio || this.dia === null || this.horaElegida === null) return;
+    if (this.reprogramar) return this.confirmarCambio();
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     const { nombre, telefono } = this.form.value;
     this.enviando = true;
@@ -179,7 +184,22 @@ export class ReservarComponent implements OnInit {
     });
   }
 
+  confirmarCambio() {
+    if (!this.reprogramar || this.dia === null || this.horaElegida === null) return;
+    this.enviando = true;
+    this.error = '';
+    this.agendaService.reprogramarMiCita(this.reprogramar, { dia: this.dia, mes: this.mes, year: this.year, hora: this.horaElegida }).subscribe({
+      next: () => { this.enviando = false; this.paso = 'listo'; },
+      error: (msg: string) => {
+        this.enviando = false;
+        this.error = msg || 'No pudimos cambiar la cita. Intenta de nuevo.';
+        if (typeof msg === 'string' && msg.includes('tomado')) { this.paso = 'hora'; this.cargarHoras(); }
+      }
+    });
+  }
+
   reservarOtra() {
+    if (this.reprogramar) { this.router.navigate(['/mis-citas']); return; }
     this.servicio = null; this.dia = null; this.horaElegida = null; this.error = '';
     this.paso = 'servicio';
   }
