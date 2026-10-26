@@ -1,0 +1,21 @@
+<section class="avisos" *ngIf="estado !== 'cargando'">
+  <div class="cabecera">
+    <span class="punto" [class.activo]="estado === 'este'"></span>
+    <strong>Notificaciones de citas</strong>
+  </div>
+
+  <ng-container [ngSwitch]="estado">
+    <p *ngSwitchCase="'este'" class="meta">Activadas en este dispositivo. Te avisamos cuando agenden, cancelen o cambien una cita.</p>
+    <p *ngSwitchCase="'otro'" class="meta">Están activadas en otro dispositivo. Si las activas aquí, dejarán de llegar al otro.</p>
+    <p *ngSwitchCase="'ninguno'" class="meta">No están activadas: no te llegan avisos cuando una clienta agenda, cancela o cambia una cita.</p>
+    <p *ngSwitchCase="'no-soportado'" class="meta">Este navegador no puede recibir notificaciones. En iPhone, agrega DubeNails a la pantalla de inicio y ábrela desde ahí.</p>
+  </ng-container>
+
+  <p class="msg-ok" *ngIf="aviso" role="status">{{ aviso }}</p>
+  <p class="msg-error" *ngIf="error" role="alert">{{ error }}</p>
+
+  <button *ngIf="estado === 'ninguno' || estado === 'otro'" type="button" class="activar" (click)="activar()" [disabled]="ocupado">
+    {{ ocupado ? 'Activando…' : 'Activar en este dispositivo' }}
+  </button>
+  <button *ngIf="estado === 'este'" type="button" (click)="probar()" [disabled]="ocupado">Enviar prueba</button>
+</section>

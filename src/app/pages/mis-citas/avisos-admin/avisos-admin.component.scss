@@ -1,0 +1,9 @@
+.avisos { border: 1px solid #d8d2d8; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 8px; background: #fff; color: #1d1a1d; }
+.cabecera { display: flex; align-items: center; gap: 8px; font-size: 15px; }
+.punto { width: 10px; height: 10px; border-radius: 50%; background: #d8d2d8; flex: none; }
+.punto.activo { background: #2f7d5b; }
+p { margin: 0; }
+.meta { font-size: 13px; color: #6c656c; line-height: 1.4; }
+button { padding: 11px; border-radius: 999px; border: 1px solid #d8d2d8; background: #fff; color: #1d1a1d; font-family: inherit; font-weight: 600; font-size: 14px; cursor: pointer; }
+button:disabled { opacity: .5; cursor: default; }
+.activar { background: #000; color: #fff; border-color: #000; }

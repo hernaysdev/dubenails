@@ -3,6 +3,7 @@
   <p class="msg-ok" *ngIf="aviso" role="status">{{ aviso }}</p>
   <p class="msg-error" *ngIf="error" role="alert">{{ error }}</p>
   <p class="meta" *ngIf="cargando">Cargando…</p>
+  <app-avisos-admin *ngIf="esAdmin"></app-avisos-admin>
 
   <div *ngIf="!cargando && !citas.length" class="vacio">
     <p>{{ esAdmin ? 'No hay reservas próximas.' : 'No tienes citas próximas.' }}</p>

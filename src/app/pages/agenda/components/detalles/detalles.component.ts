@@ -4,7 +4,6 @@ import { EventsService } from 'src/app/services/events.service';
 import { SharedService } from 'src/app/services/shared.service';
 import { AgendaService } from 'src/app/services/agenda.service';
 import * as moment from 'moment';
-import { SwPush } from '@angular/service-worker';
 @Component({
   selector: 'app-detalles',
   templateUrl: './detalles.component.html',
@@ -31,7 +30,6 @@ export class DetallesComponent implements OnInit {
   public day: any;
   public month: any;
   public n: any = 10;
-  readonly VAPID_PUBLIC_KEY = 'BBG9Ywk7mvin-aXmEpLorIVjGeo_8cahwFMYXqFD1VKsCldi_dAYXssJ5moV2pe3vcdqzCtXWS4ru8jn9UlGlrs';
   public symbol: string = '&#128577;';
   public idUserLogin: string = '';
   constructor(
@@ -39,7 +37,6 @@ export class DetallesComponent implements OnInit {
     private agendaService: AgendaService,
     private sharedService: SharedService,
     private eventsService: EventsService,
-    private swPush: SwPush,
   ) { }
 
   ngOnInit() {
@@ -94,7 +91,6 @@ export class DetallesComponent implements OnInit {
       this.horas.push({horaInicio : element.hora, horaFin : element.tramo})
       this.horasCopias.push({horaInicio : element.hora, horaFin : element.tramo})
     })
-    this.notificacion();
     this.modalRegisters = true;
   }
 
@@ -200,15 +196,4 @@ export class DetallesComponent implements OnInit {
     })
   }
 
-  notificacion() {
-    this.swPush.requestSubscription({
-      serverPublicKey: this.VAPID_PUBLIC_KEY
-    })
-      .then(sub => {
-        this.usuariosService.addPushSubscriber(sub).subscribe((data) => {
-        })
-      })
-      .catch(err => {});
-
-  }
 }
