@@ -1,5 +1,8 @@
 <div class="registro">
     <form [formGroup]="formRegister" (ngSubmit)="enviar()" novalidate>
+        <app-boton-google texto="signup_with" (credencial)="registroGoogle($event)"></app-boton-google>
+        <span class="separador">o con tu correo</span>
+
         <label for="reg-nombre">Tu nombre</label>
         <input id="reg-nombre" class="inputs" formControlName="nombre" maxlength="40" type="text" placeholder="María José" autocomplete="name" />
         <small class="ayuda" *ngIf="invalido('nombre')">Escribe tu nombre.</small>

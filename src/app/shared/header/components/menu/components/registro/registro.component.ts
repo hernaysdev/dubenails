@@ -70,19 +70,34 @@ export class RegistroComponent implements OnInit {
     })
   }
 
+  // con Google la API crea la cuenta (o vincula una existente) y devuelve la sesion
+  registroGoogle(credencial: string) {
+    this.messageError = '';
+    this.enviando = true;
+    this.usuariosService.loginGoogle(credencial).subscribe({
+      next: (data: any) => this.iniciarSesion(data),
+      error: (error: any) => {
+        this.enviando = false;
+        this.messageError = error?.msg || 'No pudimos registrarte con Google. Intenta de nuevo.';
+      }
+    })
+  }
+
+  private iniciarSesion(data: any) {
+    this.enviando = false;
+    localStorage.setItem('token', data?.token);
+    this.sharedService.setRolUser(data);
+    this.eventsService.showRegistro.emit(data);
+    this.userActive.emit(true)
+    this.registroExitoso.emit(true)
+    if (this.destino) this.router.navigate([this.destino])
+    this.eventsService.cerrarModalLogin.emit(false);
+  }
+
   // despues de registrarse entra con el correo (el alias puede haber cambiado si estaba repetido)
   login(correo: string, clave: string) {
     this.usuariosService.autorizacionUser({ nombre: correo, password: clave }).subscribe({
-      next: (data: any) => {
-        this.enviando = false;
-        localStorage.setItem('token', data?.token);
-        this.sharedService.setRolUser(data);
-        this.eventsService.showRegistro.emit(data);
-        this.userActive.emit(true)
-        this.registroExitoso.emit(true)
-        if (this.destino) this.router.navigate([this.destino])
-        this.eventsService.cerrarModalLogin.emit(false);
-      },
+      next: (data: any) => this.iniciarSesion(data),
       error: () => {
         this.enviando = false;
         this.messageError = 'Tu cuenta se creó, pero no pudimos iniciar sesión. Entra con tu correo y clave.';

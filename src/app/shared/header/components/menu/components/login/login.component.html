@@ -22,9 +22,9 @@
         <p *ngIf="msgError" class="msg-error" role="alert">{{msgError}}</p>
     </form>
 
-    <div *ngIf="googleHabilitado" class="googleLogin">
+    <div class="googleLogin">
         <span class="separador">o</span>
-        <div #googleBtn></div>
+        <app-boton-google texto="continue_with" (credencial)="loginGoogle($event)"></app-boton-google>
     </div>
 
 </div>

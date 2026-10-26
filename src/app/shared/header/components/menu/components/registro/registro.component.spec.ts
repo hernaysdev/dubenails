@@ -13,7 +13,7 @@ describe('RegistroComponent (registro corto)', () => {
   let router: jasmine.SpyObj<Router>;
 
   beforeEach(() => {
-    usuarios = jasmine.createSpyObj('UsuariosService', ['saveUsuarios', 'autorizacionUser']);
+    usuarios = jasmine.createSpyObj('UsuariosService', ['saveUsuarios', 'autorizacionUser', 'loginGoogle']);
     router = jasmine.createSpyObj('Router', ['navigate']);
     TestBed.configureTestingModule({
       declarations: [RegistroComponent],
@@ -59,4 +59,20 @@ describe('RegistroComponent (registro corto)', () => {
     expect(c.messageError).toBe('El correo ya se encuentra registrado');
     expect(c.enviando).toBeFalse();
   });
+
+  it('registrarse con Google guarda la sesion igual que el registro normal', () => {
+    usuarios.loginGoogle.and.returnValue(of({ token: 'tok-g', rol: 'user' }));
+    c.registroGoogle('credencial');
+    expect(usuarios.loginGoogle).toHaveBeenCalledWith('credencial');
+    expect(usuarios.saveUsuarios).not.toHaveBeenCalled();
+    expect(localStorage.getItem('token')).toBe('tok-g');
+    expect(router.navigate).toHaveBeenCalledWith(['/agenda']);
+  });
+
+  it('error de Google se muestra en el formulario', () => {
+    usuarios.loginGoogle.and.returnValue(throwError(() => ({ msg: 'La cuenta de Google no tiene el correo verificado' })));
+    c.registroGoogle('x');
+    expect(c.messageError).toContain('correo verificado');
+  });
 });
+
