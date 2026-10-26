@@ -49,4 +49,19 @@ describe('LoginComponent (Google)', () => {
     expect(localStorage.getItem('token')).toBeNull();
     expect(router.navigate).not.toHaveBeenCalled();
   });
+
+  it('login con correo: se envia en minusculas y sin cambiar puntos ni espacios', () => {
+    usuarios.autorizacionUser.and.returnValue(of({ token: 't', rol: 'user' }));
+    component.formLogin.setValue({ usuario: '  Ana.Perez@Gmail.com ', clave: 'secreta1' });
+    component.login();
+    expect(usuarios.autorizacionUser).toHaveBeenCalledWith({ nombre: 'ana.perez@gmail.com', password: 'secreta1' });
+  });
+
+  it('login con alias: espacios a _ como antes', () => {
+    usuarios.autorizacionUser.and.returnValue(of({ token: 't', rol: 'user' }));
+    component.formLogin.setValue({ usuario: 'Maria Jose', clave: 'secreta1' });
+    component.login();
+    expect(usuarios.autorizacionUser).toHaveBeenCalledWith({ nombre: 'maria_jose', password: 'secreta1' });
+  });
 });
+

@@ -17,6 +17,10 @@
         height: 70px;
         top: 0px;
         background-color: black;
+        // sobre los elementos posicionados de las paginas (ej. dias del calendario de /reservar),
+        // para que el menu que se abre aqui no quede debajo. Los modales de la agenda (z-index 2-3)
+        // y el spinner (1, va despues en el DOM) siguen quedando encima.
+        z-index: 1;
     }
     app-footer{
         position: fixed;

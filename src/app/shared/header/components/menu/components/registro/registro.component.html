@@ -1,33 +1,25 @@
 <div class="registro">
-    <form [formGroup]="formRegister">
-        <label name="usuario">Usuario:</label>
-        <input 
-        class="inputs"
-        formControlName="nombre"
-        maxlength="12"
-         type="text" placeholder="Nombre Usuario...." />
+    <form [formGroup]="formRegister" (ngSubmit)="enviar()" novalidate>
+        <label for="reg-nombre">Tu nombre</label>
+        <input id="reg-nombre" class="inputs" formControlName="nombre" maxlength="40" type="text" placeholder="María José" autocomplete="name" />
+        <small class="ayuda" *ngIf="invalido('nombre')">Escribe tu nombre.</small>
 
-        <label name="correo">Correo:</label>
-        <input class="inputs" formControlName="correo" type="text" placeholder="correo@gmail.com" />
+        <label for="reg-correo">Correo</label>
+        <input id="reg-correo" class="inputs" formControlName="correo" type="email" placeholder="tu@correo.com" autocomplete="email" autocapitalize="none" />
+        <small class="ayuda" *ngIf="invalido('correo')">Escribe un correo válido.</small>
 
-        <label name="Clave">Clave:</label>
-        <input class="inputs" formControlName="password" type="password" placeholder="Minimo 6 digitos"  />
+        <label for="reg-telefono">Teléfono</label>
+        <input id="reg-telefono" class="inputs" formControlName="telefono" type="tel" inputmode="numeric" maxlength="15" placeholder="8045550142" autocomplete="tel" />
+        <small class="ayuda" *ngIf="invalido('telefono')">Escribe tu teléfono completo, solo números (mínimo 7).</small>
 
-        <label name="Clave2">Repetir Clave:</label>
-        <input class="inputs" formControlName="password2" type="password" placeholder="Minimo 6 digitos"  />
+        <label for="reg-clave">Clave</label>
+        <div class="clave">
+            <input id="reg-clave" class="inputs" formControlName="password" [type]="verClave ? 'text' : 'password'" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+            <button type="button" class="ver" (click)="verClave = !verClave" [attr.aria-label]="verClave ? 'Ocultar clave' : 'Mostrar clave'">{{ verClave ? 'Ocultar' : 'Mostrar' }}</button>
+        </div>
+        <small class="ayuda" *ngIf="invalido('password')">Usa al menos 6 caracteres.</small>
 
-        <label name="telefono">Telefono:</label>
-        <input 
-        class="inputs"
-        formControlName="telefono"
-        maxlength="10"
-        onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
-         type="text" placeholder="1234567890" />
-
-        <label name="direccion">Dirección:</label>
-        <input class="inputs" formControlName="direccion" type="text" placeholder="direccion...." />
-
-        <input type="submit" value="Registrarse" (click)="enviar()">
-        <p class="errorMessage" *ngIf="messageError">{{messageError}}</p>
+        <input type="submit" [value]="enviando ? 'Creando cuenta…' : 'Crear cuenta'" [disabled]="enviando">
+        <p class="msg-error" *ngIf="messageError" role="alert">{{ messageError }}</p>
     </form>
 </div>

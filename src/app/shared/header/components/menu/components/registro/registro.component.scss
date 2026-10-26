@@ -1,27 +1,7 @@
-.inputs{
-    font-size: 16px !important;
-
-}
-
-.registro{
-    width: 100%;
-    max-width: 800px;
-    height: auto;
-    display: flex;
-    justify-content: center;
-
-
-    form{
-    display: flex;
-    flex-flow: column;
-    width: 80%;
-    gap: 10px;
-    }
-}
-
-.errorMessage{
-        background: red;
-        text-align: center;
-        padding: 14px;
-        border-radius: 5px;
-}
+.inputs { font-size: 16px !important; }
+.registro { width: 100%; max-width: 800px; display: flex; justify-content: center;
+  form { display: flex; flex-flow: column; width: 80%; gap: 8px; } }
+label { font-weight: 600; font-size: 14px; }
+.ayuda { color: #8a1c33; font-size: 12px; margin-top: -4px; }
+.clave { position: relative; display: flex; flex-direction: column; }
+.ver { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: 0; color: #1d1a1d; font-weight: 600; font-size: 13px; cursor: pointer; padding: 6px; }

@@ -10,7 +10,7 @@
             formControlName="email"
             class="email" 
             placeholder="Correo electrónico">
-            <p *ngIf="error" class="error">Correo Invalido</p>
+            <p *ngIf="mensajeError" class="msg-error" role="alert">{{ mensajeError }}</p>
             <input type="submit" value="Enviar" (click)="OnSubmit()">
         </form>
     </div>
@@ -40,7 +40,7 @@
             class="email" 
             placeholder=""
             (keyup)="write($event)">
-            <p *ngIf="errorTwo" class="error r">contraseña Invalida</p>
+            <p *ngIf="mensajeError" class="msg-error" role="alert">{{ mensajeError }}</p>
             <input type="submit" value="Enviar" (click)="OnSubmitTwo()">
         </form>
     </div>

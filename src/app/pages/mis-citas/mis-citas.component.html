@@ -1,7 +1,7 @@
 <section class="citas">
   <h1>Mis citas</h1>
-  <p class="aviso" *ngIf="aviso" role="status">{{ aviso }}</p>
-  <p class="error" *ngIf="error" role="alert">{{ error }}</p>
+  <p class="msg-ok" *ngIf="aviso" role="status">{{ aviso }}</p>
+  <p class="msg-error" *ngIf="error" role="alert">{{ error }}</p>
   <p class="meta" *ngIf="cargando">Cargando…</p>
 
   <div *ngIf="!cargando && !citas.length" class="vacio">

@@ -1,25 +1,25 @@
 <div class="registro">
     <form [formGroup]="formLogin">
-        <label name="alias">Nombre Usuario:</label>
+        <label for="login-usuario">Correo o usuario</label>
         <input 
         class="inputs"
         preventCutCopyPaste
         autocomplete="off"
-        type="text" placeholder="Nombre Usuario...."
-        id="usuario"
+        type="text" placeholder="tu@correo.com" autocapitalize="none" autocomplete="username"
+        id="login-usuario"
         name="usuario"
         formControlName="usuario"
         />
 
-        <label name="clave">Contraseña:</label>
+        <label for="login-clave">Clave</label>
         <input 
         class="inputs"
-        type="password" placeholder="contraseña...."
+        id="login-clave" type="password" placeholder="Mínimo 6 caracteres" autocomplete="current-password"
         preventCutCopyPaste
         autocomplete="off"
         formControlName="clave" />
         <input type="submit" value="Iniciar" (click)="login()">
-        <p *ngIf="msgError" class="msgError">{{msgError}}</p>
+        <p *ngIf="msgError" class="msg-error" role="alert">{{msgError}}</p>
     </form>
 
     <div *ngIf="googleHabilitado" class="googleLogin">

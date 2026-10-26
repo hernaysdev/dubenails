@@ -28,7 +28,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     private sharedService : SharedService
   ) { 
     this.formLogin = this.formBuilder.group({
-      usuario : ['', [Validators.required , Validators.minLength(4)]],
+      usuario : ['', [Validators.required , Validators.minLength(3)]],
       clave  : ['',  [Validators.required , Validators.minLength(6)]] 
      } )
   }
@@ -41,15 +41,19 @@ export class LoginComponent implements OnInit, AfterViewInit {
   }
 
   login(){
+    if (this.formLogin.invalid) { this.msgError = 'Escribe tu correo (o usuario) y tu clave.'; return; }
+    this.msgError = '';
     const { usuario , clave } = this.formLogin.value;
-    const nombre = usuario.replaceAll(' ','_')
+    // con correo se envia tal cual; con alias se normaliza como se guardan
+    const entrada = usuario.trim();
+    const nombre = entrada.includes('@') ? entrada.toLowerCase() : entrada.replaceAll(' ','_').toLowerCase();
       const body  = {
-        nombre : nombre.toLowerCase() , password :clave
+        nombre , password :clave
       }
     this.usuariosService.autorizacionUser(body).subscribe({
       next: (data:any) => this.iniciarSesion(data),
       error: (error) => {
-        this.msgError = error.msg;
+        this.msgError = error?.msg || 'No pudimos iniciar sesión. Intenta de nuevo.';
       }
     })
   }

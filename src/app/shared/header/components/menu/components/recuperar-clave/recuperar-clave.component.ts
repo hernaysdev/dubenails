@@ -23,6 +23,7 @@ export class RecuperarClaveComponent {
   router = inject(Router);
   url: string = '';
   token: string = '';
+  mensajeError = '';
 
   ngOnInit() {
     this.router.events.subscribe((data: any) => {
@@ -44,6 +45,7 @@ export class RecuperarClaveComponent {
 
 
   OnSubmit(){
+    this.mensajeError = '';
     if(this.form.valid){
       this.error = false;
       const { email }= this.form.value
@@ -56,17 +58,24 @@ export class RecuperarClaveComponent {
           window.location.reload()
         },3000)
       }, error: (err) => {
-        this.eventsService.alertMessage('error',`${err}`);
+        this.mensajeError = typeof err === 'string' && err ? err : 'No pudimos enviar el correo. Intenta de nuevo.';
       }}) 
     }else{
       this.error = true;
+      this.mensajeError = 'Escribe un correo válido.';
     }
   }
 
 
   OnSubmitTwo() : any{
+    this.mensajeError = '';
     const { password, password2 }= this.formTwo.value;
     if(password !== password2){
+      this.mensajeError = 'Las claves no coinciden.';
+      return this.errorTwo = true;
+    }
+    if(!password || password.length < 6){
+      this.mensajeError = 'La clave debe tener al menos 6 caracteres.';
       return this.errorTwo = true;
     }
     if(this.formTwo.valid){
@@ -81,10 +90,11 @@ export class RecuperarClaveComponent {
           this.router.navigateByUrl('home')
         },3000)
       }, error: (err) => {
-        this.eventsService.alertMessage('error',`${err}`);
+        this.mensajeError = typeof err === 'string' && err ? err : 'El link venció o no es válido. Pide uno nuevo.';
       }}) 
     }else{
       this.errorTwo = true;
+      this.mensajeError = 'Revisa la clave.';
     }
   }
 

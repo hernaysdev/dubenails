@@ -18,7 +18,7 @@
     <span *ngFor="let p of pasos; let i = index" [class.on]="i < numeroPaso"></span>
   </div>
 
-  <p class="error" *ngIf="error" role="alert">{{ error }}</p>
+  <p class="msg-error" *ngIf="error" role="alert">{{ error }}</p>
   <p class="cargando" *ngIf="cargando">Cargando…</p>
 
   <!-- 1. Servicio -->

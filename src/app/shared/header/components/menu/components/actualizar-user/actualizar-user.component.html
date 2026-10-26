@@ -1,18 +1,18 @@
 <div class="registro">
-    <form [formGroup]="formRegister">
-        <label name="alias">Nombre Usuario:</label>
-        <input class="inputs" type="text" placeholder="Alias...." />
+    <form [formGroup]="formRegister" (ngSubmit)="enviar()" novalidate>
+        <label for="perfil-correo">Correo</label>
+        <input id="perfil-correo" class="inputs" formControlName="correo" type="email" autocomplete="email" autocapitalize="none" />
+        <small class="ayuda" *ngIf="invalido('correo')">Escribe un correo válido.</small>
 
-        <label name="correo">Correo:</label>
-        <input class="inputs" formControlName="correo" type="text" placeholder="correo...." />
+        <label for="perfil-telefono">Teléfono</label>
+        <input id="perfil-telefono" class="inputs" formControlName="telefono" type="tel" inputmode="numeric" maxlength="15" autocomplete="tel" />
+        <small class="ayuda" *ngIf="invalido('telefono')">Escribe tu teléfono completo, solo números (mínimo 7).</small>
 
-        <label name="telefono">Telefono:</label>
-        <input class="inputs" formControlName="telefono" type="text" placeholder="Telefono...." />
+        <label for="perfil-direccion">Dirección (opcional)</label>
+        <input id="perfil-direccion" class="inputs" formControlName="direccion" type="text" autocomplete="street-address" />
 
-        <label name="direccion">Dirección:</label>
-        <input class="inputs" formControlName="direccion" type="text" placeholder="direccion...." />
-
-        <input type="submit" value="Actualizar" (click)="enviar()">
-        <!-- <p class="errorMessage" *ngIf="messageError">{{messageError}}</p> -->
+        <input type="submit" [value]="enviando ? 'Guardando…' : 'Guardar'" [disabled]="enviando">
+        <p class="msg-ok" *ngIf="mensajeOk" role="status">{{ mensajeOk }}</p>
+        <p class="msg-error" *ngIf="mensajeError" role="alert">{{ mensajeError }}</p>
     </form>
 </div>

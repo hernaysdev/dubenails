@@ -12,5 +12,3 @@ button:disabled { opacity: .4; cursor: default; }
 .confirmar { border: 1px dashed #000; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
 .principal { display: block; text-align: center; text-decoration: none; padding: 14px; border-radius: 999px; background: #000; color: #fff; font-weight: 600; }
 .vacio { display: flex; flex-direction: column; gap: 12px; }
-.aviso { background: #e3f2ea; color: #1f5e43; padding: 10px 12px; border-radius: 10px; }
-.error { background: #fbe9ec; color: #8a1c33; padding: 10px 12px; border-radius: 10px; }
