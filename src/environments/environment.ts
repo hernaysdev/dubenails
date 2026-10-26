@@ -7,7 +7,7 @@ export const environment = {
   // urlLocal: `https://134.209.64.30:1000/`,
   urlLocal : 'http://localhost:1000/',
   // Client ID publico de Google (OAuth web). Vacio = no se muestra el boton de Google
-  googleClientId: '',
+  googleClientId: '197403109965-6vsflre92agn17050tkb3jvkld2aqfb8.apps.googleusercontent.com',
 };
 
 /*
