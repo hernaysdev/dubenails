@@ -63,7 +63,13 @@ export class MenuComponent implements OnInit {
             this.sharedService.setRolUser(data);
           },
           error: (error) => {
-
+            // token invalido o vencido (la API responde 400): se cierra la sesion local para volver a iniciar.
+            // Errores de red (status 0, sin conexion) no cierran la sesion.
+            if (error?.status === 400) {
+              localStorage.removeItem('token');
+              this.sharedService.setRolUser('');
+              this.usuarioActivo = false;
+            }
           }
         })
       }

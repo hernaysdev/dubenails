@@ -344,6 +344,8 @@ export class ModalRegisterComponent implements OnInit {
   }
 
   findUsers(search: any, type: string) {
+    // la busqueda de clientas registradas es solo para admin (la API lo exige)
+    if (this.rol !== 'admin') return;
     this.usuariosService.findUsuarioExpress(search, type).subscribe({
       next: (value: any) => {
         if (value === typeof toString()) {
