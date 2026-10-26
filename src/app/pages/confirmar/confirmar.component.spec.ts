@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { ConfirmarComponent } from './confirmar.component';
+import { DineroPipe } from 'src/app/shared/pipes/dinero.pipe';
 import { ConfirmarService, ReservaPorConfirmar } from 'src/app/services/confirmar.service';
 
 describe('ConfirmarComponent (link de la clienta)', () => {
@@ -14,6 +15,7 @@ describe('ConfirmarComponent (link de la clienta)', () => {
   const crear = () => {
     TestBed.configureTestingModule({
       declarations: [ConfirmarComponent],
+      imports: [DineroPipe],
       providers: [
         { provide: ConfirmarService, useValue: servicio },
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'tok123' } } } },
@@ -38,6 +40,7 @@ describe('ConfirmarComponent (link de la clienta)', () => {
     expect(texto(f)).toContain('martes 3 de noviembre');
     expect(texto(f)).toContain('10:30 a 12:00');
     expect(texto(f)).toContain('antes de las 16:30');
+    expect(texto(f)).toContain('$40');
   });
 
   it('confirmar', () => {

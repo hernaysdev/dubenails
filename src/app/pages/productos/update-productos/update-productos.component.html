@@ -6,7 +6,7 @@
   <ng-container *ngIf="!producto && !cargando">
     <h2>¿Qué servicio quieres editar?</h2>
     <button type="button" class="fila" *ngFor="let p of productos" (click)="editar(p)">
-      <span><strong>{{ p.nombre }}</strong><span class="meta">{{ duracion(p.tiempo) }} · ${{ p.precio }}</span></span>
+      <span><strong>{{ p.nombre }}</strong><span class="meta">{{ duracion(p.tiempo) }} · {{ p.precio | dinero }}</span></span>
       <span class="accion">Editar</span>
     </button>
   </ng-container>

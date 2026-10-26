@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output } from '@a
 import { CommonModule } from '@angular/common';
 import { PagoElegido } from 'src/app/services/agenda.service';
 import { MedioPago } from 'src/app/services/contenido.service';
+import { formatoDinero } from 'src/app/services/disponibilidad.service';
 
 export interface OpcionPago { porcentaje: number; monto: number; }
 
@@ -12,7 +13,8 @@ const TIPOS = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/hei
 export const opcionesDePago = (total: number, porcentajes: number[]): OpcionPago[] =>
   porcentajes.map(porcentaje => ({ porcentaje, monto: Math.round(total * porcentaje) / 100 }));
 
-export const dinero = (n: number) => `$${Number(n || 0).toFixed(2).replace(/\.00$/, '')}`;
+// mismo formato que el resto de la app
+export const dinero = formatoDinero;
 
 // Pago con captura: cuanto paga (anticipo o total), por cual medio (con sus datos) y la captura.
 // Emite el pago completo o null mientras falte algo.

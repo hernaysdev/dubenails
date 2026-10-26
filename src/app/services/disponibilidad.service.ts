@@ -29,6 +29,13 @@ export class DisponibilidadService {
   }
 }
 
+// montos en dolares: 40 -> "$40", 10.5 -> "$10.50", 1250 -> "$1,250" (centavos solo si hay)
+export const formatoDinero = (n: number | string | null | undefined) => {
+  const v = Number(n) || 0;
+  const centavos = Math.round(v * 100) % 100 !== 0;
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: centavos ? 2 : 0, maximumFractionDigits: 2 }).format(v);
+};
+
 // 9.5 -> "09:30"
 export const formatoHora = (h: number) => `${String(Math.floor(h)).padStart(2, '0')}:${h % 1 ? '30' : '00'}`;
 // 1.5 -> "1 h 30 min"

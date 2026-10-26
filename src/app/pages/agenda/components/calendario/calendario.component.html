@@ -17,7 +17,7 @@
                  <h3 class="mes">{{this.mes.toUpperCase()}}</h3> 
                 <button class="buttonNextPrev"(click)="dateNext(+1)">></button>
             </div>
-            <h4 *ngIf="rolUsuario === 'admin'" class="montoTotal"> Total ${{sumaValorMes | number}}</h4>
+            <h4 *ngIf="rolUsuario === 'admin'" class="montoTotal"> Total {{ sumaValorMes | dinero }}</h4>
         </div>
         <span class="infoYear">  calendario ~ {{infoYear}}</span>
 <div class="calendario">

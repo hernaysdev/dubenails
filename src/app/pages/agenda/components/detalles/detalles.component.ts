@@ -13,7 +13,7 @@ export class DetallesComponent implements OnInit {
 
   public modalServicios = false;
   public clienteDetalle: any[] = [];
-  public sumaServicios: Number = 0;
+  public sumaServicios: number = 0;
   public habilitar: boolean = true;
   public ids: string[] = [];
   @Output('retornaBoton') retornaBoton: EventEmitter<any> = new EventEmitter();

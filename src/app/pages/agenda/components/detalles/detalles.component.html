@@ -23,7 +23,7 @@
 
                         </span>
                         <span *ngIf="sumaServicios !== 0 && rol === 'admin'" class="valorServicio">
-                            ${{clientes.valor | number}}</span>
+                            {{ clientes.valor | dinero }}</span>
                     </p>
                     <p><strong>Servicio:</strong> {{clientes.servicio}}</p>
 
@@ -68,7 +68,7 @@
 
             </div>
             <strong *ngIf="sumaServicios !== 0 && rol === 'admin'"> Resumen del dia - Total:
-                ${{sumaServicios}}.000</strong>
+                {{ sumaServicios | dinero }}</strong>
             <p class="sinRegistro" *ngIf="clienteDetalle.length === 0">{{sinAgenda}}</p>
         </div>
         <button *ngIf="

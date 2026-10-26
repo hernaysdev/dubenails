@@ -8,6 +8,7 @@ import { SaveProductoComponent } from './save-producto/save-producto.component';
 import { ListProductosComponent } from './list-productos/list-productos.component';
 import { MenuComponent } from './menu/menu.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { DineroPipe } from 'src/app/shared/pipes/dinero.pipe';
 
 
 
@@ -23,7 +24,8 @@ import { ReactiveFormsModule } from '@angular/forms';
     CommonModule,
     ProductoRouterModule,
     ReactiveFormsModule,
-    NgxMaskDirective
+    NgxMaskDirective,
+    DineroPipe
   ],
   schemas:[
     CUSTOM_ELEMENTS_SCHEMA

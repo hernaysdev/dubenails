@@ -12,6 +12,7 @@ import { AgendaComponent } from './agenda.component';
 import { RegistrarUsuarioComponent } from './components/calendario/modalRegistrarUsuario/registrar-usuario/registrar-usuario.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { RegistroComponent } from 'src/app/shared/header/components/menu/components/registro/registro.component';
+import { DineroPipe } from 'src/app/shared/pipes/dinero.pipe';
 
 
 @NgModule({
@@ -28,7 +29,8 @@ import { RegistroComponent } from 'src/app/shared/header/components/menu/compone
     CommonModule,
     ReactiveFormsModule,
     AgendaRoutingModule,
-    SharedModule
+    SharedModule,
+    DineroPipe
   ],
   exports :[
     CalendarioComponent

@@ -17,7 +17,7 @@
       <div><dt>Servicio</dt><dd>{{ reserva.servicio }}</dd></div>
       <div><dt>Fecha</dt><dd class="capital">{{ fecha }}</dd></div>
       <div><dt>Hora</dt><dd>{{ hora(reserva.hora) }} a {{ hora(reserva.tramo) }}</dd></div>
-      <div *ngIf="reserva.valor"><dt>Precio</dt><dd>${{ reserva.valor }}</dd></div>
+      <div *ngIf="reserva.valor"><dt>Precio</dt><dd>{{ reserva.valor | dinero }}</dd></div>
       <div *ngIf="reserva.direccion"><dt>Dirección</dt><dd><a [href]="mapa" target="_blank" rel="noopener">{{ reserva.direccion }}</a></dd></div>
     </dl>
 

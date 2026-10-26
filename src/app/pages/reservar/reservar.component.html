@@ -27,14 +27,14 @@
     <button *ngFor="let s of servicios" type="button" class="opcion" [class.sel]="estaElegido(s)" [attr.aria-pressed]="estaElegido(s)" (click)="alternarServicio(s)">
       <span class="check" aria-hidden="true">{{ estaElegido(s) ? '✓' : '' }}</span>
       <span class="nombre">{{ s.nombre }}</span>
-      <span class="precio">${{ s.precio }}</span>
+      <span class="precio">{{ s.precio | dinero }}</span>
       <span class="meta">{{ duracion(s.duracion) }}</span>
     </button>
 
     <div class="barra" *ngIf="hayServicios">
       <div>
         <strong>{{ elegidos.length }} {{ elegidos.length === 1 ? 'servicio' : 'servicios' }} · {{ duracion(duracionTotal) }}</strong>
-        <span class="meta">Total ${{ precioTotal }}</span>
+        <span class="meta">Total {{ precioTotal | dinero }}</span>
       </div>
       <button type="button" class="principal" (click)="continuar()">Continuar</button>
     </div>
@@ -74,12 +74,12 @@
       </ng-container>
       <ng-template #variosServicios>
         <ng-container *ngFor="let s of elegidos; let i = index">
-          <dt>{{ i === 0 ? 'Servicios' : '' }}</dt><dd>{{ s.nombre }} <span class="meta">${{ s.precio }}</span></dd>
+          <dt>{{ i === 0 ? 'Servicios' : '' }}</dt><dd>{{ s.nombre }} <span class="meta">{{ s.precio | dinero }}</span></dd>
         </ng-container>
       </ng-template>
       <dt>Día</dt><dd>{{ fechaElegida }}</dd>
       <dt>Hora</dt><dd>{{ hora(horaElegida) }} a {{ hora(horaElegida + duracionTotal) }}</dd>
-      <dt>{{ elegidos.length > 1 ? 'Total' : 'Precio' }}</dt><dd>${{ precioTotal }}</dd>
+      <dt>{{ elegidos.length > 1 ? 'Total' : 'Precio' }}</dt><dd>{{ precioTotal | dinero }}</dd>
     </dl>
 
     <ng-container *ngIf="!usuario">
