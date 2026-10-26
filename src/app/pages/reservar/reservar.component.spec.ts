@@ -19,7 +19,7 @@ describe('ReservarComponent (reserva guiada)', () => {
   const elegir = (...servicios: any[]) => { servicios.forEach(s => c.alternarServicio(s)); c.continuar(); };
 
   let router: jasmine.SpyObj<Router>;
-  const crear = (servicioQuery: string | null = null, conSesion = true, reprogramar: string | null = null) => {
+  const crear = (servicioQuery: string | null = null, conSesion = true, reprogramar: string | null = null, marcar: string | null = null) => {
     disp = jasmine.createSpyObj('DisponibilidadService', ['servicios', 'dias', 'horas']);
     disp.servicios.and.returnValue(of([kapping, pedicura]));
     disp.dias.and.returnValue(of([{ dia: 1, libres: 0 }, { dia: 2, libres: 5 }]));
@@ -38,7 +38,7 @@ describe('ReservarComponent (reserva guiada)', () => {
         { provide: AgendaService, useValue: agenda },
         { provide: UsuariosService, useValue: usuarios },
         { provide: Router, useValue: router },
-        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({ ...(servicioQuery ? { servicio: servicioQuery } : {}), ...(reprogramar ? { reprogramar } : {}) }) } } },
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({ ...(servicioQuery ? { servicio: servicioQuery } : {}), ...(reprogramar ? { reprogramar } : {}), ...(marcar ? { marcar } : {}) }) } } },
       ],
     }).overrideTemplate(ReservarComponent, '');
     c = TestBed.createComponent(ReservarComponent).componentInstance;
@@ -174,5 +174,15 @@ describe('ReservarComponent (reserva guiada)', () => {
       expect(c.elegidos.map(s => s.id)).toEqual(['k1', 'p1']);
       expect(c.paso).toBe('dia');
     });
+  });
+
+  it('desde el detalle de la portada (?marcar=) queda marcado en el paso 1 y puede sumar otros', () => {
+    crear(null, true, null, 'k1');
+    expect(c.paso).toBe('servicio');
+    expect(c.elegidos.map(s => s.id)).toEqual(['k1']);
+    expect(disp.dias).not.toHaveBeenCalled();
+    c.alternarServicio(pedicura);
+    c.continuar();
+    expect(disp.dias).toHaveBeenCalledWith('k1,p1', c.mes, c.year);
   });
 });

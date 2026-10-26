@@ -30,13 +30,15 @@ describe('MenuComponent (servicios de la portada)', () => {
     expect(el().textContent).not.toContain('$');
   });
 
-  it('al tocar un servicio abre el modal con su descripcion y el boton para reservarlo', () => {
+  it('al tocar un servicio abre el modal con su descripcion y "Reservar ahora"', () => {
     tarjetas()[0].click();
     fixture.detectChanges();
     const modal = el().querySelector('[role="dialog"]')!;
     expect(modal.textContent).toContain('Esmaltado permanente');
     expect(modal.textContent).toContain('Color que dura 3 semanas.');
-    expect(modal.querySelector('a.reservar')!.getAttribute('href')).toContain('servicio=e1');
+    const boton = modal.querySelector('a.reservar')!;
+    expect(boton.textContent).toContain('Reservar ahora');
+    expect(boton.getAttribute('href')).toContain('marcar=e1');
   });
 
   it('sin descripcion muestra un texto por defecto', () => {

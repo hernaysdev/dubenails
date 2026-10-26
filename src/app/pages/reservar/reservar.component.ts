@@ -74,6 +74,9 @@ export class ReservarComponent implements OnInit {
         const ids = (this.route.snapshot.queryParamMap.get('servicio') || '').split(',').filter(Boolean);
         const elegidos = ids.map(id => servicios.find(s => s.id === id)).filter((s): s is Servicio => !!s);
         if (elegidos.length) { this.elegidos = elegidos.slice(0, MAX_SERVICIOS); this.continuar(); }
+        // ?marcar=id (desde el detalle de la portada): lo deja marcado en el paso 1 para que sume otros
+        const marcar = servicios.find(s => s.id === this.route.snapshot.queryParamMap.get('marcar'));
+        if (!elegidos.length && marcar) this.elegidos = [marcar];
       },
       error: () => { this.cargando = false; this.error = 'No pudimos cargar los servicios. Intenta de nuevo en un momento.'; }
     });

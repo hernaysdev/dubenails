@@ -36,6 +36,7 @@
     </span>
     <p class="descripcion" *ngIf="s.descripcion; else sinDescripcion">{{ s.descripcion }}</p>
     <ng-template #sinDescripcion><p class="descripcion vacia">Escríbenos si quieres saber más de este servicio.</p></ng-template>
-    <a class="reservar" routerLink="/reservar" [queryParams]="{ servicio: s.id }">Reservar este servicio</a>
+    <!-- llega al paso 1 con este servicio marcado: puede sumar otros antes de continuar -->
+    <a class="reservar" routerLink="/reservar" [queryParams]="{ marcar: s.id }">Reservar ahora</a>
   </div>
 </div>
