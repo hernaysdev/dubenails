@@ -198,7 +198,7 @@ describe('ReservarComponent (reserva guiada)', () => {
       crear();
       elegir(kapping, pedicura);
       expect(c.conPago).toBeTrue();
-      expect(c.opcionesPago).toEqual([{ porcentaje: 15, monto: 10.5 }, { porcentaje: 100, monto: 70 }]);
+      expect(c.opcionesPago).toEqual([{ porcentaje: 15, monto: 11 }, { porcentaje: 100, monto: 70 }]);
     });
 
     it('sin el pago completo no reserva', () => {

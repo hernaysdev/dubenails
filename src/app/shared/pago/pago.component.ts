@@ -9,9 +9,9 @@ export interface OpcionPago { porcentaje: number; monto: number; }
 const MAX_MB = 10;
 const TIPOS = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
 
-// montos de cada porcentaje sobre el total (igual que la API: redondeo a centavos)
+// montos de cada porcentaje sobre el total (igual que la API: pesos enteros)
 export const opcionesDePago = (total: number, porcentajes: number[]): OpcionPago[] =>
-  porcentajes.map(porcentaje => ({ porcentaje, monto: Math.round(total * porcentaje) / 100 }));
+  porcentajes.map(porcentaje => ({ porcentaje, monto: Math.round(total * porcentaje / 100) }));
 
 // mismo formato que el resto de la app
 export const dinero = formatoDinero;
@@ -50,7 +50,7 @@ export class PagoComponent implements OnChanges, OnDestroy {
   elegirMedio(m: MedioPago) { this.medio = m; this.copiado = false; this.emitir(); }
 
   get montoElegido() { return this.opciones.find(o => o.porcentaje === this.porcentaje)?.monto ?? 0; }
-  get resta() { return Math.max(0, Math.round((this.total - this.montoElegido) * 100) / 100); }
+  get resta() { return Math.max(0, this.total - this.montoElegido); }
 
   async copiarDatos() {
     if (!this.medio) return;
