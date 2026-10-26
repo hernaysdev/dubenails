@@ -19,6 +19,13 @@ export class UsuariosService {
     return this.http.get<any>(`${this.url}usuarios`);
   }
 
+  loginGoogle(credential: string){
+    return this.http.post(`${this.url}auth/google`, { credential })
+    .pipe(
+      catchError((error:any) => throwError(() => error.error))
+    )
+  }
+
   autorizacionUser(body:any){
    return  this.http.post(`${this.url}auth/login` , body  , )
     .pipe(

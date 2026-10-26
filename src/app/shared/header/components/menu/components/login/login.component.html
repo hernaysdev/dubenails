@@ -22,4 +22,9 @@
         <p *ngIf="msgError" class="msgError">{{msgError}}</p>
     </form>
 
+    <div *ngIf="googleHabilitado" class="googleLogin">
+        <span class="separador">o</span>
+        <div #googleBtn></div>
+    </div>
+
 </div>

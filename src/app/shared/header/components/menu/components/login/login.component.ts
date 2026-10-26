@@ -1,20 +1,24 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, inject, NgZone, OnInit, Output, ViewChild } from '@angular/core';
 import { FormGroup , FormBuilder ,  Validators } from '@angular/forms';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { EventsService } from 'src/app/services/events.service';
 import { SharedService } from 'src/app/services/shared.service';
 import { Router } from '@angular/router';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, AfterViewInit {
  @Output('userActive')  userActive : EventEmitter<any> = new EventEmitter();
+ @ViewChild('googleBtn') googleBtn?: ElementRef<HTMLDivElement>;
   public formLogin : FormGroup ;
   public msgError : string = '';
+  public googleHabilitado = !!environment.googleClientId;
   router = inject(Router)
+  private zone = inject(NgZone)
   constructor(
     private formBuilder : FormBuilder,
     private usuariosService : UsuariosService,
@@ -30,6 +34,9 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  ngAfterViewInit(): void {
+    this.renderBotonGoogle();
+  }
 
   login(){
     const { usuario , clave } = this.formLogin.value;
@@ -37,16 +44,48 @@ export class LoginComponent implements OnInit {
       const body  = {
         nombre : nombre.toLowerCase() , password :clave
       }
-    this.usuariosService.autorizacionUser(body).subscribe({next: (data:any) => {
-                 localStorage.setItem('token' , data?.token );
-                 this.sharedService.setRolUser(data);
-                 this.eventsService.cerrarModalLogin.emit(false);
-                 this,this.eventsService.showRegistro.emit(true)
-                 this.router.navigate(['/agenda'])
-    },
-    error: (error) => {
-       this.msgError = error.msg;
-    }})
+    this.usuariosService.autorizacionUser(body).subscribe({
+      next: (data:any) => this.iniciarSesion(data),
+      error: (error) => {
+        this.msgError = error.msg;
+      }
+    })
+  }
+
+  loginGoogle(credential: string) {
+    this.msgError = '';
+    this.usuariosService.loginGoogle(credential).subscribe({
+      next: (data: any) => this.iniciarSesion(data),
+      error: (error: any) => {
+        this.msgError = error?.msg || 'No se pudo iniciar sesión con Google';
+      }
+    })
+  }
+
+  private iniciarSesion(data: any) {
+    localStorage.setItem('token' , data?.token );
+    this.sharedService.setRolUser(data);
+    this.eventsService.cerrarModalLogin.emit(false);
+    this.eventsService.showRegistro.emit(true)
+    this.router.navigate(['/agenda'])
+  }
+
+  // el script de Google carga async (index.html): se espera hasta ~10s a que este disponible
+  private renderBotonGoogle(intentos = 0) {
+    if (!this.googleHabilitado || !this.googleBtn) return;
+    const google = (window as any).google;
+    if (!google?.accounts?.id) {
+      if (intentos < 50) setTimeout(() => this.renderBotonGoogle(intentos + 1), 200);
+      return;
+    }
+    google.accounts.id.initialize({
+      client_id: environment.googleClientId,
+      // el callback lo llama Google fuera de Angular: se vuelve a la zona para que se actualice la vista
+      callback: (respuesta: any) => this.zone.run(() => this.loginGoogle(respuesta.credential)),
+    });
+    google.accounts.id.renderButton(this.googleBtn.nativeElement, {
+      theme: 'outline', size: 'large', text: 'continue_with', locale: 'es', width: 280,
+    });
   }
 
 }
