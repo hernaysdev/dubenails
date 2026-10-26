@@ -41,10 +41,10 @@
     <div class="cal">
       <span class="dow" *ngFor="let d of ['D','L','M','M','J','V','S']">{{ d }}</span>
       <span *ngFor="let b of blancos"></span>
-      <button *ngFor="let d of dias" type="button" class="dia" [class.libre]="d.libres > 3" [class.pocos]="d.libres > 0 && d.libres <= 3"
-        [disabled]="!d.libres" (click)="elegirDia(d)" [attr.aria-label]="d.dia + (d.libres ? ', ' + d.libres + ' horas libres' : ', sin horas')">{{ d.dia }}</button>
+      <button *ngFor="let d of dias" type="button" class="dia" [class.libre]="d.libres > 3" [class.pocos]="d.libres > 0 && d.libres <= 3" [class.cerrado]="d.cerrado"
+        [disabled]="!d.libres" (click)="elegirDia(d)" [attr.aria-label]="d.dia + (d.cerrado ? ', cerrado' : d.libres ? ', ' + d.libres + ' horas libres' : ', sin horas')">{{ d.dia }}</button>
     </div>
-    <p class="leyenda"><i class="v"></i>Hay horas <i class="a"></i>Quedan pocas · Domingo cerrado</p>
+    <p class="leyenda"><i class="v"></i>Hay horas <i class="a"></i>Quedan pocas <i class="r"></i>Cerrado</p>
   </div>
 
   <!-- 3. Hora -->

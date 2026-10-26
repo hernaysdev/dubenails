@@ -17,9 +17,10 @@ h1 { margin: 0; font-size: 26px; }
 .dow { font-size: 11px; font-weight: 700; color: #6c656c; }
 .dia { aspect-ratio: 1; border-radius: 10px; border: 0; background: none; font-family: inherit; font-weight: 600; font-size: 15px; cursor: pointer; position: relative; }
 .dia:disabled { color: #cfc8cf; cursor: default; }
-.dia.libre::after, .dia.pocos::after { content: ""; position: absolute; bottom: 5px; left: 50%; width: 5px; height: 5px; border-radius: 50%; background: #2f7d5b; transform: translateX(-50%); }
+.dia.libre::after, .dia.pocos::after, .dia.cerrado::after { content: ""; position: absolute; bottom: 5px; left: 50%; width: 5px; height: 5px; border-radius: 50%; background: #2f7d5b; transform: translateX(-50%); }
 .dia.pocos::after { background: #c27a00; }
-.leyenda { font-size: 12px; color: #6c656c; i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin: 0 4px 0 8px; } .v { background: #2f7d5b; } .a { background: #c27a00; } }
+.dia.cerrado::after { background: #c2333f; }
+.leyenda { font-size: 12px; color: #6c656c; i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin: 0 4px 0 8px; } .v { background: #2f7d5b; } .a { background: #c27a00; } .r { background: #c2333f; } }
 .horas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .hora { padding: 12px 4px; border: 1px solid #d8d2d8; border-radius: 10px; background: #fff; font-family: inherit; font-weight: 600; font-size: 15px; cursor: pointer; }
 .hora.sel, .hora:hover { background: #000; color: #fff; }

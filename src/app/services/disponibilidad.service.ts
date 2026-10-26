@@ -4,7 +4,8 @@ import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 export interface Servicio { id: string; nombre: string; precio: number; duracion: number; }
-export interface DiaDisponible { dia: number; libres: number; }
+// cerrado: domingo o dia deshabilitado por la admin (un dia lleno o pasado tiene libres 0 pero no es cerrado)
+export interface DiaDisponible { dia: number; libres: number; cerrado?: boolean; }
 
 // API publica de disponibilidad (no requiere sesion). mes va de 0 a 11 como en la agenda.
 @Injectable({ providedIn: 'root' })
