@@ -1,8 +1,8 @@
-.reservar { max-width: 520px; margin: 0 auto; padding: 16px 16px 120px; display: flex; flex-direction: column; gap: 14px; color: #1d1a1d; }
+.reservar { max-width: 520px; margin: 0 auto; padding: 32px 16px 120px; display: flex; flex-direction: column; gap: 18px; color: #1d1a1d; }
 .cabecera { display: flex; gap: 12px; align-items: center; }
 h1 { margin: 0; font-size: 26px; }
 .eyebrow { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: #6c656c; font-weight: 700; }
-.progreso { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; span { height: 4px; border-radius: 4px; background: #e2dde2; } .on { background: #000; } }
+.progreso { margin-bottom: 4px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; span { height: 4px; border-radius: 4px; background: #e2dde2; } .on { background: #000; } }
 .volver, .opcion, .dia, .hora, .enlace { color: #1d1a1d; }
 .volver { width: 36px; height: 36px; border-radius: 50%; border: 1px solid #d8d2d8; background: #fff; font-size: 18px; cursor: pointer; flex-shrink: 0; }
 .volver:disabled { opacity: .3; }

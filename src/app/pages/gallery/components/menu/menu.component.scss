@@ -1,11 +1,20 @@
-.portada { max-width: 520px; margin: 0 auto; padding: 16px 16px 120px; display: flex; flex-direction: column; gap: 24px; color: #1d1a1d; }
+.portada { max-width: 520px; margin: 0 auto; padding: 32px 16px 120px; display: flex; flex-direction: column; gap: 28px; color: #1d1a1d; }
 .hero { background: #f1eef1; border-radius: 20px; padding: 24px 18px; display: flex; flex-direction: column; gap: 12px; }
 h1 { margin: 0; font-size: 30px; line-height: 1.1; }
-h2 { margin: 0 0 4px; font-size: 20px; }
 p { margin: 0; color: #5f585f; }
 .reservar { display: block; text-align: center; text-decoration: none; background: #000; color: #fff; font-weight: 600; font-size: 17px; padding: 15px; border-radius: 999px; }
 .horario { font-size: 13px; }
-.servicios { display: flex; flex-direction: column; }
-.servicio { display: flex; flex-direction: column; gap: 2px; padding: 14px 2px; border-bottom: 1px solid #e2dde2; text-decoration: none; color: inherit; }
-.nombre { font-weight: 600; }
-.meta { font-size: 13px; color: #5f585f; }
+
+.servicios { display: flex; flex-direction: column; gap: 10px; }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #8a7f8a; }
+h2 { margin: -4px 0 6px; font-family: "Bodoni Moda", "Didot", "Times New Roman", serif; font-weight: 600; font-size: 30px; line-height: 1.1; }
+.servicio { display: flex; align-items: center; gap: 14px; padding: 16px; border: 1px solid #e2dde2; border-radius: 16px; background: #fff; text-decoration: none; color: inherit; transition: border-color .15s, transform .15s; }
+.servicio:hover, .servicio:focus-visible { border-color: #1d1a1d; }
+.servicio:active { transform: scale(.99); }
+.texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.nombre { font-family: "Bodoni Moda", "Didot", "Times New Roman", serif; font-weight: 600; font-size: 20px; line-height: 1.2; }
+.detalle { font-size: 13px; color: #5f585f; }
+.duracion { display: inline-flex; align-items: center; gap: 5px; align-self: flex-start; margin-top: 4px; padding: 4px 10px; border-radius: 999px; background: #f1eef1; font-size: 12px; font-weight: 600; color: #3d363d; }
+.ir { flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%; background: #1d1a1d; color: #fff; display: grid; place-items: center; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .servicio { transition: none; } }

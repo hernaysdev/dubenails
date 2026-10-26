@@ -7,10 +7,19 @@
   </div>
 
   <div class="servicios" *ngIf="servicios.length">
-    <h2>Nuestros servicios</h2>
+    <p class="eyebrow">Servicios</p>
+    <h2>Elige y reserva</h2>
     <a *ngFor="let s of servicios" class="servicio" routerLink="/reservar" [queryParams]="{ servicio: s.id }">
-      <span class="nombre">{{ s.nombre }}</span>
-      <span class="meta">{{ duracion(s.duracion) }} · Reservar ›</span>
+      <span class="texto">
+        <span class="nombre">{{ partes(s.nombre).titulo }}</span>
+        <span class="detalle" *ngIf="partes(s.nombre).detalle">{{ partes(s.nombre).detalle }}</span>
+        <span class="duracion">
+          <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          {{ duracion(s.duracion) }}
+        </span>
+      </span>
+      <span class="ir" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span class="sr">Reservar {{ s.nombre }}</span>
     </a>
   </div>
 </section>

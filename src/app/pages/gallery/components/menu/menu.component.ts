@@ -17,6 +17,14 @@ export class MenuComponent implements OnInit {
 
   constructor(private disponibilidad: DisponibilidadService) { }
 
+  // "Extensión (Polygel / Builder / Acrilico) corto" -> titulo "Extensión" y detalle "Polygel / Builder / Acrilico · corto"
+  partes(nombre: string): { titulo: string; detalle: string } {
+    const limpio = nombre.replace(/\s+desde\s*$/i, '').trim();
+    const m = limpio.match(/^([^(]+)\(([^)]*)\)\s*(.*)$/);
+    if (!m) return { titulo: limpio, detalle: '' };
+    return { titulo: m[1].trim(), detalle: [m[2].trim(), m[3].trim()].filter(Boolean).join(' · ') };
+  }
+
   ngOnInit(): void {
     // si la API falla, la portada igual muestra el boton para reservar
     this.disponibilidad.servicios().subscribe({ next: (s) => this.servicios = s, error: () => this.servicios = [] });
