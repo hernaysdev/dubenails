@@ -48,7 +48,7 @@ describe('ConfirmarComponent (link de la clienta)', () => {
     const f = crear();
     boton(f, 'Confirmar reserva').click();
     f.detectChanges();
-    expect(servicio.responder).toHaveBeenCalledWith('tok123', 'aceptar');
+    expect(servicio.responder).toHaveBeenCalledWith('tok123', 'aceptar', '');
     expect(texto(f)).toContain('Tu cita está confirmada');
     expect(boton(f, 'Confirmar reserva')).toBeUndefined();
   });
@@ -61,7 +61,7 @@ describe('ConfirmarComponent (link de la clienta)', () => {
     expect(servicio.responder).not.toHaveBeenCalled();
     boton(f, 'Sí, no puedo').click();
     f.detectChanges();
-    expect(servicio.responder).toHaveBeenCalledWith('tok123', 'rechazar');
+    expect(servicio.responder).toHaveBeenCalledWith('tok123', 'rechazar', '');
     expect(texto(f)).toContain('Gracias por avisarnos');
   });
 
@@ -99,7 +99,7 @@ describe('ConfirmarComponent (link de la clienta)', () => {
       c.pago = { porcentaje: 15, medio: 'zelle', archivo: new File(['x'], 'p.jpg', { type: 'image/jpeg' }) };
       c.enviarPago();
       f.detectChanges();
-      expect(servicio.subirPago).toHaveBeenCalledWith('tok123', c.pago);
+      expect(servicio.subirPago).toHaveBeenCalledWith('tok123', c.pago, '');
       expect(texto(f)).toContain('Recibimos tu pago');
     });
 
@@ -113,6 +113,43 @@ describe('ConfirmarComponent (link de la clienta)', () => {
       const f = crear();
       expect(texto(f)).toContain('Recibimos tu pago');
       expect(f.nativeElement.querySelector('app-pago')).toBeNull();
+    });
+  });
+
+  describe('correo de la clienta', () => {
+    it('si la cita no tiene correo lo pide, lo envia y el mensaje cambia', () => {
+      servicio.ver.and.returnValue(of({ ...reserva, tieneCorreo: false }));
+      servicio.responder.and.returnValue(of({ estado: 'confirmada' }));
+      const f = crear();
+      expect(f.nativeElement.querySelector('#c-correo')).not.toBeNull();
+      f.componentInstance.correo = ' ana@mail.com ';
+      boton(f, 'Confirmar reserva').click();
+      f.detectChanges();
+      expect(servicio.responder).toHaveBeenCalledWith('tok123', 'aceptar', 'ana@mail.com');
+      expect(texto(f)).toContain('Te enviamos los detalles por correo');
+    });
+
+    it('sin correo: le pide guardar el link', () => {
+      servicio.ver.and.returnValue(of({ ...reserva, tieneCorreo: false }));
+      servicio.responder.and.returnValue(of({ estado: 'confirmada' }));
+      const f = crear();
+      boton(f, 'Confirmar reserva').click();
+      f.detectChanges();
+      expect(texto(f)).toContain('Guarda este link');
+    });
+
+    it('correo mal escrito: no envia', () => {
+      servicio.ver.and.returnValue(of({ ...reserva, tieneCorreo: false }));
+      const f = crear();
+      f.componentInstance.correo = 'ana@';
+      f.componentInstance.responder('aceptar');
+      expect(servicio.responder).not.toHaveBeenCalled();
+      expect(f.componentInstance.error).toContain('correo');
+    });
+
+    it('si ya tiene correo no lo pide', () => {
+      servicio.ver.and.returnValue(of({ ...reserva, tieneCorreo: true }));
+      expect(crear().nativeElement.querySelector('#c-correo')).toBeNull();
     });
   });
 });

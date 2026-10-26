@@ -22,6 +22,8 @@ export class ConfirmarComponent implements OnInit {
   confirmandoRechazo = false;
   error = '';
   pago: PagoElegido | null = null;
+  // si la cita no tiene correo, la clienta puede dejarlo para recibir los avisos
+  correo = '';
   private token = '';
   readonly hora = formatoHora;
 
@@ -41,6 +43,10 @@ export class ConfirmarComponent implements OnInit {
   // si la admin configuro medios de pago, se confirma adjuntando la captura
   get conPago() { return !!this.reserva?.pago?.requerido; }
   get pagoRechazado() { return this.reserva?.pago?.estado === 'rechazado'; }
+  get pideCorreo() { return !!this.reserva && !this.reserva.tieneCorreo; }
+  get correoValido() { return !this.correo.trim() || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.correo.trim()); }
+  // hay a donde avisarle (correo de la cita o el que acaba de dejar)
+  get conCorreo() { return !!this.reserva?.tieneCorreo; }
 
   get fecha() {
     const r = this.reserva!;
@@ -58,9 +64,11 @@ export class ConfirmarComponent implements OnInit {
 
   responder(accion: 'aceptar' | 'rechazar' | 'otro-horario') {
     this.error = '';
+    if (accion === 'aceptar' && !this.correoValido) { this.error = 'Revisa tu correo o déjalo en blanco.'; return; }
     this.enviando = true;
-    this.confirmarService.responder(this.token, accion).subscribe({
+    this.confirmarService.responder(this.token, accion, accion === 'aceptar' ? this.correo.trim() : '').subscribe({
       next: ({ estado }) => {
+        if (accion === 'aceptar') this.marcarCorreo();
         this.enviando = false;
         this.confirmandoRechazo = false;
         this.vista = accion === 'otro-horario' && estado === 'pendiente' ? 'otro-horario' : estado;
@@ -76,10 +84,11 @@ export class ConfirmarComponent implements OnInit {
 
   enviarPago() {
     if (!this.pago) { this.error = 'Elige cuánto pagas, el medio y adjunta la captura del pago.'; return; }
+    if (!this.correoValido) { this.error = 'Revisa tu correo o déjalo en blanco.'; return; }
     this.error = '';
     this.enviando = true;
-    this.confirmarService.subirPago(this.token, this.pago).subscribe({
-      next: () => { this.enviando = false; this.vista = 'en-revision'; },
+    this.confirmarService.subirPago(this.token, this.pago, this.correo.trim()).subscribe({
+      next: () => { this.enviando = false; this.marcarCorreo(); this.vista = 'en-revision'; },
       error: (e) => {
         this.enviando = false;
         if (e.status === 410) { this.vista = 'vencida'; return; }
@@ -87,5 +96,9 @@ export class ConfirmarComponent implements OnInit {
         this.error = e.msg || 'No pudimos subir la captura. Intenta de nuevo.';
       },
     });
+  }
+
+  private marcarCorreo() {
+    if (this.reserva && this.correo.trim()) this.reserva.tieneCorreo = true;
   }
 }

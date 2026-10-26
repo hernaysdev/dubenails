@@ -115,7 +115,7 @@ export class MisCitasComponent implements OnInit, OnDestroy {
     switch (p.estado) {
       case 'esperando-captura': return 'Esperando la captura del pago';
       case 'en-revision': return this.esAdmin ? `Pago para revisar${detalle}` : 'Pago en revisión: te avisaremos al confirmarla';
-      case 'aprobado': return `Pagado${detalle}`;
+      case 'aprobado': return `Pagado${detalle}${p.capturaBorrada ? ' (captura eliminada a los 60 días)' : ''}`;
       case 'rechazado': return this.esAdmin ? `Pago rechazado (${p.motivoRechazo}): esperando otra captura` : `Pago rechazado: ${p.motivoRechazo}. Revisa tu correo para subir otra captura.`;
     }
   }

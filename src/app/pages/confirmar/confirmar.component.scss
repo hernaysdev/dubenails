@@ -19,3 +19,7 @@ button:disabled { opacity: .5; cursor: default; }
 .secundarias { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .peligro { background: #000; color: #fff; border-color: #000; }
 .pregunta { border: 1px dashed #000; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+.campo-correo { display: flex; flex-direction: column; gap: 6px; }
+.campo-correo label { font-weight: 700; font-size: 15px; }
+.campo-correo input { font: inherit; font-size: 16px; padding: 12px; border: 1px solid #d8d2d8; border-radius: 10px; }
+.opcional { font-weight: 400; color: #6c656c; font-size: 13px; }

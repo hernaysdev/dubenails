@@ -20,6 +20,8 @@ export const formularioPago = (pago: PagoElegido) => {
 export interface PagoCita {
   estado: 'esperando-captura' | 'en-revision' | 'aprobado' | 'rechazado';
   porcentaje: number | null; monto: number | null; medio: string | null; motivoRechazo: string; tieneCaptura: boolean;
+  // la captura se borra 60 dias despues de la cita
+  capturaBorrada?: boolean;
 }
 
 export interface LinkConfirmacion {
