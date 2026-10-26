@@ -1,15 +1,14 @@
 <p *ngIf="telefonoPrivado" [class.telefono]="telefono" >
       {{telefono}}
 </p>
-<button *ngIf="botonCancelar" [disabled]="dia < day " [class.disabledButton]="dia < day " class="cancelarAgenda" (click)="cancelar()">
-      Cancelar
+<button type="button" *ngIf="botonCancelar" [disabled]="dia < day " [class.disabledButton]="dia < day " class="cancelarAgenda" (click)="cancelar()">
+      Cancelar cita
 </button>
 
-<div class="modalCancelar" *ngIf="modalCancelar">
-      <h3>¿Deseas cancelar?</h3>
+<div class="modalCancelar" *ngIf="modalCancelar" role="alertdialog" aria-label="Confirmar cancelación">
+      <strong>¿Cancelar la cita de {{ nombre }}?</strong>
       <div>
-            <button (click)="cancelarOperacion(false)">No</button>
-            <button (click)="cancelarOperacion(true)">Si</button>
+            <button type="button" (click)="cancelarOperacion(false)">No</button>
+            <button type="button" class="si" (click)="cancelarOperacion(true)">Sí, cancelar</button>
       </div>
-     
 </div>

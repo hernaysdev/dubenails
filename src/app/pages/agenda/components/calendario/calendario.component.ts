@@ -41,6 +41,14 @@ export class CalendarioComponent implements OnInit {
   usersFilter: any = [];
   colorFilterDia: any = [];
   infoYear: string = '';
+  // grilla de 7 columnas (domingo primero): huecos antes del dia 1
+  readonly semana = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+  private readonly nombresDias = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  get blancos(): number[] {
+    const i = this.nombresDias.indexOf(String(this.dias[0]?.diaName || '').toLowerCase());
+    return Array(i > 0 ? i : 0).fill(0);
+  }
+  esHoy(dia: number) { return dia === this.day && this.mesActual === this.mesAgenda && this.yearActual === this.year; }
   yearActual!: number;
 
   constructor(

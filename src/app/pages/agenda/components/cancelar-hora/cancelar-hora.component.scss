@@ -1,47 +1,43 @@
-    /* padding: 10px; */
-    
-    .cancelarAgenda{
-        padding: 2px;
-        margin-top: 5px;
-        border-radius: 5px;
-        background: #ff0000;
-        color: white;
-        font-size: 14px;
+.cancelarAgenda {
+    align-self: flex-start;
+    margin-top: 6px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 1px solid #c2333f;
+    background: #fff;
+    color: #c2333f;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
 
-    }
-   
-    .modalCancelar{
+// confirmacion encima de la tarjeta de la cita (la tarjeta es position: relative)
+.modalCancelar {
     position: absolute;
-    background: black;
-    opacity: 0.8;
-    color: white;
-    left: 0%;
-    top: 0%;
-    width: 100%;
-    height: 100%;
+    inset: 0;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .97);
+    color: #1d1a1d;
     display: flex;
-    flex-flow: column;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     gap: 10px;
-
-    div{
-        button{
-            margin:10px;
-            width: 150px;
-        }
-    }
-    }
-
-    .disabledButton{
-        display: none;
-    }
-
-    .telefono{
-        background: #17b717;
-    color: white;
+    padding: 12px;
     text-align: center;
-    font-size: 14px;
-    padding: 2px;
-    width: 50%;
-    }
+
+    div { display: flex; gap: 8px; }
+    button { padding: 9px 16px; border-radius: 999px; border: 1px solid #d8d2d8; background: #fff; color: #1d1a1d; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .si { background: #c2333f; border-color: #c2333f; color: #fff; }
+}
+
+.disabledButton { display: none; }
+
+.telefono {
+    background: #eaf5ef;
+    color: #2f7d5b;
+    font-size: 13px;
+    padding: 4px 10px;
+    border-radius: 999px;
+}

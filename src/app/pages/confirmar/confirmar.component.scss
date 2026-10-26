@@ -23,3 +23,5 @@ button:disabled { opacity: .5; cursor: default; }
 .campo-correo label { font-weight: 700; font-size: 15px; }
 .campo-correo input { font: inherit; font-size: 16px; padding: 12px; border: 1px solid #d8d2d8; border-radius: 10px; }
 .opcional { font-weight: 400; color: #6c656c; font-size: 13px; }
+.aviso-correo { margin: 0; font-size: 14px; color: #3d363d; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+.enlace-chico { display: inline; width: auto; padding: 0; border: 0; background: none; font: inherit; font-size: 13px; color: #1d1a1d; text-decoration: underline; cursor: pointer; }

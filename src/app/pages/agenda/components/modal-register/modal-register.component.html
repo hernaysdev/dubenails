@@ -1,126 +1,97 @@
-<div class="modal" fadeIn>
+<div class="modal" fadeIn role="dialog" aria-modal="true" aria-label="Agendar hora">
   <div class="content_titulo">
-    <h3>Registro de horas</h3>
-    <span (click)="hideModal()">x</span>
+    <div>
+      <p class="eyebrow">{{ dia.diaName }} {{ dia.day }}</p>
+      <h3>Agendar hora</h3>
+    </div>
+    <button type="button" class="cerrar" (click)="hideModal()" aria-label="Cerrar">×</button>
   </div>
   <form [formGroup]="formGroup">
-    <label name="nombre">Nombre</label>
-    <br>
-    <input
-    class="inputs" 
-    type="text"
-    (keyup)="find($event,'nombre')"
-    placeholder="nombre..." 
-    formControlName="nombre"
-     >
-
-    <div @MyInsertRemoveTrigger
-      *ngFor="let usuariosR of listEmail">
-      <p 
-      *ngIf="typeConsult === 'nombre'"
-      (click)="selectData(usuariosR.correo, usuariosR.nombre, usuariosR.telefono)" >
-        <strong class="emailStyles">
-          {{usuariosR.nombre}}
-        </strong>
-      </p>
-    </div>
-
-    <br>
-    <label name="hora">Hora</label>
-    <br>
-    <input class="inputs" formControlName="hora" type="button" (click)="mostrarHoras()">
-    <br>
-
-    <div class="modalGeneric modalHora" *ngIf="modalHoras">
-      <div class="modalHoras">
-        <div>
-          <h3>Selección de Horas</h3>
-          <span (click)="hideModalHoras()">x</span>
-        </div>
-        <ul class="listaHoras">
-          <li *ngFor="let hora of listaHora" (click)="SeleccionHora($event.target)">{{(hora.indexOf('.') > 0) ?
-            hora.slice(0 ,hora.length-2) + ':30' : hora+':00'}}</li>
-        </ul>
+    <label for="ag-nombre">Nombre de la clienta</label>
+    <div class="campo-buscar">
+      <input id="ag-nombre" class="inputs" type="text" (keyup)="find($event,'nombre')" placeholder="Escribe para buscarla en la lista" formControlName="nombre" autocomplete="off">
+      <div class="sugerencias" *ngIf="typeConsult === 'nombre' && listEmail.length">
+        <button type="button" @MyInsertRemoveTrigger *ngFor="let usuariosR of listEmail"
+          (click)="selectData(usuariosR.correo, usuariosR.nombre, usuariosR.telefono)">
+          <strong class="emailStyles">{{ usuariosR.nombre }}</strong>
+          <span>{{ usuariosR.telefono || usuariosR.correo }}</span>
+        </button>
       </div>
     </div>
 
-    <label name="servicio">Servicios</label>
-    <br>
-    <input class="inputs" formControlName="servicio" type="button" (click)="mostrarServicios()">
-    <br>
+    <label for="ag-servicio">Servicio</label>
+    <input id="ag-servicio" class="inputs selector" formControlName="servicio" type="button" (click)="mostrarServicios()">
 
-    <div class="modalGeneric modalHora" *ngIf="modalServicios">
-      <div class="modalHoras modalServicio">
-        <div>
-          <h3>Selección de Horas</h3>
-          <span (click)="hideModalServicios()">x</span>
-        </div>
-        <ul class="listaHoras ulServicios">
-          <li *ngFor="let servicio of lista" (click)="SeleccionServicio($event.target, servicio)">
-            {{servicio.nombre}} -  {{servicio.tiempo.toString().length > 1 ? servicio.tiempo.toString().split('.')[0] + ':30hr' : servicio.tiempo+':00hr'}}
-          </li>
-        </ul>
-      </div>
-    </div>
+    <label for="ag-hora">Hora</label>
+    <input id="ag-hora" class="inputs selector" formControlName="hora" type="button" (click)="mostrarHoras()">
 
-    <label name="telefono">Telefono</label>
-    <br>
-    <input class="inputs" type="text" placeholder="telefono..."
+    <label for="ag-telefono">Teléfono</label>
+    <input id="ag-telefono" class="inputs" type="text" inputmode="tel" placeholder="Ej. 555 123 4567"
       onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" formControlName="telefono">
-    <br>
 
-    <label name="correo">Correo</label>
-    <br>
-    <input 
-    (input)="find($event,'correo')" 
-    class="inputs" 
-    type="text" 
-    placeholder="correo..." 
-    [value]="findEmail"
-    formControlName="correo">
-
-    <div
-    @MyInsertRemoveTrigger
-    *ngFor="let usuariosR of listEmail ">
-      <p 
-      *ngIf="typeConsult === 'correo'"
-      class="emailStyles"
-      (click)="selectData(usuariosR.correo, usuariosR.nombre, usuariosR.telefono)" (value)="usuariosR.correo">
-        {{usuariosR.correo}}</p>
+    <label for="ag-correo">Correo <span class="opcional">(opcional)</span></label>
+    <div class="campo-buscar">
+      <input id="ag-correo" (input)="find($event,'correo')" class="inputs" type="text" inputmode="email" placeholder="Para enviarle la confirmación"
+        [value]="findEmail" formControlName="correo" autocomplete="off">
+      <div class="sugerencias" *ngIf="typeConsult === 'correo' && listEmail.length">
+        <button type="button" @MyInsertRemoveTrigger *ngFor="let usuariosR of listEmail" class="emailStyles"
+          (click)="selectData(usuariosR.correo, usuariosR.nombre, usuariosR.telefono)">{{ usuariosR.correo }}</button>
+      </div>
     </div>
-    <br>
-    <button class="submit" (click)="handleModal()">Registrar Hora</button>
-    <!-- <label  *ngIf="rol !== 'admin'" name="correo">Correo</label>
-    <br *ngIf="rol !== 'admin'">
-    <input *ngIf="rol !== 'admin'" class="inputs" type="text" placeholder="correo..." formControlName="correo" autocomplete="off">
-    <br *ngIf="rol !== 'admin'">
-    <button class="submit" (click)="handleModal()">Registrar Hora</button> -->
-    <!-- <button *ngIf="rol === 'admin'" class="submit" (click)="enviarDatos()">Registrar Hora</button> -->
-    <!-- <button *ngIf="rol !== 'admin'" class="submit" (click)="pagar()">Pagar Abono</button> -->
+
+    <button type="button" class="submit" (click)="handleModal()">Registrar hora</button>
   </form>
+
+  <!-- selector de hora -->
+  <div class="modalGeneric modalHora" *ngIf="modalHoras" (click)="hideModalHoras()">
+    <div class="modalHoras" (click)="$event.stopPropagation()">
+      <div class="titulo-selector">
+        <h3>Elige la hora</h3>
+        <button type="button" class="cerrar" (click)="hideModalHoras()" aria-label="Cerrar">×</button>
+      </div>
+      <ul class="listaHoras">
+        <li *ngFor="let hora of listaHora" (click)="SeleccionHora($event.target)">{{(hora.indexOf('.') > 0) ?
+          hora.slice(0 ,hora.length-2) + ':30' : hora+':00'}}</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- selector de servicio -->
+  <div class="modalGeneric modalHora" *ngIf="modalServicios" (click)="hideModalServicios()">
+    <div class="modalHoras modalServicio" (click)="$event.stopPropagation()">
+      <div class="titulo-selector">
+        <h3>Elige el servicio</h3>
+        <button type="button" class="cerrar" (click)="hideModalServicios()" aria-label="Cerrar">×</button>
+      </div>
+      <ul class="listaHoras ulServicios">
+        <li *ngFor="let servicio of lista" (click)="SeleccionServicio($event.target, servicio)">
+          <span class="nombre-servicio">{{ servicio.nombre }}</span>
+          <span class="duracion-servicio">{{ duracion(servicio.tiempo) }}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
 
   <p class="msg-error" *ngIf="horaDisponible.length > 0" role="alert">{{ horaDisponible }}</p>
   <p class="msg-error" *ngIf="error" role="alert">{{ error }}</p>
 </div>
 
 <div *ngIf="showModal" class="modalNotifica">
-  <div>
-    <h3>Confirma tu Hora</h3>
+  <div class="confirmacion" role="dialog" aria-modal="true" aria-label="Confirmar hora">
+    <h3>¿Agendar esta hora?</h3>
 
-    <p class="messageModal">Este servicio solo puede ser cancelado 24 horas antes de su cita. debe contactarse con
-      nosotros para poder cancelar. <span class="textConfirmar">Confirme si desea agendar.</span></p>
+    <dl class="messageServices">
+      <dt>Servicio</dt><dd>{{ serviceSelection }}</dd>
+      <dt>Fecha</dt><dd>{{ dia.day }} de {{ mes }}</dd>
+      <dt>Hora</dt><dd>{{ hourSelection }}</dd>
+    </dl>
+    <p class="messageModal">La clienta puede cancelar o cambiarla hasta 24 horas antes.</p>
 
-    <div class="messageServices">
-      <p>Servicio: {{serviceSelection}}</p>
-      <p>Fecha: {{dia.day}} de {{mes}}</p>
-      <p>Hora: {{hourSelection}}</p>
-    </div>
-
-    <div>
-      <button class="btn" (click)="closeModal()">No</button>
-      <button class="btn" (click)="enviarDatos()">Si</button>
+    <div class="botones">
+      <button type="button" class="btn" (click)="closeModal()">No</button>
+      <button type="button" class="btn si" (click)="enviarDatos()">Sí, agendar</button>
     </div>
     <!-- la clienta confirma con un link; si no lo hace en 6 h, la hora se libera -->
-    <button *ngIf="rol === 'admin'" class="btn btn-link" (click)="enviarDatos(true)">Agendar y enviar link para que confirme</button>
+    <button type="button" *ngIf="rol === 'admin'" class="btn btn-link" (click)="enviarDatos(true)">Agendar y enviar link para que confirme</button>
   </div>
 </div>

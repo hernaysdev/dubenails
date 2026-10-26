@@ -5,6 +5,7 @@ import { EventsService } from 'src/app/services/events.service';
 import { SharedService } from 'src/app/services/shared.service';
 import { PagoService } from 'src/app/services/pago.service';
 import * as moment from 'moment';
+import { formatoDuracion } from 'src/app/services/disponibilidad.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { animate, animation, keyframes, state, style, transition, trigger, ɵBrowserAnimationBuilder } from '@angular/animations';
 import { ProductosService } from 'src/app/services/productos.service';
@@ -60,6 +61,7 @@ export class ModalRegisterComponent implements OnInit {
   @Input('horas') horas: any;
   @Input('horasCopias') horasCopias: any;
   showModal: boolean = false;
+  readonly duracion = formatoDuracion;
   // la admin aparta la hora y le manda a la clienta un link para confirmarla
   porConfirmar = false;
   serviceSelection: string = '';
@@ -246,7 +248,8 @@ export class ModalRegisterComponent implements OnInit {
 
   SeleccionServicio(event: any, servicio:any) {
     this.servicioSelected = servicio;
-    this.formGroup.controls['servicio'].setValue(event.innerText);
+    // el nombre real del servicio (antes se guardaba el texto del boton, con la duracion: "Kapping - 1:30hr")
+    this.formGroup.controls['servicio'].setValue(servicio.nombre);
     this.modalServicios = false;
   }
 

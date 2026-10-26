@@ -13,6 +13,7 @@ export interface ReservaPorConfirmar {
   vence: string; venceTexto: string; pideOtroHorario: boolean; direccion: string; whatsapp: string;
   // la cita no tiene correo: la pagina se lo pide para poder avisarle
   tieneCorreo?: boolean;
+  correoOculto?: string;
   // si la admin configuro medios de pago, la clienta confirma adjuntando la captura
   pago?: { requerido: boolean; estado?: string; motivoRechazo?: string; opciones?: { porcentaje: number; monto: number }[] };
   medios?: MedioPago[];
@@ -31,14 +32,15 @@ export class ConfirmarService {
   }
 
   // correo: solo si la cita no tenia (la clienta lo deja para recibir los avisos)
-  responder(token: string, accion: 'aceptar' | 'rechazar' | 'otro-horario', correo = ''): Observable<{ estado: EstadoReserva; pideOtroHorario?: boolean }> {
-    return this.http.post<any>(`${this.url}/${encodeURIComponent(token)}/${accion}`, correo ? { correo } : {})
+  // cambiarCorreo: reemplaza el que ya tenia la cita (la clienta toco "Cambiar")
+  responder(token: string, accion: 'aceptar' | 'rechazar' | 'otro-horario', correo = '', cambiarCorreo = false): Observable<{ estado: EstadoReserva; pideOtroHorario?: boolean }> {
+    return this.http.post<any>(`${this.url}/${encodeURIComponent(token)}/${accion}`, correo ? { correo, cambiarCorreo } : {})
       .pipe(catchError(e => throwError(() => ({ status: e.status, msg: e.error?.msg }))));
   }
 
-  subirPago(token: string, pago: PagoElegido, correo = ''): Observable<{ estado: EstadoReserva; monto: number }> {
+  subirPago(token: string, pago: PagoElegido, correo = '', cambiarCorreo = false): Observable<{ estado: EstadoReserva; monto: number }> {
     const fd = formularioPago(pago);
-    if (correo) fd.append('correo', correo);
+    if (correo) { fd.append('correo', correo); fd.append('cambiarCorreo', String(cambiarCorreo)); }
     return this.http.post<any>(`${this.url}/${encodeURIComponent(token)}/pago`, fd)
       .pipe(catchError(e => throwError(() => ({ status: e.status, msg: e.error?.msg }))));
   }

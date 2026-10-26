@@ -48,7 +48,7 @@ describe('ConfirmarComponent (link de la clienta)', () => {
     const f = crear();
     boton(f, 'Confirmar reserva').click();
     f.detectChanges();
-    expect(servicio.responder).toHaveBeenCalledWith('tok123', 'aceptar', '');
+    expect(servicio.responder).toHaveBeenCalledWith('tok123', 'aceptar', '', false);
     expect(texto(f)).toContain('Tu cita está confirmada');
     expect(boton(f, 'Confirmar reserva')).toBeUndefined();
   });
@@ -61,7 +61,7 @@ describe('ConfirmarComponent (link de la clienta)', () => {
     expect(servicio.responder).not.toHaveBeenCalled();
     boton(f, 'Sí, no puedo').click();
     f.detectChanges();
-    expect(servicio.responder).toHaveBeenCalledWith('tok123', 'rechazar', '');
+    expect(servicio.responder).toHaveBeenCalledWith('tok123', 'rechazar', '', false);
     expect(texto(f)).toContain('Gracias por avisarnos');
   });
 
@@ -99,7 +99,7 @@ describe('ConfirmarComponent (link de la clienta)', () => {
       c.pago = { porcentaje: 15, medio: 'zelle', archivo: new File(['x'], 'p.jpg', { type: 'image/jpeg' }) };
       c.enviarPago();
       f.detectChanges();
-      expect(servicio.subirPago).toHaveBeenCalledWith('tok123', c.pago, '');
+      expect(servicio.subirPago).toHaveBeenCalledWith('tok123', c.pago, '', false);
       expect(texto(f)).toContain('Recibimos tu pago');
     });
 
@@ -125,7 +125,7 @@ describe('ConfirmarComponent (link de la clienta)', () => {
       f.componentInstance.correo = ' ana@mail.com ';
       boton(f, 'Confirmar reserva').click();
       f.detectChanges();
-      expect(servicio.responder).toHaveBeenCalledWith('tok123', 'aceptar', 'ana@mail.com');
+      expect(servicio.responder).toHaveBeenCalledWith('tok123', 'aceptar', 'ana@mail.com', false);
       expect(texto(f)).toContain('Te enviamos los detalles por correo');
     });
 
@@ -147,9 +147,18 @@ describe('ConfirmarComponent (link de la clienta)', () => {
       expect(f.componentInstance.error).toContain('correo');
     });
 
-    it('si ya tiene correo no lo pide', () => {
-      servicio.ver.and.returnValue(of({ ...reserva, tieneCorreo: true }));
-      expect(crear().nativeElement.querySelector('#c-correo')).toBeNull();
+    it('si ya tiene correo lo muestra oculto y permite cambiarlo', () => {
+      servicio.ver.and.returnValue(of({ ...reserva, tieneCorreo: true, correoOculto: 'he•••@gmail.com' }));
+      servicio.responder.and.returnValue(of({ estado: 'confirmada' }));
+      const f = crear();
+      expect(f.nativeElement.querySelector('#c-correo')).toBeNull();
+      expect(texto(f)).toContain('Te avisaremos a he•••@gmail.com');
+      boton(f, 'Cambiar').click();
+      f.detectChanges();
+      expect(f.nativeElement.querySelector('#c-correo')).not.toBeNull();
+      f.componentInstance.correo = 'mio@mail.com';
+      boton(f, 'Confirmar reserva').click();
+      expect(servicio.responder).toHaveBeenCalledWith('tok123', 'aceptar', 'mio@mail.com', true);
     });
   });
 });

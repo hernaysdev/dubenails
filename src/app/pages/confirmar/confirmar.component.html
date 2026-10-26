@@ -24,8 +24,12 @@
 
     <ng-container *ngIf="vista === 'pendiente' || vista === 'otro-horario'">
       <app-pago *ngIf="conPago" [opciones]="reserva.pago?.opciones || []" [medios]="reserva.medios || []" [total]="reserva.valor || 0" (cambio)="pago = $event"></app-pago>
+      <p class="aviso-correo" *ngIf="reserva.tieneCorreo && !cambiandoCorreo">
+        Te avisaremos a <strong>{{ reserva.correoOculto }}</strong>
+        <button type="button" class="enlace-chico" (click)="cambiandoCorreo = true">¿No es tu correo? Cambiar</button>
+      </p>
       <div class="campo-correo" *ngIf="pideCorreo">
-        <label for="c-correo">Tu correo <span class="opcional">(recomendado)</span></label>
+        <label for="c-correo">Tu correo <span class="opcional">{{ cambiandoCorreo ? '(reemplaza al anterior)' : '(recomendado)' }}</span></label>
         <input id="c-correo" type="email" inputmode="email" autocomplete="email" maxlength="120" placeholder="tucorreo@ejemplo.com"
           [value]="correo" (input)="correo = $any($event.target).value">
         <small class="meta">Para avisarte cuando quede confirmada y recordarte tu cita 24 h antes. Si no lo dejas, guarda este link.</small>
