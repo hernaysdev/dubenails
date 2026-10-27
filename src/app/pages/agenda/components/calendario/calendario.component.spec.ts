@@ -64,6 +64,30 @@ describe('CalendarioComponent (agenda con year)', () => {
     expect(component.year).toBe(2026);
   });
 
+  it('muestra 3 meses: el anterior, el actual y el siguiente', () => {
+    crear(); // diciembre 2026
+    expect(component.puedeRetroceder).toBeTrue();
+    expect(component.puedeAvanzar).toBeTrue();
+    component.dateNext(0); // noviembre 2026
+    expect(component.mesAgenda).toBe(10);
+    expect(component.puedeRetroceder).toBeFalse();
+    expect(component.puedeAvanzar).toBeTrue();
+    component.dateNext(1); component.dateNext(1); // enero 2027
+    expect(component.mesAgenda).toBe(0);
+    expect(component.year).toBe(2027);
+    expect(component.puedeAvanzar).toBeFalse();
+    expect(component.puedeRetroceder).toBeTrue();
+  });
+
+  it('el mes anterior en enero es diciembre del year pasado', () => {
+    crear(new Date(2027, 0, 10));
+    component.dateNext(0);
+    expect(component.mesAgenda).toBe(11);
+    expect(component.year).toBe(2026);
+    expect(component.desfaseMes).toBe(-1);
+    expect(component.puedeRetroceder).toBeFalse();
+  });
+
   it('puede avanzar varios meses y recorrer 2027', () => {
     crear();
     for (let i = 0; i < 13; i++) component.dateNext(1);

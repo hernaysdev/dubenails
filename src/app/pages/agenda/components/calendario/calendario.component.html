@@ -2,9 +2,9 @@
     <!-- mes y total -->
     <div class="cabecera">
         <div class="navegacion">
-            <button type="button" class="flecha" (click)="dateNext(0)" [disabled]="mesActual === mesAgenda && yearActual === year" aria-label="Mes anterior">‹</button>
+            <button type="button" class="flecha" (click)="dateNext(0)" [disabled]="!puedeRetroceder" aria-label="Mes anterior">‹</button>
             <h2>{{ mes }} <span>{{ infoYear }}</span></h2>
-            <button type="button" class="flecha" (click)="dateNext(+1)" aria-label="Mes siguiente">›</button>
+            <button type="button" class="flecha" (click)="dateNext(+1)" [disabled]="!puedeAvanzar" aria-label="Mes siguiente">›</button>
         </div>
         <p *ngIf="rolUsuario === 'admin'" class="total">Total del mes <strong>{{ sumaValorMes | dinero }}</strong></p>
     </div>
@@ -25,7 +25,7 @@
         <button type="button" class="dias" *ngFor="let diaAgenda of dias"
             [class.filter]="colorFilterDia.includes(diaAgenda.dia.toString())"
             [class.hoy]="esHoy(diaAgenda.dia)"
-            [class.ocupado]="diaAgenda.dia < day && mesActual === mesAgenda && yearActual === year
+            [class.ocupado]="desfaseMes < 0 || diaAgenda.dia < day && mesActual === mesAgenda && yearActual === year
             || diaAgenda.diaName === 'domingo'  || diaAgenda.dia  < day +1 && rolUsuario !== 'admin' && mesActual === mesAgenda && yearActual === year"
             [attr.aria-label]="diaAgenda.diaName + ' ' + diaAgenda.dia"
             (click)="modalAgenda(diaAgenda.dia , mesAgenda , diaAgenda.diaName,  day, mesActual, mesAgenda)">

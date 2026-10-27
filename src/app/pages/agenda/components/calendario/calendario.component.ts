@@ -51,6 +51,10 @@ export class CalendarioComponent implements OnInit, OnDestroy {
     return Array(i > 0 ? i : 0).fill(0);
   }
   esHoy(dia: number) { return dia === this.day && this.mesActual === this.mesAgenda && this.yearActual === this.year; }
+  // la agenda muestra 3 meses: el anterior, el actual y el siguiente
+  get desfaseMes(): number { return (this.year - this.yearActual) * 12 + this.mesAgenda - this.mesActual; }
+  get puedeRetroceder(): boolean { return this.desfaseMes > -1; }
+  get puedeAvanzar(): boolean { return this.desfaseMes < 1; }
   yearActual!: number;
 
   constructor(
