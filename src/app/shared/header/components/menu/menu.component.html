@@ -47,20 +47,26 @@
             <section style="width: 90%;">
                 <hr class="lineaMenu">
             </section>
+            <!-- perfil: tocar la foto para cambiarla (se comprime y se sube enseguida) -->
             <div *ngIf="perfil" class="perfil">
-                    <img id="imgPerfil" *ngIf="usuarioData.image" class="usuario_img" [src]="usuarioData.image" referrerpolicy="no-referrer" (error)="imagenFallida()" (click)="zoomImg()"/>
-                    <div class="informacion">
-                        <h3>Información</h3>
-                        <div>
-                            <p>
-                                <span>Nombre:     <br>  {{usuarioData.nombre}}</span>
-                                <span>Correo:     <br>  {{usuarioData.correo}}</span>
-                                <span>Teléfono:   <br>  {{usuarioData.telefono}}</span>
-                                <span>Dirección:  <br>  {{usuarioData.direccion}}</span>
-                            </p>
-                        </div>
-                    </div>
+                <label class="avatar" [class.subiendo]="subiendoFoto">
+                    <img [src]="usuarioData.image" alt="Tu foto de perfil" referrerpolicy="no-referrer" (error)="imagenFallida()">
+                    <span class="camara" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="16" height="16"><path d="M4 7h3l2-2h6l2 2h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                    </span>
+                    <span class="girando" *ngIf="subiendoFoto" aria-hidden="true"></span>
+                    <input #inputFoto type="file" accept="image/*" (change)="cambiarFoto($event)" aria-label="Cambiar foto de perfil" [disabled]="subiendoFoto">
+                </label>
+                <div class="datos">
+                    <strong>{{ usuarioData.nombre }}</strong>
+                    <span>{{ usuarioData.correo }}</span>
+                    <span *ngIf="usuarioData.telefono">{{ usuarioData.telefono }}</span>
+                    <span *ngIf="usuarioData.direccion">{{ usuarioData.direccion }}</span>
+                    <button type="button" class="cambiar" (click)="elegirFoto()" [disabled]="subiendoFoto">{{ subiendoFoto ? 'Subiendo foto…' : 'Cambiar foto' }}</button>
+                </div>
             </div>
+            <p class="msg-ok mensaje-foto" *ngIf="perfil && mensajeFoto" role="status">{{ mensajeFoto }}</p>
+            <p class="msg-error mensaje-foto" *ngIf="perfil && errorFoto" role="alert">{{ errorFoto }}</p>
             
             <ul *ngIf="lista">
                 <li (click)="misCitas()">

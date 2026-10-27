@@ -7,7 +7,8 @@ export interface OpcionesCompresion { ladoMaximo: number; calidad: number; }
 export const PARA_MURO: OpcionesCompresion = { ladoMaximo: 1600, calidad: 0.82 };
 // el comprobante de pago tiene que leerse bien (montos, numeros)
 export const PARA_COMPROBANTE: OpcionesCompresion = { ladoMaximo: 2000, calidad: 0.85 };
-export const PARA_PERFIL: OpcionesCompresion = { ladoMaximo: 600, calidad: 0.85 };
+// la foto de perfil se recorta despues a 800x800: se manda con margen para el recorte
+export const PARA_PERFIL: OpcionesCompresion = { ladoMaximo: 1400, calidad: 0.88 };
 
 const abrir = (archivo: File): Promise<HTMLImageElement> => new Promise((ok, falla) => {
   const url = URL.createObjectURL(archivo);

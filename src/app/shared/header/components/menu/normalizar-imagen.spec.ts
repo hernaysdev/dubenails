@@ -1,9 +1,9 @@
 import { IMG_DEFAULT, normalizarImagen } from './menu.component';
 
 describe('normalizarImagen (foto de perfil)', () => {
-  it('foto de Google se usa tal cual (antes le agregaba .jpg y quedaba rota)', () => {
-    const google = 'https://lh3.googleusercontent.com/a/ACg8ocKxyz123=s96-c';
-    expect(normalizarImagen(google)).toBe(google);
+  it('foto de Google: se pide en 400px (en 96px se veia pixelada) y sin agregarle .jpg', () => {
+    expect(normalizarImagen('https://lh3.googleusercontent.com/a/ACg8ocKxyz123=s96-c')).toBe('https://lh3.googleusercontent.com/a/ACg8ocKxyz123=s400-c');
+    expect(normalizarImagen('https://lh3.googleusercontent.com/a/ACg8ocKxyz123')).toBe('https://lh3.googleusercontent.com/a/ACg8ocKxyz123');
   });
 
   it('foto de Cloudinary se sigue normalizando a .jpg', () => {

@@ -1,18 +1,21 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { EventsService } from 'src/app/services/events.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { Router } from '@angular/router';
 import { SharedService } from 'src/app/services/shared.service';
 import { UsuarioData } from 'src/app/interface/usuarioData.interface';
+import { despuesDeComprimir, problemaFoto } from 'src/app/shared/validar-foto';
+import { comprimirImagen, PARA_PERFIL } from 'src/app/shared/comprimir-imagen';
 
 export const IMG_DEFAULT = '/assets/img/userIcon.jpg';
 
-// las fotos de Cloudinary se normalizan a .jpg; las de Google (u otras) se usan tal cual
+// foto de perfil nitida: la de Google se pide en 400px (venia en 96px y se veia pixelada) y la de
+// Cloudinary se normaliza a .jpg. Otras se usan tal cual.
 export const normalizarImagen = (url: string | null | undefined): string => {
   if (!url) return IMG_DEFAULT;
+  if (url.includes('googleusercontent.com')) return url.replace(/=s\d+(-c)?$/, '=s400-c');
   if (!url.includes('res.cloudinary.com')) return url;
-  const partes = url.split('.');
-  return partes[0] + '.' + partes[1] + '.' + partes[2] + '.jpg';
+  return url.replace(/\.[a-z0-9]+$/i, '.jpg');
 }
 
 @Component({
@@ -218,10 +221,39 @@ export class MenuComponent implements OnInit {
     this.tituloMenu = 'Actualizar perfil';
     this.showActualizarUser = true;
   }
-  actualizarFoto() {
-    this.lista = false;
-    this.tituloMenu = 'Subir Foto';
-    this.showActualizarFoto = true;
+  // "Subir Foto de Perfil" abre directo la galeria (ya no hay otra pantalla)
+  actualizarFoto() { this.elegirFoto(); }
+
+  // ---------- foto de perfil: se elige, se comprime y se sube enseguida ----------
+  @ViewChild('inputFoto') inputFoto?: ElementRef<HTMLInputElement>;
+  subiendoFoto = false;
+  mensajeFoto = '';
+  errorFoto = '';
+
+  elegirFoto() { this.inputFoto?.nativeElement.click(); }
+
+  async cambiarFoto(event: any) {
+    const original: File | undefined = event.target.files?.[0];
+    event.target.value = '';
+    this.mensajeFoto = ''; this.errorFoto = problemaFoto(original);
+    if (this.errorFoto || !original) return;
+    this.subiendoFoto = true;
+    const foto = await comprimirImagen(original, PARA_PERFIL);
+    this.errorFoto = despuesDeComprimir(foto);
+    if (this.errorFoto) { this.subiendoFoto = false; return; }
+    const formData = new FormData();
+    formData.append('archivo', foto, foto.name);
+    this.usuariosService.cargaImg(formData, this.id).subscribe({
+      next: (url: string) => {
+        this.subiendoFoto = false;
+        this.usuarioData.image = normalizarImagen(url);
+        this.mensajeFoto = 'Tu foto se actualizó.';
+      },
+      error: (err: any) => {
+        this.subiendoFoto = false;
+        this.errorFoto = err?.error?.msg || (typeof err === 'string' ? err : '') || 'No pudimos subir la foto. Intenta de nuevo.';
+      },
+    });
   }
 
   RegistrarArticulos() {
@@ -291,12 +323,5 @@ export class MenuComponent implements OnInit {
 
   }
 
-  zoomImg(){
-    const img = document.querySelector('#imgPerfil');
-    if(img?.classList.contains('zoom')){
-      img?.classList.remove('zoom')
-    }else{ 
-      img?.classList.add('zoom')
-    }
-  }
+
 }
