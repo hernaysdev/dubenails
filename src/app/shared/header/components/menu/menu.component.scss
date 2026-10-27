@@ -4,7 +4,8 @@
 .menuFalse p { display: block; width: 100%; height: 1px; background-color: #fff; margin: -3px 15px 0 0; }
 .usuario { display: block; width: 5vh; height: 5vh; border-radius: 50%; background-size: 100%; }
 .userImgNone { background-position: 90px 46px; background-image: url('../../../../../assets/img/userIcon.svg'); }
-.imgGrande { position: relative; left: -90%; top: -26%; border-radius: 10%; width: 185%; height: 150%; object-fit: cover; }
+.imgGrande { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-sizing: border-box; box-shadow: 0 1px 4px rgba(0, 0, 0, .35); }
+.menuFalse.usuario { width: 46px; height: 46px; border-radius: 50%; }
 .nombreUser { font-size: 11px; font-weight: bold; width: 100%; text-align: center; color: black; }
 
 // menu abierto: hoja clara a pantalla completa (deja ver la barra inferior)
