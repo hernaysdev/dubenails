@@ -1,11 +1,26 @@
 <div class="registro">
-    <form [formGroup]="formArticulos">
-        <label name="titulo">Titulo:</label>
-        <input formControlName="nombre" type="text" placeholder="Titulo...." />
-         <textarea formControlName="descripcion" placeholder="Descripcion..."></textarea>
-        <input class="carga" id="imgUser" type="file" accept="image/*" (change)="cargarImg($event)" />
-        <input type="submit" [value]="enviando ? 'Publicando…' : 'Publicar'" [disabled]="enviando" (click)="enviar()">
-        <p class="msg-error" *ngIf="mensajeError" role="alert">{{ mensajeError }}</p>
-    </form>
+    <form [formGroup]="formArticulos" (ngSubmit)="enviar()">
+        <!-- foto: toca para elegir; se ve antes de publicar -->
+        <label class="foto" [class.con-foto]="vistaPrevia || img">
+            <input type="file" accept="image/*,.heic,.heif" (change)="cargarImg($event)" aria-label="Elegir foto">
+            <img *ngIf="vistaPrevia" [src]="vistaPrevia" alt="Vista previa de la foto">
+            <span class="nombre-archivo" *ngIf="img && !vistaPrevia">{{ img.name }}</span>
+            <span class="elegir" *ngIf="!img">
+                <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"><path d="M4 7h3l2-2h6l2 2h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+                <strong>Elegir foto</strong>
+                <small>JPG, PNG o HEIC · hasta 15 MB</small>
+            </span>
+            <span class="cambiar" *ngIf="img">Cambiar foto</span>
+        </label>
 
+        <label for="art-titulo">Título</label>
+        <input id="art-titulo" formControlName="nombre" type="text" maxlength="80" placeholder="Ej. Builder gel nude" autocomplete="off">
+
+        <label for="art-descripcion">Descripción</label>
+        <textarea id="art-descripcion" formControlName="descripcion" rows="4" maxlength="500" placeholder="Cuéntales sobre el diseño, el servicio o la clienta…"></textarea>
+        <small class="contador">{{ formArticulos.value.descripcion?.length || 0 }}/500</small>
+
+        <p class="msg-error" *ngIf="mensajeError" role="alert">{{ mensajeError }}</p>
+        <button type="submit" class="publicar" [disabled]="enviando">{{ enviando ? 'Publicando…' : 'Publicar' }}</button>
+    </form>
 </div>

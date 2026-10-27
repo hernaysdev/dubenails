@@ -15,6 +15,12 @@ export class NoticiasComponent implements OnInit, OnDestroy {
    public activeMenu : boolean = false;
    public rol : string = '';
    public idElement : string = '';
+   // cuantas publicaciones se piden (la API entrega hasta 50); "Ver mas" suma de a 10
+   public limite = 10;
+   public hayMas = false;
+   public cargandoMas = false;
+   public confirmandoBorrar: string | null = null;
+   private readonly LOGO = 'https://res.cloudinary.com/mas58/image/upload/v1721692094/usuariosPerfil/tmp-2-1721692094727_cfyyxz.jpg';
   constructor(
     private articulosService : ArticulosService,
     private eventsService : EventsService,
@@ -44,40 +50,66 @@ export class NoticiasComponent implements OnInit, OnDestroy {
 
   // trae las ultimas publicaciones de la API (sin la copia guardada)
   recargar() {
-    this.articulosService.getArticulos(10).subscribe({ next: (data) => {
-      this.datas = data.map((element: any) => {
-        const img = element.img.split('.');
-        return {
-          nombre: element.nombre.trim(), fecha: element.fecha, usuario: element.usuario, descripcion: element.descripcion,
-          img: img[0] + '.' + img[1] + '.' + img[2] + '.jpg', id: element._id,
-        };
-      });
+    this.articulosService.getArticulos(this.limite).subscribe({ next: (data) => {
+      this.cargandoMas = false;
+      this.datas = data.map((element: any) => this.mapear(element));
+      this.hayMas = data.length >= this.limite && this.limite < 50;
       this.sharedService.setArticulos(this.datas);
-    }, error: () => {} });
+    }, error: () => { this.cargandoMas = false; } });
   }
 
 
 
 
 
+  // la API trae el autor (nombre, foto, rol); la foto se pide en jpg
+  private mapear(element: any) {
+    const img = element.img.split('.');
+    return {
+      nombre: element.nombre.trim(), fecha: element.fecha, usuario: element.usuario, descripcion: element.descripcion,
+      img: img[0] + '.' + img[1] + '.' + img[2] + '.jpg', id: element._id,
+    };
+  }
+
+  // la admin publica como "DubeNails" con el logo; el resto con su nombre y su foto
+  autor(data: any) {
+    const u = data.usuario;
+    if (!u || typeof u !== 'object' || u.rol === 'admin') return { nombre: 'DubeNails', foto: this.LOGO };
+    return { nombre: u.nombre || 'Clienta', foto: u.image || this.LOGO };
+  }
+
+  // "hace 5 min", "hace 3 h", "ayer", "hace 4 días" o "23 de abril" (por la fecha de creacion del id)
+  haceCuanto(data: any) {
+    const id = String(data.id || '');
+    const creado = /^[0-9a-f]{24}$/.test(id) ? new Date(parseInt(id.slice(0, 8), 16) * 1000) : null;
+    if (!creado) return data.fecha || '';
+    const min = Math.floor((Date.now() - creado.getTime()) / 60000);
+    if (min < 1) return 'ahora';
+    if (min < 60) return `hace ${min} min`;
+    const h = Math.floor(min / 60);
+    if (h < 24) return `hace ${h} h`;
+    const dias = Math.floor(h / 24);
+    if (dias === 1) return 'ayer';
+    if (dias < 7) return `hace ${dias} días`;
+    const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    const mismoAnio = creado.getFullYear() === new Date().getFullYear();
+    return `${creado.getDate()} de ${meses[creado.getMonth()]}${mismoAnio ? '' : ' de ' + creado.getFullYear()}`;
+  }
+
+  verMas() {
+    this.limite = Math.min(this.limite + 10, 50);
+    this.cargandoMas = true;
+    this.recargar();
+  }
+
   traerArticulos(){
-    const limit = 10;
+    const limit = this.limite;
 
      this.sharedService.getArticulos().subscribe(data => {
       if(data === null){
         this.articulosService.getArticulos(limit).subscribe({next:(data) =>{
-          this.datas = data.map((element :any) => {
-            const img = element.img.split('.');
-            const data = {
-               nombre : element.nombre.trim(),
-               fecha : element.fecha,
-               usuario : element.usuario,
-               descripcion : element.descripcion,
-               img : img[0] +'.'+ img[1]+'.'+ img[2]+'.jpg',
-               id:element._id
-            }
-            return data;
-          })
+          this.datas = data.map((element: any) => this.mapear(element));
+          this.hayMas = data.length >= this.limite && this.limite < 50;
           this.sharedService.setArticulos(this.datas);
         },error: (error)=>{
         console.log(error)
@@ -111,6 +143,7 @@ export class NoticiasComponent implements OnInit, OnDestroy {
     this.articulosService.deleteArticulos(id).subscribe({next:() => {
         this.datas = this.datas.filter(e => e.id !== id);
         this.activeMenu = false;
+        this.confirmandoBorrar = null;
         this.mensajeOk = 'La publicación se borró del Muro.';
     },error:()=> {
        this.activeMenu = false;

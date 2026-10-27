@@ -1,19 +1,38 @@
-<p class="msg-ok aviso-muro" *ngIf="mensajeOk" role="status">{{ mensajeOk }}</p>
-<p class="msg-error aviso-muro" *ngIf="mensajeError" role="alert">{{ mensajeError }}</p>
-<div class="cardNoticias" *ngFor="let data of datas;let index = index">
-    <img class="noticiaImg" [src]="data.img" [alt]="data.nombre">
-    <div class="content">
-        <span> Publicado: {{data.fecha}}</span>
-        <div class="menuArticle" (click)="activarMenu(data.id)">
-            ...
+<section class="muro">
+    <p class="msg-ok" *ngIf="mensajeOk" role="status">{{ mensajeOk }}</p>
+    <p class="msg-error" *ngIf="mensajeError" role="alert">{{ mensajeError }}</p>
+    <p class="vacio" *ngIf="!datas.length">Aún no hay publicaciones.</p>
+
+    <article class="post" *ngFor="let data of datas">
+        <header class="cabecera">
+            <img class="avatar" [src]="autor(data).foto" alt="" referrerpolicy="no-referrer">
+            <div class="quien">
+                <strong>{{ autor(data).nombre }}</strong>
+                <span class="cuando">{{ haceCuanto(data) }}</span>
+            </div>
+            <button *ngIf="rol === 'admin'" type="button" class="mas" (click)="activarMenu(data.id)" aria-label="Opciones de la publicación">⋯</button>
+        </header>
+
+        <div class="opciones" *ngIf="rol === 'admin' && activeMenu && idElement === data.id">
+            <ng-container *ngIf="confirmandoBorrar !== data.id; else confirmar">
+                <button type="button" class="peligro-texto" (click)="confirmandoBorrar = data.id">Eliminar publicación</button>
+            </ng-container>
+            <ng-template #confirmar>
+                <span>¿Eliminar esta publicación?</span>
+                <button type="button" (click)="confirmandoBorrar = null; activeMenu = false">No</button>
+                <button type="button" class="peligro" (click)="borrarArticulo(data.id)">Sí, eliminar</button>
+            </ng-template>
         </div>
-        <ul  [class.enabled]="data.id === this.idElement && activeMenu && rol === 'admin'" >
-            <li (click)="borrarArticulo(data.id)">borrar</li>
-        </ul>
-        <div>
-            <strong>{{data.nombre}}</strong>
-            <p>{{data.descripcion}}</p>
+
+        <img class="foto" [src]="data.img" [alt]="data.nombre" loading="lazy">
+
+        <div class="texto">
+            <h2>{{ data.nombre }}</h2>
+            <p>{{ data.descripcion }}</p>
         </div>
-    </div>
-    
-</div>
+    </article>
+
+    <button *ngIf="hayMas" type="button" class="ver-mas" (click)="verMas()" [disabled]="cargandoMas">
+        {{ cargandoMas ? 'Cargando…' : 'Ver más publicaciones' }}
+    </button>
+</section>

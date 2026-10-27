@@ -219,7 +219,7 @@ export class MenuComponent implements OnInit {
   RegistrarArticulos() {
     this.perfil = false;
     this.lista = false;
-    this.tituloMenu = 'Subir En Muro';
+    this.tituloMenu = 'Nueva publicación';
     this.showRegistroArticulos = true;
   }
 

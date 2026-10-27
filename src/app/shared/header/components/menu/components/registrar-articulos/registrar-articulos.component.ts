@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormGroup , FormBuilder ,  Validators } from '@angular/forms';
 import * as moment from 'moment';
 import { ArticulosService } from 'src/app/services/articulos.service';
@@ -10,9 +10,11 @@ import { problemaFoto } from 'src/app/shared/validar-foto';
   templateUrl: './registrar-articulos.component.html',
   styleUrls: ['./registrar-articulos.component.scss']
 })
-export class RegistrarArticulosComponent implements OnInit {
+export class RegistrarArticulosComponent implements OnInit, OnDestroy {
   public formArticulos : FormGroup;
   public img : any;
+  // vista previa de la foto elegida (los HEIC no se pueden mostrar en el navegador: se ve el nombre)
+  public vistaPrevia: string | null = null;
   @Input('idUser') idUser :any;
   @Output('success') success : EventEmitter<any> = new EventEmitter();
 
@@ -36,7 +38,16 @@ export class RegistrarArticulosComponent implements OnInit {
     // una foto que no sirve no se guarda (y se puede volver a elegir la misma)
     this.img = this.mensajeError ? null : archivo;
     if (this.mensajeError) event.target.value = '';
+    this.soltarVistaPrevia();
+    if (this.img && this.img.type.startsWith('image/') && !/heic|heif/i.test(this.img.type)) this.vistaPrevia = URL.createObjectURL(this.img);
   }
+
+  private soltarVistaPrevia() {
+    if (this.vistaPrevia) URL.revokeObjectURL(this.vistaPrevia);
+    this.vistaPrevia = null;
+  }
+
+  ngOnDestroy(): void { this.soltarVistaPrevia(); }
 
   mensajeError = '';
   enviando = false;
