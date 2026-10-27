@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { EventsService } from 'src/app/services/events.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { Router } from '@angular/router';
@@ -54,8 +54,7 @@ export class MenuComponent implements OnInit {
       this.cerrarTodoMenu(valor)
     })
     this.eventsService.cerrarModalLogin.subscribe((valor: any) => {
-      this.menu = valor;
-      this.showlogin = valor;
+      if (!valor) this.cerrarTodo();
     })
     this.eventsService.showRegistro.subscribe(data => {
       this.loginUser(data)
@@ -92,93 +91,84 @@ export class MenuComponent implements OnInit {
   salir() {
     this.sharedService.setRolUser('');
     localStorage.removeItem('token');
-    this.menu = false;
-    this.showRegistro = false;
-    this.lista = false;
-    this.showlogin = false;
+    this.cerrarModal();
     this.usuarioActivo = false;
   }
 
+  // ---------- navegacion del menu ----------
+  // Abrir el menu y cada seccion agrega una entrada al historial: el boton atras del celular
+  // vuelve a la lista o cierra el menu en vez de salir de la pagina.
   showMenu() {
+    this.mostrarLista();
     this.menu = true;
+    this.enHistorial('menu');
+  }
+
+  hideMenu() {
+    this.cerrarModal();
+  }
+
+  private abrirSeccion(titulo: string) {
+    this.lista = false;
+    this.perfil = false;
+    this.tituloMenu = titulo;
+    this.enHistorial('seccion');
+  }
+
+  // vuelve de una seccion a la lista del menu
+  volver() {
+    if (this.nivelHistorial() === 2) history.back();
+    else this.mostrarLista();
+  }
+
+  // la X: cierra todo y saca del historial las entradas del menu
+  cerrarModal() {
+    const n = this.nivelHistorial();
+    this.cerrarTodo();
+    if (n) history.go(-n);
+  }
+
+  @HostListener('window:popstate')
+  alIrAtras() {
+    const nivel = this.nivelHistorial();
+    // entradas que quedaron de un menu cerrado desde afuera (ej. al iniciar sesion): se saltan
+    if (!this.menu) { if (nivel) history.back(); return; }
+    if (nivel === 1) this.mostrarLista();
+    else if (nivel === 0) this.cerrarTodo();
+  }
+
+  private mostrarLista() {
+    this.ocultarSecciones();
+    this.tituloMenu = 'Menu';
     this.lista = true;
     this.perfil = true;
   }
 
-  hideMenu() {
+  private cerrarTodo() {
+    this.ocultarSecciones();
+    this.tituloMenu = 'Menu';
+    this.lista = false;
     this.menu = false;
   }
 
-
-  login() {
-    this.showlogin = true;
-    this.lista = false;
-    this.tituloMenu = 'Inicia Sesión';
+  private ocultarSecciones() {
+    this.showRegistro = this.showlogin = this.showActualizarFoto = this.showRegistroArticulos = false;
+    this.showActualizarUser = this.showGift = this.showProductos = this.showRecuperarClave = false;
   }
 
-  cerrarModal() {
-    switch (this.tituloMenu) {
-      case 'Menu':
-        this.menu = false; break;
-      case 'Registrate':
-        this.showRegistro = false;
-        this.tituloMenu = 'Menu';
-        this.lista = false;
-        this.menu = false;
-        break;
-      case 'Inicia Sesión':
-        this.showlogin = false;
-        this.tituloMenu = 'Menu';
-        this.lista = false;
-        this.menu = false;
-        this.perfil = false;
-        break;
-      case 'Subir Foto':
-        this.perfil = true;
-        this.showActualizarFoto = false;
-        this.tituloMenu = 'Menu';
-        this.lista = false;
-        this.menu = false;
-        break;
-      case 'Nueva publicación':
-        this.showRegistroArticulos = false;
-        this.tituloMenu = 'Menu';
-        this.lista = false;
-        this.menu = false;
-        break;
-      case 'Actualizar perfil':
-        this.perfil = true;
-        this.showActualizarUser = false;
-        this.tituloMenu = 'Menu';
-        this.lista = false;
-        this.menu = false;
-        break;
-      case 'Crear GiftCard':
-        this.showGift = false;
-        this.tituloMenu = 'Menu';
-        this.lista = false;
-        this.menu = false;
-        break;
-      case 'Productos':
-        this.showProductos = false;
-        this.tituloMenu = 'Menu';
-        this.lista = false;
-        this.menu = false;
-        break;
-      case 'Recuperar Contraseña':
-        this.showRecuperarClave = false;
-        this.tituloMenu = 'Menu';
-        this.lista = false;
-        this.menu = false;
-        break;
-      // cualquier otro titulo (ej. si se renombra uno): la X igual cierra todo
-      default:
-        this.showRegistro = this.showlogin = this.showActualizarFoto = this.showRegistroArticulos = false;
-        this.showActualizarUser = this.showGift = this.showProductos = this.showRecuperarClave = false;
-        this.tituloMenu = 'Menu';
-        this.lista = false;
-        this.menu = false;
-    }
+  private enHistorial(nivel: 'menu' | 'seccion') {
+    try { history.pushState({ ...(history.state || {}), dubeMenu: nivel }, ''); } catch { }
+  }
+
+  // 0: sin menu en el historial, 1: menu abierto, 2: dentro de una seccion
+  private nivelHistorial(): number {
+    const nivel = history.state?.dubeMenu;
+    return nivel === 'seccion' ? 2 : nivel === 'menu' ? 1 : 0;
+  }
+
+  login() {
+    this.abrirSeccion('Iniciar sesión');
+    this.showlogin = true;
   }
 
   getusuario() {
@@ -212,13 +202,11 @@ export class MenuComponent implements OnInit {
   }
 
   showRegister() {
+    this.abrirSeccion('Crear cuenta');
     this.showRegistro = true;
-    this.lista = false;
-    this.tituloMenu = 'Registrate';
   }
   actualizarUser() {
-    this.lista = false;
-    this.tituloMenu = 'Actualizar perfil';
+    this.abrirSeccion('Editar mis datos');
     this.showActualizarUser = true;
   }
   // "Subir Foto de Perfil" abre directo la galeria (ya no hay otra pantalla)
@@ -257,15 +245,13 @@ export class MenuComponent implements OnInit {
   }
 
   RegistrarArticulos() {
-    this.perfil = false;
-    this.lista = false;
-    this.tituloMenu = 'Nueva publicación';
+    this.abrirSeccion('Nueva publicación');
     this.showRegistroArticulos = true;
   }
 
   ocultarMenu() {
     this.eventsService.ocultarMenu.subscribe(valor => {
-      this.menu = valor;
+      if (!valor) this.cerrarTodo();
     })
   }
 
@@ -284,44 +270,28 @@ export class MenuComponent implements OnInit {
   }
 
   crearGiftCard() {
-    this.lista = false;
-    this.tituloMenu = 'Crear GiftCard';
+    this.abrirSeccion('Crear GiftCard');
     this.showGift = true;
   }
 
-  misCitas() {
-    this.cerrarModal();
-    this.router.navigate(['/mis-citas'])
-  }
+  misCitas() { this.irA('/mis-citas'); }
 
-  productos() {
-    this.cerrarModal();
-    this.router.navigate(['/productos'])
+  productos() { this.irA('/productos'); }
+
+  // ir a otra pagina desde la lista: la entrada del menu se reemplaza (atras vuelve a la pagina anterior)
+  private irA(ruta: string) {
+    const enMenu = this.nivelHistorial() > 0;
+    this.cerrarTodo();
+    this.router.navigate([ruta], { replaceUrl: enMenu });
   }
 
   RecuperarClave() {
+    this.abrirSeccion('Recuperar contraseña');
     this.showRecuperarClave = true;
-    this.lista = false;
-    this.tituloMenu = 'Recuperar Contraseña';
   }
 
-  cerrarTodoMenu(valor:boolean){
-
-    if(!valor){
-          this.tituloMenu = 'Menu';
-          this.showRegistro = false;
-          this.lista = false;
-          this.menu = false;
-          this.showlogin = false;
-          this.showActualizarFoto = false;
-          this.showRegistroArticulos = false;
-          this.showActualizarUser = false;
-          this.showGift = false;
-          this.showProductos = false;
-          this.showRecuperarClave = false;
-    }
-
+  cerrarTodoMenu(valor: boolean) {
+    if (!valor) this.cerrarTodo();
   }
-
 
 }

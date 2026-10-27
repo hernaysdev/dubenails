@@ -1,174 +1,45 @@
-.menu {
-    display: flex;
-    width: 5vh;
-    flex-flow: column;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
+// menu cerrado (en el header): hamburguesa o foto de la usuaria
+.menu { display: flex; width: 5vh; flex-flow: column; justify-content: center; align-items: center; cursor: pointer; }
+.menuFalse { width: 50px; height: 50px; display: flex; flex-flow: column; justify-content: center; align-items: center; gap: 14px; }
+.menuFalse p { display: block; width: 100%; height: 1px; background-color: #fff; margin: -3px 15px 0 0; }
+.usuario { display: block; width: 5vh; height: 5vh; border-radius: 50%; background-size: 100%; }
+.userImgNone { background-position: 90px 46px; background-image: url('../../../../../assets/img/userIcon.svg'); }
+.imgGrande { position: relative; left: -90%; top: -26%; border-radius: 10%; width: 185%; height: 150%; object-fit: cover; }
+.nombreUser { font-size: 11px; font-weight: bold; width: 100%; text-align: center; color: black; }
 
+// menu abierto: hoja clara a pantalla completa (deja ver la barra inferior)
+.menuActive { position: fixed; z-index: 20; inset: 0 0 auto; width: 100%; max-width: none; height: 89vh; height: calc(100dvh - 76px); box-sizing: border-box; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; background: #faf7f9; color: #1d1a1d; cursor: default; }
+.barra { flex: none; display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; padding: 10px 12px; border-bottom: 1px solid #ece6ec; background: #fff; }
+.barra h3 { grid-column: 2; margin: 0; font-size: 17px; text-align: center; }
+.icono { width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: #f3eef3; color: #1d1a1d; display: grid; place-items: center; cursor: pointer; }
+.icono:last-child { grid-column: 3; }
+.cuerpo { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; width: 100%; max-width: 520px; margin: 0 auto; box-sizing: border-box; padding: 18px 16px 28px; display: flex; flex-direction: column; }
 
-    h3 {
-        margin-bottom: 10px;
-    }
+// sin sesion
+.bienvenida { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 24px 18px; border-radius: 20px; background: #fff; box-shadow: 0 2px 12px rgba(29, 26, 29, .06); }
+.logo { width: 76px; height: 76px; border-radius: 20px; }
+.bienvenida h4 { margin: 4px 0 0; font-size: 21px; }
+.bienvenida p { margin: 0 0 8px; color: #6c656c; font-size: 15px; line-height: 1.4; }
+.boton { width: 100%; padding: 14px; border: 1px solid #1d1a1d; border-radius: 999px; background: #fff; color: #1d1a1d; font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; }
+.principal { background: #000; color: #fff; }
+.enlace { margin-top: 4px; padding: 8px; border: 0; background: none; color: #6c656c; font: inherit; font-size: 14px; text-decoration: underline; cursor: pointer; }
 
-    .lineaMenu {
-        width: 100%;
-        height: 1px;
-        background-color: white;
-    }
-
-    ul {
-        list-style: none;
-        gap: 10px;
-        display: flex;
-        flex-flow: column;
-        padding-top: 20px;
-        padding-left: 10%;
-        align-self: normal;
-
-        li {
-            font-size: 20px;
-            letter-spacing: 2px;
-            border-bottom: 1px solid white;
-            width: 88%;
-            padding-bottom: 10px;
-        }
-    }
-
-    .div {
-        width: 46px;
-        height: 40px;
-
-        hr {
-            background-color: white;
-            width: 80%;
-            height: 0.1px;
-            opacity: 0.5;
-            margin-left: 9%;
-
-        }
-    }
-
-
-    span {
-        font-size: 20px;
-        border-radius: 50px;
-        padding: 4px;
-        padding-top: 0px;
-        padding-bottom: 4px;
-        margin-top: 6px;
-        align-self: end;
-        margin-right: 15px;
-    }
-}
-
-
-.menuActive {
-    max-width: 800px;
-    width: 100%;
-    height: 89vh;
-    position: absolute;
-    transition: 300ms;
-    padding-bottom: 6%;
-    z-index: 1;
-    top: 0px;
-    left: 0px;
-    display: flex;
-    flex-flow: column;
-    background: black;
-    justify-content: flex-start;
-}
-
-.menuFalse {
-    width: 50px;
-    height: 50px;
-    display: flex;
-    flex-flow: column;
-    justify-content: center;
-    align-items: center;
-    transition: 300ms;
-    gap: 14px;
-
-
-    p {
-        display: block;
-        width: 100%;
-        height: 1px;
-        background-color: #fff;
-        margin-top: -3px;
-        margin-right: 15px;
-    }
-
-
-}
-
-app-registro,
-app-login,
-app-actualizar-user,
-app-registrar-articulos,
-app-actualizar-foto{
-    display: flex;
-    flex-flow: column;
-    width: 100%;
-    height: 60vh;
-    background-color: transparent;
-    align-items: center;
-    justify-content: center;
-    z-index: 2;
-    top: 10%;
-    left: 0px;
-    overflow-y: scroll;
-}
-
-.usuario {
-    display: block;
-    width: 5vh;
-    height: 5vh;
-    border-radius: 50%;
-    background-size: 100%;
-}
-
-.userImgNone{
-    background-position-x: 90px;
-    background-position-y: 46px;
-    background-image: url('../../../../../assets/img/userIcon.svg');
-}
-
-.imgGrande{
-    position: relative;
-    left: -90%;
-    top: -26%;
-    border-radius: 10%;
-    width: 185%;
-    height: 150%;
-}
-.nombreUser {
-    font-size: 11px;
-    font-weight: bold;
-    width: 100%;
-    text-align: center;
-    color: black;
-}
-
-.perfil { display: flex; align-items: center; gap: 16px; width: 90% !important; margin: 4px 0 10px; color: #fff; }
-.avatar { position: relative; flex: none; width: 96px; height: 96px; border-radius: 50%; cursor: pointer; }
+// con sesion: tarjeta de perfil
+.perfil { display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 20px; background: #000; color: #fff; }
+.avatar { position: relative; flex: none; width: 84px; height: 84px; border-radius: 50%; cursor: pointer; }
 .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid #fff; box-sizing: border-box; background: #3d363d; }
 .avatar input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-.camara { position: absolute; right: 0; bottom: 2px; width: 30px; height: 30px; border-radius: 50%; background: #fff; color: #1d1a1d; display: grid; place-items: center; box-shadow: 0 2px 6px rgba(0,0,0,.4); }
+.camara { position: absolute; right: -2px; bottom: 0; width: 28px; height: 28px; border-radius: 50%; background: #fff; color: #1d1a1d; display: grid; place-items: center; box-shadow: 0 2px 6px rgba(0, 0, 0, .4); }
 .subiendo img { opacity: .5; }
 .girando { position: absolute; inset: -4px; border-radius: 50%; border: 3px solid transparent; border-top-color: #e078a0; animation: girar-foto .8s linear infinite; }
 @keyframes girar-foto { to { transform: rotate(360deg); } }
 .datos { min-width: 0; display: flex; flex-direction: column; gap: 3px; font-size: 13px; color: #d8d2d8; }
-.datos strong { font-size: 17px; color: #fff; text-transform: capitalize; }
-.datos span { font-size: 13px; padding: 0; margin: 0; align-self: stretch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.datos strong { font-size: 18px; color: #fff; text-transform: capitalize; }
+.datos span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cambiar { align-self: flex-start; margin-top: 6px; padding: 6px 12px; border: 1px solid #fff; border-radius: 999px; background: none; color: #fff; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
-.mensaje-foto { width: 90%; margin: 0 0 8px; }
-// formulario del Muro: arriba y con desplazamiento (centrado con altura fija, lo mas alto quedaba
-// cortado: no se veian las fotos ni el boton Publicar)
-app-registrar-articulos {
-    justify-content: flex-start;
-    height: auto;
-    max-height: calc(89vh - 110px);
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-}
+.mensaje-foto { margin: 10px 0 0; }
+
+.salir { margin-top: 16px; padding: 14px; border: 1px solid #e2c4cc; border-radius: 999px; background: #fff; color: #8a1c33; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
+
+// secciones (formularios) dentro del menu
+app-registro, app-login, app-actualizar-user, app-registrar-articulos, app-actualizar-foto, app-recuperar-clave { display: block; width: 100%; }

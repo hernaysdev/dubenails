@@ -90,3 +90,20 @@ app-giftcard{
 /* Mensajes de formularios: mismo estilo en toda la app */
 .msg-error { background: #fbe9ec; color: #8a1c33; padding: 10px 12px; border-radius: 10px; margin: 0; font-size: 14px; line-height: 1.4; }
 .msg-ok { background: #e3f2ea; color: #1f5e43; padding: 10px 12px; border-radius: 10px; margin: 0; font-size: 14px; line-height: 1.4; }
+
+// formularios del menu (login, registro, datos, clave) con el estilo de la app; solo dentro del menu (el login de Reservar no cambia)
+app-menu .f {
+  .registro, .contentInicial { width: 100%; padding: 0; gap: 12px; }
+  form { width: 100% !important; height: auto !important; box-sizing: border-box; gap: 8px; padding: 20px 16px; border-radius: 20px; background: #fff; box-shadow: 0 2px 12px rgba(29, 26, 29, .06); }
+  label { margin-top: 4px; font-size: 14px; font-weight: 600; }
+  input:not([type=submit]):not([type=file]) { width: 100%; height: auto; box-sizing: border-box; padding: 13px 14px; border: 1px solid #d8d2d8; border-radius: 12px; background: #fff; box-shadow: none; color: #1d1a1d; font: inherit; font-size: 16px !important; font-weight: 400; text-align: left; }
+  input[type=submit] { width: 100%; margin-top: 10px; padding: 14px; border: 0; border-radius: 999px; background: #000; color: #fff; font: inherit; font-size: 16px; font-weight: 600; }
+  .header p { margin: 0; color: #6c656c; }
+}
+
+// menu: lista de opciones con iconos
+app-menu .opciones { list-style: none; margin: 16px 0 0; padding: 4px 0; border-radius: 20px; background: #fff; box-shadow: 0 2px 12px rgba(29, 26, 29, .06); }
+app-menu .opciones li + li { border-top: 1px solid #f1eef1; }
+app-menu .opciones button { display: flex; align-items: center; gap: 14px; width: 100%; padding: 15px 16px; border: 0; background: none; color: #1d1a1d; font: inherit; font-size: 16px; font-weight: 500; text-align: left; cursor: pointer; }
+app-menu .opciones button::after { content: ""; margin-left: auto; width: 7px; height: 7px; border: solid #a59ea5; border-width: 2px 2px 0 0; transform: rotate(45deg); }
+app-menu .opciones svg { flex: none; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
