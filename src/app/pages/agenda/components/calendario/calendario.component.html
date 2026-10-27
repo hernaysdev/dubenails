@@ -10,7 +10,7 @@
     </div>
 
     <!-- buscar clienta: marca en verde los dias en que tiene hora -->
-    <form class="buscador" [formGroup]="formGroup">
+    <form class="buscador" [formGroup]="formGroup" *ngIf="rolUsuario === 'admin'">
         <input class="inputs" type="text" (keyup)="searchUser($event)" formControlName="usuario" placeholder="Buscar clienta…" aria-label="Buscar clienta" autocomplete="off">
         <div class="resultados" *ngIf="usersFilter.length">
             <button type="button" *ngFor="let users of usersFilter" (click)="selectUser(users.dia, users.nombre)">

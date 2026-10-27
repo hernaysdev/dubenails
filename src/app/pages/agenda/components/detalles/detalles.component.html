@@ -21,11 +21,11 @@
                         <span *ngIf="sumaServicios !== 0 && rol === 'admin'" class="valorServicio">{{ clientes.valor | dinero }}</span>
                     </div>
                     <p class="clienta">
-                        <span *ngIf="dia.day === day || rol === 'admin' || nombre === clientes.nombre; else privado">{{ clientes.nombre }}</span>
+                        <span *ngIf="rol === 'admin' || clientes.propia; else privado">{{ clientes.nombre }}</span>
                         <ng-template #privado>Reservado</ng-template>
                         <span class="etiqueta nuevo" *ngIf="rol === 'admin' && rol && clientes.nuevo === true">Nuevo</span>
                     </p>
-                    <p class="servicio">{{ clientes.servicio }}</p>
+                    <p class="servicio" *ngIf="rol === 'admin' || clientes.propia">{{ clientes.servicio }}</p>
                     <a class="telefono" *ngIf="rol === 'admin' && rol && clientes.telefono" [href]="'tel:' + clientes.telefono">Llamar · {{ clientes.telefono }}</a>
 
                     <app-cancelar-hora
