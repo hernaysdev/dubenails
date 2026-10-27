@@ -88,6 +88,14 @@ describe('CalendarioComponent (agenda con year)', () => {
     expect(component.puedeRetroceder).toBeFalse();
   });
 
+  it('la guia muestra "Días de" solo con una clienta buscada', () => {
+    crear();
+    component.colorFilterDia = [''];
+    expect(component.hayFiltro).toBeFalse();
+    component.selectUser(28, 'Fran Ruiz');
+    expect(component.hayFiltro).toBeTrue();
+  });
+
   it('puede avanzar varios meses y recorrer 2027', () => {
     crear();
     for (let i = 0; i < 13; i++) component.dateNext(1);

@@ -22,11 +22,14 @@
 .dias.hoy { border: 2px solid #1d1a1d; }
 .dias.filter { border: 2px solid #2f7d5b; background: #eaf5ef; color: #1d1a1d; }
 
-.leyenda { margin: 0; font-size: 12px; color: #6c656c; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
-.leyenda i { display: inline-block; width: 12px; height: 12px; border-radius: 4px; margin-right: 4px; vertical-align: -2px; }
-.leyenda .hoy { border: 2px solid #1d1a1d; box-sizing: border-box; }
-.leyenda .filtro { border: 2px solid #2f7d5b; background: #eaf5ef; box-sizing: border-box; }
-.leyenda .apagado { background: #f1eef1; }
+.guia { display: flex; flex-direction: column; gap: 8px; }
+.guia p { margin: 0; font-size: 14px; color: #6c656c; }
+.leyenda { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.leyenda li { display: flex; align-items: center; gap: 6px; padding: 4px 10px 4px 4px; border-radius: 999px; border: 1px solid #ece6ec; background: #fff; font-size: 13px; color: #1d1a1d; }
+.leyenda i { width: 20px; height: 20px; border-radius: 6px; box-sizing: border-box; border: 1px solid #e2dde2; background: #fff; }
+.leyenda .hoy { border: 2px solid #1d1a1d; }
+.leyenda .filtro { border: 2px solid #2f7d5b; background: #eaf5ef; }
+.leyenda .apagado { background: #f1eef1; border-color: #f1eef1; }
 
 app-modal-register{
     position: absolute;

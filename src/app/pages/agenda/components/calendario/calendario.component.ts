@@ -55,6 +55,8 @@ export class CalendarioComponent implements OnInit, OnDestroy {
   get desfaseMes(): number { return (this.year - this.yearActual) * 12 + this.mesAgenda - this.mesActual; }
   get puedeRetroceder(): boolean { return this.desfaseMes > -1; }
   get puedeAvanzar(): boolean { return this.desfaseMes < 1; }
+  // hay una clienta buscada con citas este mes (la guia muestra su color solo entonces)
+  get hayFiltro(): boolean { return this.colorFilterDia.some((d: any) => d !== '' && d != null); }
   yearActual!: number;
 
   constructor(

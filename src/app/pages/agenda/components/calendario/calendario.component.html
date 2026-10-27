@@ -32,7 +32,15 @@
             {{ diaAgenda.dia }}
         </button>
     </div>
-    <p class="leyenda"><i class="hoy"></i>Hoy <i class="filtro"></i>Clienta buscada <i class="apagado"></i>Pasado o domingo</p>
+    <!-- guia: las muestras se ven igual que los dias del calendario -->
+    <div class="guia">
+        <p>Toca un día para ver {{ rolUsuario === 'admin' ? 'y agendar horas' : 'sus horas' }}.</p>
+        <ul class="leyenda">
+            <li *ngIf="desfaseMes === 0"><i class="hoy"></i>Hoy</li>
+            <li><i class="apagado"></i>Cerrado o ya pasó</li>
+            <li *ngIf="hayFiltro"><i class="filtro"></i>Días de {{ formGroup.value.usuario }}</li>
+        </ul>
+    </div>
 </section>
 
 <app-detalles *ngIf="showModalDetalle"
