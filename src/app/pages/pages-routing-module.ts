@@ -27,10 +27,6 @@ const pagesRoutes: Routes = [
     loadChildren : () => import('./usuario/contacto.module').then(m => m.ContactoModule)
   },
   {
-    path:'confirmacion',
-    loadChildren : () => import('./confirmacion/confirmacion.module').then(m => m.ConfirmacionModule)
-  },
-  {
     path:'giftcard',
     loadChildren : () => import('./giftcard/giftcard.module').then(m => m.GiftcardModule)
   },

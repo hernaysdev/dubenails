@@ -92,19 +92,6 @@ export class ProductosService {
       )
   }
 
-  buscarAgendaPorUsuario(id: string, mes: string, dia: string, hora: string) {
-    const token = localStorage.getItem('token')
-    return this.http.get<any>(`${this.url}/${id}/${mes}/${dia}/${hora}`, {headers:{
-      authorization: token ? token : ''
-    }}).pipe(
-      map(data => { 
-        return data;
-      }),catchError((error:any) => {
-        return throwError(() => error.error.msg)
-      })
-    )
-
-  }
 
 
 

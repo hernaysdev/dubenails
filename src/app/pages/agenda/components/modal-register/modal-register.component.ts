@@ -3,7 +3,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AgendaService } from 'src/app/services/agenda.service';
 import { EventsService } from 'src/app/services/events.service';
 import { SharedService } from 'src/app/services/shared.service';
-import { PagoService } from 'src/app/services/pago.service';
 import * as moment from 'moment';
 import { formatoDuracion } from 'src/app/services/disponibilidad.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
@@ -96,7 +95,6 @@ export class ModalRegisterComponent implements OnInit {
     private agendaService: AgendaService,
     private eventsService: EventsService,
     private sharedService: SharedService,
-    private pagoService: PagoService,
     private usuariosService: UsuariosService,
     private _productosService: ProductosService,
     private router: Router
@@ -320,25 +318,6 @@ export class ModalRegisterComponent implements OnInit {
   }
 
 
-  async pagar() {
-    const dia = this.dia.day;
-    const mes = this.dia.month;
-    const hora = String(this.horaSelecciona);
-    const correo = this.formGroup.controls['correo'].getRawValue();
-    const tokenUsuario = localStorage.getItem('token') as string;
-    this.pagoService.generarPago(correo, tokenUsuario, mes, dia, hora).subscribe({
-      next: (data: any) => {
-        this.token = data.token;
-        this.enviarDatos();
-        if (this.horaDisponible.length === 0) {
-          setTimeout(() => {
-            open(data.urlRedirect);
-          }, 500)
-        }
-      }, error: (error) => {
-      }
-    })
-  }
 
   closeModal() {
     this.showModal = false;

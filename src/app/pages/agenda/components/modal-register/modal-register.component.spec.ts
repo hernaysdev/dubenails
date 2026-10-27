@@ -6,7 +6,6 @@ import { ModalRegisterComponent } from './modal-register.component';
 import { AgendaService } from 'src/app/services/agenda.service';
 import { EventsService } from 'src/app/services/events.service';
 import { SharedService } from 'src/app/services/shared.service';
-import { PagoService } from 'src/app/services/pago.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { ProductosService } from 'src/app/services/productos.service';
 import { Router } from '@angular/router';
@@ -34,7 +33,6 @@ describe('ModalRegisterComponent (year al agendar)', () => {
         { provide: AgendaService, useValue: agendaService },
         { provide: EventsService, useValue: events },
         { provide: SharedService, useValue: jasmine.createSpyObj('SharedService', ['setDataAgenda']) },
-        { provide: PagoService, useValue: {} },
         { provide: UsuariosService, useValue: {} },
         { provide: ProductosService, useValue: {} },
         { provide: Router, useValue: router },
