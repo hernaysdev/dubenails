@@ -61,8 +61,14 @@ export class MisCitasComponent implements OnInit, OnDestroy {
     const nuevo = history.state?.linkNuevo;
     if (nuevo?.citaId && nuevo?.link) this.linkDe[nuevo.citaId] = nuevo.link;
     this.cargar();
+    // la esta viendo: el globo de Agenda vuelve a cero (tambien si llega algo mientras mira)
+    this.novedades.marcarAgendaVista();
     // una clienta agendo, pago o cancelo (o la admin movio la cita): se actualiza sola
-    this.subNovedades = this.novedades.cambios$.subscribe(c => { if (c === 'agenda') this.cargar(true); });
+    this.subNovedades = this.novedades.cambios$.subscribe(c => {
+      if (c !== 'agenda') return;
+      this.cargar(true);
+      this.novedades.marcarAgendaVista();
+    });
   }
 
   // silencioso: al actualizarse sola no muestra "Cargando…" (la lista sigue a la vista)

@@ -12,6 +12,7 @@ export type Cambio = 'agenda' | 'muro';
 
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 const CLAVE_MURO = 'muroVisto';
+const CLAVE_AGENDA = 'agendaVista';
 
 // Pregunta a la API cada 30 s que cambio (solo con la app en pantalla) y al volver a primer plano.
 // Las pantallas se suscriben a cambios$ para recargarse; el menu muestra los globos; aviso$ el mensaje.
@@ -36,6 +37,7 @@ export class NovedadesService implements OnDestroy {
     if (this.timer) return;
     // primera vez: el Muro cuenta desde ahora (no todas las publicaciones antiguas)
     if (!this.leerMuroVisto()) this.guardarMuroVisto(Date.now());
+    if (!this.leer(CLAVE_AGENDA)) this.guardar(CLAVE_AGENDA, Date.now());
     document.addEventListener('visibilitychange', this.alVolver);
     // fuera de la zona de Angular: el intervalo no dispara deteccion de cambios por si solo
     this.zona.runOutsideAngular(() => {
@@ -58,15 +60,16 @@ export class NovedadesService implements OnDestroy {
     if (token !== this.sesion) { this.sesion = token; this.huella = null; this.citasNuevas$.next(0); }
     this.consultando = true;
     const muro = this.leerMuroVisto() || Date.now();
-    const params: any = { desde: this.desde, muro };
+    const agenda = this.leer(CLAVE_AGENDA) || Date.now();
+    const params: any = { desde: this.desde, muro, agenda };
     // la autorecarga pasa desapercibida: sin spinner
     this.http.get<any>(this.url, { params, context: new HttpContext().set(SIN_SPINNER, true) }).subscribe({
-      next: (r) => { this.consultando = false; this.procesar(r, muro); },
+      next: (r) => { this.consultando = false; this.procesar(r, muro, agenda); },
       error: () => { this.consultando = false; },
     });
   }
 
-  private procesar(r: any, muroEnviado: number) {
+  private procesar(r: any, muroEnviado: number, agendaEnviada: number) {
     const primera = this.huella === null;
     this.desde = r.ahora || Date.now();
 
@@ -80,7 +83,8 @@ export class NovedadesService implements OnDestroy {
     if (r.citas) {
       if (!primera && r.citas.huella !== this.huella) this.avisarCambio('agenda');
       this.huella = r.citas.huella;
-      this.citasNuevas$.next(r.citas.nuevas || 0);
+      // si abrio la Agenda mientras la consulta viajaba, ya las vio
+      this.citasNuevas$.next(this.leer(CLAVE_AGENDA) > agendaEnviada ? 0 : (r.citas.nuevas || 0));
       for (const c of (r.citas.recientes || []).slice(0, 3)) {
         this.aviso$.next({ texto: `Nueva cita: ${c.nombre} · ${c.dia} ${MESES[c.mes] || ''}, ${formatoHora(c.hora)}`, ruta: '/mis-citas' });
       }
@@ -94,6 +98,12 @@ export class NovedadesService implements OnDestroy {
     this.spinner.silenciar(4000);
     this.cambios$.next(c);
   }
+
+  // la admin abrio la Agenda o Mis citas: el globo de Agenda vuelve a cero
+  marcarAgendaVista() { this.guardar(CLAVE_AGENDA, Date.now()); this.citasNuevas$.next(0); }
+
+  private leer(clave: string): number { try { return Number(localStorage.getItem(clave)) || 0; } catch { return 0; } }
+  private guardar(clave: string, ms: number) { try { localStorage.setItem(clave, String(ms)); } catch { } }
 
   // la clienta abrio el Muro: el globo vuelve a cero
   marcarMuroVisto() { this.guardarMuroVisto(Date.now()); this.muroNuevos$.next(0); }

@@ -77,10 +77,13 @@ export class CalendarioComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // una clienta agendo o cancelo: se actualizan el total del mes y el detalle del dia abierto
+    // la esta viendo: el globo de Agenda vuelve a cero (tambien si llega algo mientras mira)
+    this.novedades.marcarAgendaVista();
     this.subNovedades = this.novedades.cambios$.subscribe(c => {
       if (c !== 'agenda') return;
       this.eventsService.successDatos.emit(true);
       this.eventsService.setValorMontoTotal.emit(true);
+      this.novedades.marcarAgendaVista();
     });
     moment.locale('es');
     this.fechas();

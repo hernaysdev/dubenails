@@ -26,7 +26,7 @@ describe('CalendarioComponent (agenda con year)', () => {
     TestBed.configureTestingModule({
       declarations: [CalendarioComponent],
       imports: [ReactiveFormsModule],
-      providers: [{ provide: NovedadesService, useValue: { cambios$: new Subject(), citasNuevas$: new BehaviorSubject(0), muroNuevos$: new BehaviorSubject(0), aviso$: new Subject() } }, 
+      providers: [{ provide: NovedadesService, useValue: { cambios$: new Subject(), citasNuevas$: new BehaviorSubject(0), muroNuevos$: new BehaviorSubject(0), aviso$: new Subject(), marcarAgendaVista: () => {} } }, 
         { provide: AgendaService, useValue: agendaService },
         { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigateByUrl']) },
         SharedService,

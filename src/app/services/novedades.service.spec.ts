@@ -66,4 +66,17 @@ describe('NovedadesService', () => {
     responder({ articulos: { nuevos: 3, recientes: [] } });
     expect(s.muroNuevos$.getValue()).toBe(0);
   });
+
+  it('al abrir la agenda el globo de citas vuelve a cero, aunque la consulta ya estuviera en camino', () => {
+    localStorage.setItem('agendaVista', String(Date.now() - 60000));
+    s.consultar();
+    s.marcarAgendaVista();
+    responder({ citas: { huella: 'h1', nuevas: 2, recientes: [] } });
+    expect(s.citasNuevas$.getValue()).toBe(0);
+    s.consultar();
+    const req = http.expectOne(r => r.url.endsWith('api/novedades'));
+    expect(Number(req.request.params.get('agenda'))).toBeGreaterThan(Date.now() - 5000);
+    req.flush({ ahora: Date.now(), articulos: { nuevos: 0, recientes: [] }, citas: { huella: 'h1', nuevas: 1, recientes: [] } });
+    expect(s.citasNuevas$.getValue()).toBe(1);
+  });
 });

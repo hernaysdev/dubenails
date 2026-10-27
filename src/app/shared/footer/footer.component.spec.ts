@@ -10,7 +10,7 @@ describe('FooterComponent (pestaña Agenda/Reservar)', () => {
   it('clientas y visitas van a /reservar; la admin a su agenda', () => {
     TestBed.configureTestingModule({
       declarations: [FooterComponent],
-      providers: [{ provide: NovedadesService, useValue: { cambios$: new Subject(), citasNuevas$: new BehaviorSubject(0), muroNuevos$: new BehaviorSubject(0), aviso$: new Subject() } }, EventsService, SharedService, { provide: Router, useValue: {} }],
+      providers: [{ provide: NovedadesService, useValue: { cambios$: new Subject(), citasNuevas$: new BehaviorSubject(0), muroNuevos$: new BehaviorSubject(0), aviso$: new Subject(), marcarAgendaVista: () => {} } }, EventsService, SharedService, { provide: Router, useValue: {} }],
     }).overrideTemplate(FooterComponent, '');
     const shared = TestBed.inject(SharedService);
     const c = TestBed.createComponent(FooterComponent).componentInstance;
