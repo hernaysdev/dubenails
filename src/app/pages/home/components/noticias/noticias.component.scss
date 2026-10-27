@@ -1,9 +1,5 @@
-// Muro: lista de publicaciones (cada una es app-post) con filtro por servicio
-.muro { max-width: 520px; margin: 0 auto; padding: 0 0 24px; display: flex; flex-direction: column; gap: 14px; color: #1d1a1d; }
-.filtros { position: sticky; top: 0; z-index: 0; display: flex; gap: 8px; padding: 12px 14px; overflow-x: auto; background: #fff; border-bottom: 1px solid #f1eef1; scrollbar-width: none; }
-.filtros::-webkit-scrollbar { display: none; }
-.filtros button { flex: none; padding: 8px 14px; border: 1px solid #d8d2d8; border-radius: 999px; background: #fff; font: inherit; font-size: 13px; font-weight: 600; color: #1d1a1d; cursor: pointer; white-space: nowrap; }
-.filtros .activo { background: #000; border-color: #000; color: #fff; }
+// Muro: lista de publicaciones (cada una es app-post)
+.muro { max-width: 520px; margin: 0 auto; padding: 12px 0 24px; display: flex; flex-direction: column; gap: 14px; color: #1d1a1d; }
 .msg-ok, .msg-error, .meta { margin: 0 16px; }
 .meta { font-size: 13px; color: #6c656c; }
 .vacio { margin: 24px 16px; text-align: center; color: #6c656c; }

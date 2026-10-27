@@ -1,5 +1,7 @@
 import { Injectable, NgZone, OnDestroy } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { SIN_SPINNER } from '../interceptores/interceptor';
+import { SpinnerService } from './interceptor.service';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { SharedService } from './shared.service';
@@ -28,7 +30,7 @@ export class NovedadesService implements OnDestroy {
   readonly cambios$ = new Subject<Cambio>();
   readonly aviso$ = new Subject<AvisoNovedad>();
 
-  constructor(private http: HttpClient, private shared: SharedService, private zona: NgZone) { }
+  constructor(private http: HttpClient, private shared: SharedService, private zona: NgZone, private spinner: SpinnerService) { }
 
   iniciar() {
     if (this.timer) return;
@@ -57,7 +59,8 @@ export class NovedadesService implements OnDestroy {
     this.consultando = true;
     const muro = this.leerMuroVisto() || Date.now();
     const params: any = { desde: this.desde, muro };
-    this.http.get<any>(this.url, { params }).subscribe({
+    // la autorecarga pasa desapercibida: sin spinner
+    this.http.get<any>(this.url, { params, context: new HttpContext().set(SIN_SPINNER, true) }).subscribe({
       next: (r) => { this.consultando = false; this.procesar(r, muro); },
       error: () => { this.consultando = false; },
     });
@@ -71,11 +74,11 @@ export class NovedadesService implements OnDestroy {
     this.muroNuevos$.next(this.leerMuroVisto() > muroEnviado ? 0 : (r.articulos?.nuevos || 0));
     const yo = this.shared.getRolUser().getValue()?.id;
     const ajenos = (r.articulos?.recientes || []).filter((a: any) => String(a.usuario) !== String(yo));
-    if (r.articulos?.recientes?.length) this.cambios$.next('muro');
+    if (r.articulos?.recientes?.length) this.avisarCambio('muro');
     if (ajenos.length) this.aviso$.next({ texto: ajenos.length === 1 ? `${ajenos[0].nombre} publicó en el Muro` : `${ajenos.length} publicaciones nuevas en el Muro`, ruta: '/articulos' });
 
     if (r.citas) {
-      if (!primera && r.citas.huella !== this.huella) this.cambios$.next('agenda');
+      if (!primera && r.citas.huella !== this.huella) this.avisarCambio('agenda');
       this.huella = r.citas.huella;
       this.citasNuevas$.next(r.citas.nuevas || 0);
       for (const c of (r.citas.recientes || []).slice(0, 3)) {
@@ -84,6 +87,12 @@ export class NovedadesService implements OnDestroy {
     } else {
       this.huella = '';
     }
+  }
+
+  // las pantallas se recargan solas: esas peticiones tampoco muestran spinner
+  private avisarCambio(c: Cambio) {
+    this.spinner.silenciar(4000);
+    this.cambios$.next(c);
   }
 
   // la clienta abrio el Muro: el globo vuelve a cero

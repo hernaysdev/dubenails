@@ -5,11 +5,10 @@ import { NovedadesService } from 'src/app/services/novedades.service';
 import { ArticulosService } from 'src/app/services/articulos.service';
 import { EventsService } from 'src/app/services/events.service';
 import { SharedService } from 'src/app/services/shared.service';
-import { DisponibilidadService, Servicio } from 'src/app/services/disponibilidad.service';
 import { PostMuro } from '../post/post.component';
 
-// Muro: publicaciones (con me gusta, comentarios y "Quiero este diseño"), filtro por servicio,
-// "Ver mas" y link compartido (/articulos?p=<id> la muestra destacada arriba).
+// Muro: publicaciones (con me gusta, comentarios y "Quiero este diseño"), "Ver mas" y link
+// compartido (/articulos?p=<id> la muestra destacada arriba).
 @Component({
   selector: 'app-noticias',
   templateUrl: './noticias.component.html',
@@ -24,8 +23,6 @@ export class NoticiasComponent implements OnInit, OnDestroy {
   hayMas = false;
   cargando = true;
   cargandoMas = false;
-  servicios: Servicio[] = [];
-  filtro: { id: string; nombre: string } | null = null;
   destacada: string | null = null;
   mensajeOk = '';
   mensajeError = '';
@@ -37,7 +34,6 @@ export class NoticiasComponent implements OnInit, OnDestroy {
     private sharedService: SharedService,
     private route: ActivatedRoute,
     private novedades: NovedadesService,
-    private disponibilidad: DisponibilidadService,
   ) { }
 
   ngOnInit(): void {
@@ -46,7 +42,6 @@ export class NoticiasComponent implements OnInit, OnDestroy {
       this.logueado = !!localStorage.getItem('token');
     }));
     this.destacada = this.route.snapshot.queryParamMap.get('p');
-    this.disponibilidad.servicios().subscribe({ next: (s) => this.servicios = s, error: () => this.servicios = [] });
     this.cargar();
     // publicacion nueva desde el formulario del menu
     this.subs.push(this.eventsService.cargaArticulos.subscribe((nuevo: any) => {
@@ -79,7 +74,7 @@ export class NoticiasComponent implements OnInit, OnDestroy {
 
   cargar(silencioso = false) {
     if (!silencioso) this.cargando = true;
-    this.articulosService.getArticulos(this.limite, this.filtro?.id).subscribe({
+    this.articulosService.getArticulos(this.limite).subscribe({
       next: (data: any[]) => {
         this.cargando = false; this.cargandoMas = false;
         this.datas = data.map(a => this.mapear(a));
@@ -100,14 +95,6 @@ export class NoticiasComponent implements OnInit, OnDestroy {
       next: (a) => { this.datas.unshift(this.mapear(a)); ir(); },
       error: () => { this.mensajeError = 'Esa publicación ya no está en el Muro.'; this.destacada = null; },
     });
-  }
-
-  filtrar(s: { id: string; nombre: string } | null) {
-    this.filtro = s && s.id !== this.filtro?.id ? { id: String(s.id), nombre: s.nombre } : null;
-    this.limite = 10;
-    this.destacada = null;
-    this.cargar();
-    document.querySelector('.muro')?.scrollIntoView({ behavior: 'smooth' });
   }
 
   verMas() {

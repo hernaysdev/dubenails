@@ -43,7 +43,6 @@ export class PostComponent {
   @Input() logueado = false;
   @Input() destacada = false;
   @Output() borrar = new EventEmitter<string>();
-  @Output() filtrar = new EventEmitter<{ id: string; nombre: string }>();
 
   foto = 0;
   menu = false;

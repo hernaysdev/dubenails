@@ -1,17 +1,11 @@
 <section class="muro">
-    <!-- filtro por servicio -->
-    <div class="filtros" *ngIf="servicios.length" role="toolbar" aria-label="Filtrar por servicio">
-        <button type="button" [class.activo]="!filtro" (click)="filtrar(null)">Todos</button>
-        <button type="button" *ngFor="let s of servicios" [class.activo]="filtro?.id === s.id" (click)="filtrar(s)">{{ s.nombre }}</button>
-    </div>
-
     <p class="msg-ok" *ngIf="mensajeOk" role="status">{{ mensajeOk }}</p>
     <p class="msg-error" *ngIf="mensajeError" role="alert">{{ mensajeError }}</p>
     <p class="meta" *ngIf="cargando">Cargando…</p>
-    <p class="vacio" *ngIf="!cargando && !datas.length">{{ filtro ? 'Aún no hay publicaciones de ' + filtro.nombre + '.' : 'Aún no hay publicaciones.' }}</p>
+    <p class="vacio" *ngIf="!cargando && !datas.length">Aún no hay publicaciones.</p>
 
     <app-post *ngFor="let p of datas; trackBy: porId" [post]="p" [rol]="rol" [logueado]="logueado" [destacada]="p.id === destacada"
-        (borrar)="borrarArticulo($event)" (filtrar)="filtrar($event)"></app-post>
+        (borrar)="borrarArticulo($event)"></app-post>
 
     <button *ngIf="hayMas" type="button" class="ver-mas" (click)="verMas()" [disabled]="cargandoMas">
         {{ cargandoMas ? 'Cargando…' : 'Ver más publicaciones' }}

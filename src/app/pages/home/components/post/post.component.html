@@ -43,7 +43,7 @@
   </div>
 
   <div class="servicios" *ngIf="post.servicios.length">
-    <button type="button" class="chip" *ngFor="let s of post.servicios" (click)="filtrar.emit(s)">{{ s.nombre }}</button>
+    <span class="chip" *ngFor="let s of post.servicios">{{ s.nombre }}</span>
     <button type="button" class="quiero" (click)="quieroEsteDiseno()">Quiero este diseño</button>
   </div>
 
