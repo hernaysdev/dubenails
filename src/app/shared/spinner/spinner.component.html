@@ -1,6 +1,9 @@
-<div *ngIf="show"class="overlay">
-    <div class="loadingio-spinner-spinner-xswhqjokh47"><div class="ldio-chcjef5blv4">
-        <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
-    </div></div>
+<!-- spinner de DubeNails: logo con anillo que gira; aparece solo si la carga demora (sin parpadeos) -->
+<div *ngIf="show" class="overlay" role="status" aria-live="polite" aria-label="Cargando">
+    <div class="marca">
+        <span class="anillo" aria-hidden="true"></span>
+        <!-- el logo de DubeNails (es el icono de la app: ya esta guardado en el telefono) -->
+        <img class="logo" src="assets/icons/icon-192x192.png" alt="" aria-hidden="true">
+    </div>
+    <p class="texto">Un momento…</p>
 </div>
-
