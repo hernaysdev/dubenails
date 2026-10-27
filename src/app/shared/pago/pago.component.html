@@ -21,7 +21,8 @@
 
   <h3>3. Adjunta la captura del pago</h3>
   <label class="subir" *ngIf="!archivo">
-    <input type="file" accept="image/*,.heic,.heif" (change)="elegirArchivo($event)">
+    <!-- solo image/*: con extensiones (.heic) Android abre "Archivos" en vez de la galeria y la camara -->
+    <input type="file" accept="image/*" (change)="elegirArchivo($event)">
     <span>Elegir imagen</span>
     <small class="meta">Foto o captura de pantalla del comprobante (hasta 10 MB)</small>
   </label>
