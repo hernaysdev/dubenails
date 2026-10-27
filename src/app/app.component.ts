@@ -1,6 +1,7 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { UpdateService } from './services/update.service';
 import { AgendaService } from './services/agenda.service';
+import { NovedadesService } from './services/novedades.service';
 
 // 60px de margen superior del contenido (cabecera fija) + 80px de la barra inferior
 const ALTO_CABECERA_Y_PIE = 140;
@@ -20,7 +21,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     private sw: UpdateService,
-    private _agendaService: AgendaService
+    private _agendaService: AgendaService,
+    private novedades: NovedadesService
   ) {
     // check the service worker for updates
     this.sw.checkForUpdates();
@@ -28,6 +30,8 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.calcularAlturas();
+    // citas y publicaciones nuevas sin recargar (cada 30 s con la app en pantalla)
+    this.novedades.iniciar();
   }
 
   ngAfterViewInit(): void {

@@ -1,5 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { NovedadesService } from 'src/app/services/novedades.service';
 import { AgendaService, LinkConfirmacion, PagoCita } from 'src/app/services/agenda.service';
 import { dinero } from 'src/app/shared/pago/pago.component';
 import { formatoHora } from 'src/app/services/disponibilidad.service';
@@ -50,17 +52,22 @@ export class MisCitasComponent implements OnInit, OnDestroy {
   procesandoPago = false;
   errorPago = '';
 
-  constructor(private agendaService: AgendaService, private router: Router) { }
+  constructor(private agendaService: AgendaService, private router: Router, private novedades: NovedadesService) { }
+
+  private subNovedades?: Subscription;
 
   ngOnInit(): void {
     // al agendar "por confirmar" desde la agenda se llega aqui con el link listo para compartir
     const nuevo = history.state?.linkNuevo;
     if (nuevo?.citaId && nuevo?.link) this.linkDe[nuevo.citaId] = nuevo.link;
     this.cargar();
+    // una clienta agendo, pago o cancelo (o la admin movio la cita): se actualiza sola
+    this.subNovedades = this.novedades.cambios$.subscribe(c => { if (c === 'agenda') this.cargar(true); });
   }
 
-  cargar() {
-    this.cargando = true;
+  // silencioso: al actualizarse sola no muestra "Cargando…" (la lista sigue a la vista)
+  cargar(silencioso = false) {
+    if (!silencioso) this.cargando = true;
     this.agendaService.misCitas().subscribe({
       next: ({ citas, esAdmin }) => { this.esAdmin = esAdmin; this.citas = citas; this.agrupar(); this.cargando = false; },
       error: () => { this.cargando = false; this.error = 'No pudimos cargar las citas. Intenta de nuevo.'; }
@@ -167,7 +174,7 @@ export class MisCitasComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy() { this.cerrarRevision(); }
+  ngOnDestroy() { this.cerrarRevision(); this.subNovedades?.unsubscribe(); }
 
   reprogramar(c: MiCita) {
     if (!c.servicioId) return;

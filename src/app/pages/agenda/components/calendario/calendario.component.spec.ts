@@ -1,3 +1,5 @@
+import { BehaviorSubject, Subject } from 'rxjs';
+import { NovedadesService } from 'src/app/services/novedades.service';
 import { TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -24,7 +26,7 @@ describe('CalendarioComponent (agenda con year)', () => {
     TestBed.configureTestingModule({
       declarations: [CalendarioComponent],
       imports: [ReactiveFormsModule],
-      providers: [
+      providers: [{ provide: NovedadesService, useValue: { cambios$: new Subject(), citasNuevas$: new BehaviorSubject(0), muroNuevos$: new BehaviorSubject(0), aviso$: new Subject() } }, 
         { provide: AgendaService, useValue: agendaService },
         { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigateByUrl']) },
         SharedService,

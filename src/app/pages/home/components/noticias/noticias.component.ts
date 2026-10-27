@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { NovedadesService } from 'src/app/services/novedades.service';
 import { ArticulosService } from 'src/app/services/articulos.service';
 import { EventsService } from 'src/app/services/events.service';
 import { SharedService } from 'src/app/services/shared.service';
@@ -8,7 +10,7 @@ import { Router } from '@angular/router';
   templateUrl: './noticias.component.html',
   styleUrls: ['./noticias.component.scss']
 })
-export class NoticiasComponent implements OnInit {
+export class NoticiasComponent implements OnInit, OnDestroy {
    public datas : any[] = [];
    public activeMenu : boolean = false;
    public rol : string = '';
@@ -17,8 +19,11 @@ export class NoticiasComponent implements OnInit {
     private articulosService : ArticulosService,
     private eventsService : EventsService,
     private sharedService :SharedService,
-    private router :Router
+    private router :Router,
+    private novedades: NovedadesService
   ) { }
+
+  private subNovedades?: Subscription;
 
   ngOnInit(): void {
    this.sharedService.getRolUser().subscribe((data) => {
@@ -26,6 +31,29 @@ export class NoticiasComponent implements OnInit {
    });
     this.traerArticulos();
     this.cargaArticulosAsync();
+    // abrio el Muro: el globo del menu vuelve a cero; si alguien publica mientras lo mira, se agrega solo
+    this.novedades.marcarMuroVisto();
+    this.subNovedades = this.novedades.cambios$.subscribe(c => {
+      if (c !== 'muro') return;
+      this.recargar();
+      this.novedades.marcarMuroVisto();
+    });
+  }
+
+  ngOnDestroy(): void { this.subNovedades?.unsubscribe(); }
+
+  // trae las ultimas publicaciones de la API (sin la copia guardada)
+  recargar() {
+    this.articulosService.getArticulos(10).subscribe({ next: (data) => {
+      this.datas = data.map((element: any) => {
+        const img = element.img.split('.');
+        return {
+          nombre: element.nombre.trim(), fecha: element.fecha, usuario: element.usuario, descripcion: element.descripcion,
+          img: img[0] + '.' + img[1] + '.' + img[2] + '.jpg', id: element._id,
+        };
+      });
+      this.sharedService.setArticulos(this.datas);
+    }, error: () => {} });
   }
 
 

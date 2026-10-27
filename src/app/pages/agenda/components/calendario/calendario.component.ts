@@ -1,4 +1,6 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { NovedadesService } from 'src/app/services/novedades.service';
 import * as moment from 'moment';
 import { AgendaService } from 'src/app/services/agenda.service';
 import { SharedService } from 'src/app/services/shared.service';
@@ -12,7 +14,7 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './calendario.component.html',
   styleUrls: ['./calendario.component.scss']
 })
-export class CalendarioComponent implements OnInit {
+export class CalendarioComponent implements OnInit, OnDestroy {
 
 
   public dias: any[] = [];
@@ -56,7 +58,8 @@ export class CalendarioComponent implements OnInit {
     private sharedService: SharedService,
     private formBuilder: FormBuilder,
     private router: Router,
-    public eventsService: EventsService
+    public eventsService: EventsService,
+    private novedades: NovedadesService
   ) {
 
     this.form = this.formBuilder.group({
@@ -68,7 +71,17 @@ export class CalendarioComponent implements OnInit {
     })
   }
 
+  private subNovedades?: Subscription;
+
+  ngOnDestroy(): void { this.subNovedades?.unsubscribe(); }
+
   ngOnInit() {
+    // una clienta agendo o cancelo: se actualizan el total del mes y el detalle del dia abierto
+    this.subNovedades = this.novedades.cambios$.subscribe(c => {
+      if (c !== 'agenda') return;
+      this.eventsService.successDatos.emit(true);
+      this.eventsService.setValorMontoTotal.emit(true);
+    });
     moment.locale('es');
     this.fechas();
     this.verificarUsuario();

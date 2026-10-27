@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { EventsService } from 'src/app/services/events.service';
 import { SharedService } from 'src/app/services/shared.service';
+import { NovedadesService } from 'src/app/services/novedades.service';
 
 @Component({
   selector: 'app-footer',
@@ -16,7 +17,9 @@ export class FooterComponent implements OnInit {
   constructor(
     private router : Router,
     public eventsService: EventsService,
-    private sharedService: SharedService
+    private sharedService: SharedService,
+    // globos: citas sin ver (admin) y publicaciones nuevas en el Muro
+    public novedades: NovedadesService
   ) { }
 
   ngOnInit(): void {

@@ -1,3 +1,5 @@
+import { BehaviorSubject, Subject } from 'rxjs';
+import { NovedadesService } from 'src/app/services/novedades.service';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
@@ -16,7 +18,7 @@ describe('MisCitasComponent', () => {
     router = jasmine.createSpyObj('Router', ['navigate']);
     TestBed.configureTestingModule({
       declarations: [MisCitasComponent],
-      providers: [{ provide: AgendaService, useValue: agenda }, { provide: Router, useValue: router }],
+      providers: [{ provide: NovedadesService, useValue: { cambios$: new Subject(), citasNuevas$: new BehaviorSubject(0), muroNuevos$: new BehaviorSubject(0), aviso$: new Subject() } }, { provide: AgendaService, useValue: agenda }, { provide: Router, useValue: router }],
     }).overrideTemplate(MisCitasComponent, '');
     c = TestBed.createComponent(MisCitasComponent).componentInstance;
     c.ngOnInit();

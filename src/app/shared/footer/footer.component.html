@@ -8,11 +8,13 @@
             <li (click)="cerrarMenu()"
             routerLink="/articulos">
                 <span>Muro</span>
+                <b class="globo" *ngIf="(novedades.muroNuevos$ | async) as n" [attr.aria-label]="n + ' publicaciones nuevas'">{{ n > 9 ? '9+' : n }}</b>
                 <svg id="galleryIcon"aria-label="Posts" class="_ab6-" color="#0095f6" fill="#0095f6" height="24" role="img" viewBox="0 0 24 24" width="24"><rect fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="18" x="3" y="3"></rect><line fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" x1="9.015" x2="9.015" y1="3" y2="21"></line><line fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" x1="14.985" x2="14.985" y1="3" y2="21"></line><line fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" x1="21" x2="3" y1="9.015" y2="9.015"></line><line fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" x1="21" x2="3" y1="14.985" y2="14.985"></line></svg>
             </li>
             <li (click)="cerrarMenu()"
             [routerLink]="esAdmin ? '/agenda' : '/reservar'">
                 <span>{{ esAdmin ? 'Agenda' : 'Reservar' }}</span>
+                <b class="globo" *ngIf="esAdmin && (novedades.citasNuevas$ | async) as n" [attr.aria-label]="n + ' citas nuevas'">{{ n > 9 ? '9+' : n }}</b>
                 <svg class="agendaIcon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 490 490" style="enable-background:new 0 0 490 490;" xml:space="preserve">
                     <g>
                         <g>
