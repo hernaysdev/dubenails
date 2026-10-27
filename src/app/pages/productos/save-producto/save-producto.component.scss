@@ -1,8 +1,9 @@
 .registro { max-width: 520px; margin: 0 auto; padding: 8px 16px 24px; color: #1d1a1d;
   form { display: flex; flex-direction: column; gap: 8px; } }
 label { font-weight: 600; font-size: 14px; margin-top: 4px; }
-.duracion { font-size: 16px; padding: 10px; border-radius: 5px; border: 1px solid #d8d2d8; background: #fff; color: #1d1a1d; }
+.duracion { font-size: 16px; padding: 12px 14px; border-radius: 12px; border: 1px solid #d8d2d8; background: #fff; color: #1d1a1d; }
 
-textarea { font-family: inherit; font-size: 16px; line-height: 1.45; padding: 10px; border-radius: 5px; border: 1px solid #d8d2d8; background: #fff; color: #1d1a1d; resize: vertical; min-height: 110px; width: 100%; box-sizing: border-box; }
+textarea { font-family: inherit; font-size: 16px; line-height: 1.45; padding: 12px 14px; border-radius: 12px; border: 1px solid #d8d2d8; background: #fff; color: #1d1a1d; resize: vertical; min-height: 110px; width: 100%; box-sizing: border-box; }
 .opcional { font-weight: 400; color: #6c656c; }
 .meta { font-size: 12px; color: #6c656c; }
+input[type="submit"] { margin-top: 10px; padding: 14px; border: 0; border-radius: 999px; font-size: 16px; font-weight: 600; }

@@ -22,6 +22,7 @@
 
     <label for="prod-precio">Precio</label>
     <input id="prod-precio" type="number" inputmode="decimal" min="1" formControlName="precio">
+    <small class="meta" *ngIf="form.value.precio > 0">Se verá como {{ form.value.precio | dinero }}</small>
     <small class="ayuda" *ngIf="invalido('precio')">Escribe un precio mayor que 0.</small>
 
     <label for="prod-tiempo">Duración</label>

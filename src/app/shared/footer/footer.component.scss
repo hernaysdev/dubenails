@@ -1,4 +1,4 @@
-@import '../../../styles.scss';
+$colorFondo: #010101; // mismo color que styles.scss (importarlo entero duplicaba todo el CSS global aqui)
 
 .footer {
     display: flex;

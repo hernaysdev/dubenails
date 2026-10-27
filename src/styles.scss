@@ -24,15 +24,33 @@ br{
     margin-bottom: 10px;
 }
 
-input[type="text"] , input[type="password"] , input[type="button"], input[type="number"], input[type="email"], input[type="tel"] {
+// campos de texto: blancos, borde suave y letra normal (16px evita el zoom del iPhone)
+input[type="text"], input[type="password"], input[type="number"], input[type="email"], input[type="tel"], input[type="search"], input[type="date"] {
+    box-sizing: border-box;
+    padding: 12px 14px;
+    border: 1px solid #d8d2d8;
+    border-radius: 12px;
+    background-color: #fff;
+    box-shadow: none;
+    color: #1d1a1d;
+    font-family: inherit;
+    font-size: 16px !important;
+    font-weight: 400;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+input[type="text"]:focus, input[type="password"]:focus, input[type="number"]:focus, input[type="email"]:focus, input[type="tel"]:focus, input[type="search"]:focus, input[type="date"]:focus, textarea:focus, select:focus {
+    border-color: #1d1a1d;
+    box-shadow: 0 0 0 3px rgba(29, 26, 29, .12);
+}
+input::placeholder, textarea::placeholder { color: #a59ea5; font-weight: 400; }
+
+input[type="button"] {
     padding: 10px;
     border-radius: 5px;
     font-weight: bold;
     background-color: $colorInputs;
-}
-
-input[type="text"], input[type="number"], input[type="email"], input[type="tel"]{
-    font-size: 16px !important;
 }
 
 input[type="button"]{

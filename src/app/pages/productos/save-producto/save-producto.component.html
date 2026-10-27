@@ -10,6 +10,7 @@
         mask="separator.0"
         thousandSeparator="."
         placeholder="20.000">
+        <small class="meta" *ngIf="formProductos.value.precio > 0">Se verá como {{ formProductos.value.precio | dinero }}</small>
          <label for="tiempo">Duración</label>
         <select id="tiempo" formControlName="tiempo" class="duracion">
             <option *ngFor="let d of duraciones" [ngValue]="d.horas">{{ d.texto }}</option>
