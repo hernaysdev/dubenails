@@ -193,3 +193,12 @@ app-actualizar-foto{
     width: 75% !important;
     height: 60% !important;
 }
+// formulario del Muro: arriba y con desplazamiento (centrado con altura fija, lo mas alto quedaba
+// cortado: no se veian las fotos ni el boton Publicar)
+app-registrar-articulos {
+    justify-content: flex-start;
+    height: auto;
+    max-height: calc(89vh - 110px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}

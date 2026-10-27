@@ -16,8 +16,5 @@ textarea { resize: vertical; min-height: 72px; }
 .foto input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .elegir { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #3d363d; pointer-events: none; }
 .elegir small { font-size: 12px; font-weight: 400; color: #6c656c; }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chips button { padding: 7px 12px; border: 1px solid #d8d2d8; border-radius: 999px; background: #fff; font: inherit; font-size: 13px; color: #1d1a1d; cursor: pointer; }
-.chips .sel { background: #000; border-color: #000; color: #fff; }
 .publicar { margin-top: 12px; padding: 14px; border: 0; border-radius: 999px; background: #000; color: #fff; font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; }
 .publicar:disabled { opacity: .5; }

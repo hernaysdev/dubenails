@@ -3,17 +3,14 @@ import { FormGroup , FormBuilder } from '@angular/forms';
 import * as moment from 'moment';
 import { ArticulosService } from 'src/app/services/articulos.service';
 import { EventsService } from 'src/app/services/events.service';
-import { DisponibilidadService, Servicio } from 'src/app/services/disponibilidad.service';
 import { despuesDeComprimir, problemaFoto } from 'src/app/shared/validar-foto';
 import { comprimirImagen, PARA_MURO } from 'src/app/shared/comprimir-imagen';
 
 export const MAX_FOTOS = 5;
-export const MAX_SERVICIOS_POST = 3;
 
 interface FotoElegida { archivo: File; vista: string | null; }
 
-// Nueva publicacion del Muro: hasta 5 fotos (carrusel), titulo, descripcion y los servicios del trabajo
-// (para "Quiero este diseño" y el filtro del Muro).
+// Nueva publicacion del Muro: hasta 5 fotos (carrusel), titulo y descripcion.
 @Component({
   selector: 'app-registrar-articulos',
   templateUrl: './registrar-articulos.component.html',
@@ -22,10 +19,7 @@ interface FotoElegida { archivo: File; vista: string | null; }
 export class RegistrarArticulosComponent implements OnInit, OnDestroy {
   public formArticulos : FormGroup;
   fotos: FotoElegida[] = [];
-  servicios: Servicio[] = [];
-  elegidos: string[] = [];
   readonly maxFotos = MAX_FOTOS;
-  readonly maxServicios = MAX_SERVICIOS_POST;
   @Input('idUser') idUser :any;
   @Output('success') success : EventEmitter<any> = new EventEmitter();
 
@@ -36,7 +30,6 @@ export class RegistrarArticulosComponent implements OnInit, OnDestroy {
     private formBuilder : FormBuilder,
     private articulosService :ArticulosService,
     private eventsService : EventsService,
-    private disponibilidad: DisponibilidadService,
   ) {
     this.formArticulos = this.formBuilder.group({
       nombre:[''],
@@ -44,9 +37,7 @@ export class RegistrarArticulosComponent implements OnInit, OnDestroy {
     })
    }
 
-  ngOnInit(): void {
-    this.disponibilidad.servicios().subscribe({ next: (s) => this.servicios = s, error: () => this.servicios = [] });
-  }
+  ngOnInit(): void { }
 
   ngOnDestroy(): void { this.fotos.forEach(f => f.vista && URL.revokeObjectURL(f.vista)); }
 
@@ -77,12 +68,6 @@ export class RegistrarArticulosComponent implements OnInit, OnDestroy {
     if (f?.vista) URL.revokeObjectURL(f.vista);
   }
 
-  alternarServicio(id: string) {
-    if (this.elegidos.includes(id)) { this.elegidos = this.elegidos.filter(e => e !== id); return; }
-    if (this.elegidos.length >= MAX_SERVICIOS_POST) { this.mensajeError = `Elige hasta ${MAX_SERVICIOS_POST} servicios.`; return; }
-    this.elegidos = [...this.elegidos, id];
-  }
-
   enviar(){
     this.mensajeError = '';
     const valores = this.formArticulos.value;
@@ -98,7 +83,6 @@ export class RegistrarArticulosComponent implements OnInit, OnDestroy {
     formData.append('nombre', nombre.trim());
     formData.append('fecha', fecha);
     formData.append('descripcion', descripcion.trim());
-    formData.append('servicios', this.elegidos.join(','));
     formData.append('id', this.idUser);
     this.articulosService.saveArticulos(formData).subscribe({next: (data) => {
       this.enviando = false;

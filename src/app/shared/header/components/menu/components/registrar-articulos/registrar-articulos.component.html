@@ -24,13 +24,6 @@
         <textarea id="art-descripcion" formControlName="descripcion" rows="3" maxlength="500" placeholder="Cuéntales sobre el diseño, el servicio o la clienta…"></textarea>
         <small class="contador">{{ formArticulos.value.descripcion?.length || 0 }}/500</small>
 
-        <ng-container *ngIf="servicios.length">
-            <span class="etiqueta">¿Qué servicio es? <small>(opcional, hasta {{ maxServicios }})</small></span>
-            <div class="chips">
-                <button type="button" *ngFor="let s of servicios" [class.sel]="elegidos.includes(s.id)" [attr.aria-pressed]="elegidos.includes(s.id)" (click)="alternarServicio(s.id)">{{ s.nombre }}</button>
-            </div>
-            <small class="ayuda">Aparece el botón "Quiero este diseño" para reservarlo.</small>
-        </ng-container>
 
         <p class="msg-error" *ngIf="mensajeError" role="alert">{{ mensajeError }}</p>
         <button type="submit" class="publicar" [disabled]="enviando">{{ enviando ? 'Publicando…' : 'Publicar' }}</button>

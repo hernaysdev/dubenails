@@ -137,7 +137,7 @@ export class MenuComponent implements OnInit {
         this.lista = false;
         this.menu = false;
         break;
-      case 'Subir En Muro':
+      case 'Nueva publicación':
         this.showRegistroArticulos = false;
         this.tituloMenu = 'Menu';
         this.lista = false;
@@ -164,6 +164,14 @@ export class MenuComponent implements OnInit {
         break;
       case 'Recuperar Contraseña':
         this.showRecuperarClave = false;
+        this.tituloMenu = 'Menu';
+        this.lista = false;
+        this.menu = false;
+        break;
+      // cualquier otro titulo (ej. si se renombra uno): la X igual cierra todo
+      default:
+        this.showRegistro = this.showlogin = this.showActualizarFoto = this.showRegistroArticulos = false;
+        this.showActualizarUser = this.showGift = this.showProductos = this.showRecuperarClave = false;
         this.tituloMenu = 'Menu';
         this.lista = false;
         this.menu = false;
