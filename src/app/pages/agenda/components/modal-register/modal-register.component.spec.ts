@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { of } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 
 import { ModalRegisterComponent } from './modal-register.component';
 import { AgendaService } from 'src/app/services/agenda.service';
@@ -14,6 +14,7 @@ describe('ModalRegisterComponent (year al agendar)', () => {
   let component: ModalRegisterComponent;
   let agendaService: jasmine.SpyObj<AgendaService>;
   let router: jasmine.SpyObj<Router>;
+  let usuariosService: jasmine.SpyObj<UsuariosService>;
 
   beforeEach(() => {
     jasmine.clock().install();
@@ -22,6 +23,7 @@ describe('ModalRegisterComponent (year al agendar)', () => {
     agendaService.getDatosDay.and.returnValue(of('No se encontraron registros.'));
     agendaService.recibirDatos.and.returnValue(of('ok'));
     router = jasmine.createSpyObj('Router', ['navigate']);
+    usuariosService = jasmine.createSpyObj('UsuariosService', ['findUsuarioExpress']);
     const events = jasmine.createSpyObj('EventsService', ['alertMessage'], {
       successDatos: { emit: () => {} }, setValorMontoTotal: { emit: () => {} },
     });
@@ -33,7 +35,7 @@ describe('ModalRegisterComponent (year al agendar)', () => {
         { provide: AgendaService, useValue: agendaService },
         { provide: EventsService, useValue: events },
         { provide: SharedService, useValue: jasmine.createSpyObj('SharedService', ['setDataAgenda']) },
-        { provide: UsuariosService, useValue: {} },
+        { provide: UsuariosService, useValue: usuariosService },
         { provide: ProductosService, useValue: {} },
         { provide: Router, useValue: router },
       ],
@@ -75,5 +77,53 @@ describe('ModalRegisterComponent (year al agendar)', () => {
     expect(agendaService.recibirDatos).not.toHaveBeenCalled();
     expect(agendaService.agendarPorConfirmar).toHaveBeenCalledWith(jasmine.objectContaining({ mes: 0, year: 2027 }));
     expect(router.navigate).toHaveBeenCalledWith(['/mis-citas'], { state: { linkNuevo: { citaId: 'c1', link } } });
+  });
+
+  describe('buscar clienta al agendar (admin)', () => {
+    const escribir = (nombre: string) => {
+      component.formGroup.controls['nombre'].setValue(nombre);
+      component.find(null, 'nombre');
+    };
+
+    beforeEach(() => component.rol = 'admin');
+
+    it('muestra las clientas que coinciden', () => {
+      usuariosService.findUsuarioExpress.and.returnValue(of({ usuarios: [{ nombre: 'Luz' }] }));
+      escribir('Lu');
+      expect(component.listEmail).toEqual([{ nombre: 'Luz' }]);
+    });
+
+    it('si no hay coincidencias, la lista se cierra y el nombre escrito se mantiene', () => {
+      usuariosService.findUsuarioExpress.and.returnValue(of({ usuarios: [{ nombre: 'Luz' }] }));
+      escribir('Lu');
+      usuariosService.findUsuarioExpress.and.returnValue(of({ msg: 'No se encontraron usuarios activos' }));
+      escribir('Luzmira');
+      expect(component.listEmail).toEqual([]);
+      expect(component.formGroup.value.nombre).toBe('Luzmira');
+    });
+
+    it('si la busqueda falla, la lista se cierra', () => {
+      usuariosService.findUsuarioExpress.and.returnValue(of({ usuarios: [{ nombre: 'Luz' }] }));
+      escribir('Lu');
+      usuariosService.findUsuarioExpress.and.returnValue(throwError(() => 'error'));
+      escribir('Luz');
+      expect(component.listEmail).toEqual([]);
+    });
+
+    it('ignora una respuesta atrasada de lo que ya no esta escrito', () => {
+      const lenta = new Subject<any>();
+      usuariosService.findUsuarioExpress.and.returnValues(lenta, of({ msg: 'No se encontraron usuarios activos' }));
+      escribir('L');
+      escribir('Luzmira');
+      lenta.next({ usuarios: [{ nombre: 'Leoreanny' }] });
+      expect(component.listEmail).toEqual([]);
+    });
+
+    it('al salir del campo se cierra la lista', () => {
+      component.listEmail = [{ nombre: 'Luz' }];
+      component.cerrarSugerencias();
+      jasmine.clock().tick(250);
+      expect(component.listEmail).toEqual([]);
+    });
   });
 });

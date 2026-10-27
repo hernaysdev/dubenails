@@ -350,20 +350,18 @@ export class ModalRegisterComponent implements OnInit {
     if (this.rol !== 'admin') return;
     this.usuariosService.findUsuarioExpress(search, type).subscribe({
       next: (value: any) => {
-        if (value === typeof toString()) {
-          this.formGroup.controls['correo'].setValue('');
-          this.formGroup.controls['telefono'].setValue('');
-          this.formGroup.controls['nombre'].setValue('');
-          this.listEmail = [];
-          this.findUsuario = '';
-        } else {
-          this.listEmail = value.usuarios;
-        }
+        // al escribir rapido, la respuesta de "L" puede llegar despues de la de "Luz": se ignora
+        if (this.formGroup.value[type] !== search) return;
+        // sin coincidencias la API responde solo { msg }: la lista se cierra y la admin sigue escribiendo
+        this.listEmail = Array.isArray(value?.usuarios) ? value.usuarios : [];
       },
-      error(err) {
-
-      },
+      error: () => this.listEmail = [],
     })
+  }
+
+  // al salir del campo se cierra la lista (con pausa, para que alcance a tomar el toque en una sugerencia)
+  cerrarSugerencias() {
+    setTimeout(() => this.listEmail = [], 200);
   }
 
   selectData(email: any, nombre: any, telefono: any) {

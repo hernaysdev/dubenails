@@ -9,7 +9,7 @@
   <form [formGroup]="formGroup">
     <label for="ag-nombre">Nombre de la clienta</label>
     <div class="campo-buscar">
-      <input id="ag-nombre" class="inputs" type="text" (keyup)="find($event,'nombre')" placeholder="Escribe para buscarla en la lista" formControlName="nombre" autocomplete="off">
+      <input id="ag-nombre" class="inputs" type="text" (input)="find($event,'nombre')" (blur)="cerrarSugerencias()" placeholder="Escribe para buscarla en la lista" formControlName="nombre" autocomplete="off">
       <div class="sugerencias" *ngIf="typeConsult === 'nombre' && listEmail.length">
         <button type="button" @MyInsertRemoveTrigger *ngFor="let usuariosR of listEmail"
           (click)="selectData(usuariosR.correo, usuariosR.nombre, usuariosR.telefono)">
@@ -35,7 +35,7 @@
 
     <label for="ag-correo">Correo <span class="opcional">(opcional)</span></label>
     <div class="campo-buscar">
-      <input id="ag-correo" (input)="find($event,'correo')" class="inputs" type="text" inputmode="email" placeholder="Para enviarle la confirmación"
+      <input id="ag-correo" (input)="find($event,'correo')" (blur)="cerrarSugerencias()" class="inputs" type="text" inputmode="email" placeholder="Para enviarle la confirmación"
         [value]="findEmail" formControlName="correo" autocomplete="off">
       <div class="sugerencias" *ngIf="typeConsult === 'correo' && listEmail.length">
         <button type="button" @MyInsertRemoveTrigger *ngFor="let usuariosR of listEmail" class="emailStyles"
