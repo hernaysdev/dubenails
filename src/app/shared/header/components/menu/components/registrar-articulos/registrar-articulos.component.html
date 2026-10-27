@@ -1,25 +1,36 @@
 <div class="registro">
     <form [formGroup]="formArticulos" (ngSubmit)="enviar()">
-        <!-- foto: toca para elegir; se ve antes de publicar -->
-        <label class="foto" [class.con-foto]="vistaPrevia || img">
-            <!-- solo image/*: con extensiones (.heic) Android abre "Archivos" en vez de la galeria y la camara -->
-            <input type="file" accept="image/*" (change)="cargarImg($event)" aria-label="Elegir foto">
-            <img *ngIf="vistaPrevia" [src]="vistaPrevia" alt="Vista previa de la foto">
-            <span class="nombre-archivo" *ngIf="img && !vistaPrevia">{{ img.name }}</span>
-            <span class="elegir" *ngIf="!img">
-                <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"><path d="M4 7h3l2-2h6l2 2h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
-                <strong>Elegir foto</strong>
-                <small>JPG, PNG o HEIC · hasta 15 MB</small>
+        <!-- fotos: hasta 5 (carrusel). Solo image/*: con extensiones Android abre "Archivos" en vez de la galeria -->
+        <div class="fotos" *ngIf="fotos.length">
+            <div class="miniatura" *ngFor="let f of fotos; let i = index">
+                <img *ngIf="f.vista" [src]="f.vista" [alt]="'Foto ' + (i + 1)">
+                <span *ngIf="!f.vista" class="nombre-archivo">{{ f.archivo.name }}</span>
+                <button type="button" class="quitar" (click)="quitarFoto(i)" [attr.aria-label]="'Quitar foto ' + (i + 1)">×</button>
+            </div>
+        </div>
+        <label class="foto" *ngIf="fotos.length < maxFotos" [class.chica]="fotos.length">
+            <input type="file" accept="image/*" multiple (change)="cargarImg($event)" aria-label="Elegir fotos">
+            <span class="elegir">
+                <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M4 7h3l2-2h6l2 2h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+                <strong>{{ preparando ? 'Preparando fotos…' : (fotos.length ? 'Agregar otra foto' : 'Elegir fotos') }}</strong>
+                <small>Hasta {{ maxFotos }} (ideal para antes y después)</small>
             </span>
-            <span class="cambiar" *ngIf="img">Cambiar foto</span>
         </label>
 
         <label for="art-titulo">Título</label>
         <input id="art-titulo" formControlName="nombre" type="text" maxlength="80" placeholder="Ej. Builder gel nude" autocomplete="off">
 
         <label for="art-descripcion">Descripción</label>
-        <textarea id="art-descripcion" formControlName="descripcion" rows="4" maxlength="500" placeholder="Cuéntales sobre el diseño, el servicio o la clienta…"></textarea>
+        <textarea id="art-descripcion" formControlName="descripcion" rows="3" maxlength="500" placeholder="Cuéntales sobre el diseño, el servicio o la clienta…"></textarea>
         <small class="contador">{{ formArticulos.value.descripcion?.length || 0 }}/500</small>
+
+        <ng-container *ngIf="servicios.length">
+            <span class="etiqueta">¿Qué servicio es? <small>(opcional, hasta {{ maxServicios }})</small></span>
+            <div class="chips">
+                <button type="button" *ngFor="let s of servicios" [class.sel]="elegidos.includes(s.id)" [attr.aria-pressed]="elegidos.includes(s.id)" (click)="alternarServicio(s.id)">{{ s.nombre }}</button>
+            </div>
+            <small class="ayuda">Aparece el botón "Quiero este diseño" para reservarlo.</small>
+        </ng-container>
 
         <p class="msg-error" *ngIf="mensajeError" role="alert">{{ mensajeError }}</p>
         <button type="submit" class="publicar" [disabled]="enviando">{{ enviando ? 'Publicando…' : 'Publicar' }}</button>

@@ -7,11 +7,12 @@ describe('PagoComponent', () => {
   let emitido: any;
   const medios = [{ id: 'zelle', nombre: 'Zelle', datos: 'pagos@dube.com' }, { id: 'binance', nombre: 'Binance Pay', datos: 'ID 123' }];
 
-  const elegirArchivo = (archivo: File) => {
+  // elegir la foto es asincrono (se comprime en el navegador)
+  const elegirArchivo = async (archivo: File) => {
     const input = fixture.nativeElement.querySelector('input[type=file]') as HTMLInputElement;
     const dt = new DataTransfer(); dt.items.add(archivo);
     input.files = dt.files;
-    input.dispatchEvent(new Event('change'));
+    await c.elegirArchivo({ target: input } as any);
     fixture.detectChanges();
   };
 
@@ -34,13 +35,13 @@ describe('PagoComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('$40');
   });
 
-  it('emite el pago solo cuando estan los 3 datos', () => {
+  it('emite el pago solo cuando estan los 3 datos', async () => {
     c.elegirPorcentaje(15);
     expect(emitido).toBeNull();
     c.elegirMedio(medios[1]);
     expect(emitido).toBeNull();
     fixture.detectChanges();
-    elegirArchivo(new File(['x'], 'pago.png', { type: 'image/png' }));
+    await elegirArchivo(new File(['x'], 'pago.png', { type: 'image/png' }));
     expect(emitido).toEqual(jasmine.objectContaining({ porcentaje: 15, medio: 'binance' }));
     expect(emitido.archivo.name).toBe('pago.png');
     expect(fixture.nativeElement.textContent).toContain('El resto ($34)');
@@ -52,14 +53,14 @@ describe('PagoComponent', () => {
     expect(fixture.nativeElement.querySelector('.datos').textContent).toContain('pagos@dube.com');
   });
 
-  it('rechaza archivos que no son imagen o muy pesados', () => {
-    elegirArchivo(new File(['x'], 'pago.pdf', { type: 'application/pdf' }));
+  it('rechaza lo que no es foto; una foto que no se pudo achicar y pesa mas de 15 MB tampoco', async () => {
+    await elegirArchivo(new File(['x'], 'pago.pdf', { type: 'application/pdf' }));
     expect(c.archivo).toBeNull();
-    expect(c.error).toContain('imagen');
-    const pesado = new File([new Uint8Array(11 * 1024 * 1024)], 'grande.jpg', { type: 'image/jpeg' });
-    elegirArchivo(pesado);
+    expect(c.error).toContain('no es una foto');
+    // contenido que el navegador no puede abrir: queda la original (16 MB) y se rechaza
+    await elegirArchivo(new File([new Uint8Array(16 * 1024 * 1024)], 'grande.jpg', { type: 'image/jpeg' }));
     expect(c.archivo).toBeNull();
-    expect(c.error).toContain('10 MB');
+    expect(c.error).toContain('15 MB');
   });
 
   it('con un solo medio queda elegido', () => {

@@ -1,19 +1,23 @@
-// formulario de publicacion: tarjeta blanca dentro del menu (mismo estilo que el resto de la app)
+// formulario de publicacion: tarjeta blanca dentro del menu
 .registro { width: 100%; max-width: 520px; margin: 0 auto; padding: 0 16px 24px; box-sizing: border-box; }
 form { display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: 20px; background: #fff; color: #1d1a1d; }
-label { margin-top: 8px; font-size: 14px; font-weight: 600; }
+label, .etiqueta { margin-top: 8px; font-size: 14px; font-weight: 600; }
+.etiqueta small, .ayuda, .contador { font-size: 12px; font-weight: 400; color: #6c656c; }
+.contador { align-self: flex-end; }
 input[type="text"], textarea { width: 100%; box-sizing: border-box; padding: 12px 14px; border: 1px solid #d8d2d8; border-radius: 12px; background: #fff; box-shadow: none; color: #1d1a1d; font: inherit; font-size: 16px !important; font-weight: 400; }
-textarea { resize: vertical; min-height: 80px; }
-.contador { align-self: flex-end; font-size: 12px; color: #6c656c; }
-
-.foto { position: relative; display: flex; align-items: center; justify-content: center; margin: 0; aspect-ratio: 16 / 9; border: 1.5px dashed #a59ea5; border-radius: 16px; background: #f1eef1; overflow: hidden; cursor: pointer; }
+textarea { resize: vertical; min-height: 72px; }
+.fotos { display: flex; gap: 8px; overflow-x: auto; }
+.miniatura { position: relative; flex: none; width: 88px; height: 88px; border-radius: 12px; overflow: hidden; background: #f1eef1; display: grid; place-items: center; }
+.miniatura img { width: 100%; height: 100%; object-fit: cover; }
+.nombre-archivo { padding: 4px; font-size: 10px; word-break: break-all; }
+.quitar { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%; background: rgba(29, 26, 29, .8); color: #fff; font-size: 16px; line-height: 1; cursor: pointer; }
+.foto { position: relative; display: flex; align-items: center; justify-content: center; margin: 0; aspect-ratio: 16 / 9; border: 1.5px dashed #a59ea5; border-radius: 16px; background: #f1eef1; cursor: pointer; }
+.foto.chica { aspect-ratio: auto; padding: 14px; }
 .foto input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-.foto.con-foto { border-style: solid; border-color: #e2dde2; }
-.foto img { width: 100%; height: 100%; object-fit: cover; }
 .elegir { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #3d363d; pointer-events: none; }
 .elegir small { font-size: 12px; font-weight: 400; color: #6c656c; }
-.nombre-archivo { padding: 0 16px; font-size: 14px; color: #3d363d; word-break: break-all; pointer-events: none; }
-.cambiar { position: absolute; right: 10px; bottom: 10px; padding: 6px 12px; border-radius: 999px; background: rgba(29, 26, 29, .8); color: #fff; font-size: 13px; pointer-events: none; }
-
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips button { padding: 7px 12px; border: 1px solid #d8d2d8; border-radius: 999px; background: #fff; font: inherit; font-size: 13px; color: #1d1a1d; cursor: pointer; }
+.chips .sel { background: #000; border-color: #000; color: #fff; }
 .publicar { margin-top: 12px; padding: 14px; border: 0; border-radius: 999px; background: #000; color: #fff; font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; }
 .publicar:disabled { opacity: .5; }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { NoticiasComponent } from './components/noticias/noticias.component';
 import { HomeComponent } from './home.component';
 import { HomeRouter } from './home-routing';
+import { PostComponent } from './components/post/post.component';
 
 
 @NgModule({
@@ -12,7 +13,8 @@ import { HomeRouter } from './home-routing';
   ],
   imports: [
     CommonModule,
-    HomeRouter
+    HomeRouter,
+    PostComponent
   ],
   exports:[
     NoticiasComponent,

@@ -3,11 +3,11 @@ import { CommonModule } from '@angular/common';
 import { PagoElegido } from 'src/app/services/agenda.service';
 import { MedioPago } from 'src/app/services/contenido.service';
 import { formatoDinero } from 'src/app/services/disponibilidad.service';
+import { despuesDeComprimir, problemaFoto } from 'src/app/shared/validar-foto';
+import { comprimirImagen, PARA_COMPROBANTE } from 'src/app/shared/comprimir-imagen';
 
 export interface OpcionPago { porcentaje: number; monto: number; }
 
-const MAX_MB = 10;
-const TIPOS = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
 
 // montos de cada porcentaje sobre el total (igual que la API: pesos enteros)
 export const opcionesDePago = (total: number, porcentajes: number[]): OpcionPago[] =>
@@ -36,6 +36,8 @@ export class PagoComponent implements OnChanges, OnDestroy {
   archivo: File | null = null;
   vistaPrevia: string | null = null;
   error = '';
+  // comprimiendo la foto elegida
+  preparando = false;
   copiado = false;
   readonly dinero = dinero;
 
@@ -57,18 +59,23 @@ export class PagoComponent implements OnChanges, OnDestroy {
     try { await navigator.clipboard.writeText(this.medio.datos); this.copiado = true; } catch { this.copiado = false; }
   }
 
-  elegirArchivo(evento: Event) {
+  // la foto se comprime en el navegador (cualquier foto sirve, incluso HEIC grandes del iPhone)
+  async elegirArchivo(evento: Event) {
     const input = evento.target as HTMLInputElement;
-    const archivo = input.files?.[0] || null;
+    const original = input.files?.[0] || null;
+    input.value = '';
     this.error = '';
-    if (!archivo) return;
-    // algunos iPhone no informan el tipo del HEIC: se acepta por la extension
-    const tipoOk = TIPOS.includes(archivo.type) || /\.(heic|heif)$/i.test(archivo.name);
-    if (!tipoOk) { this.error = 'La captura debe ser una imagen (JPG, PNG, WEBP o HEIC).'; input.value = ''; return; }
-    if (archivo.size > MAX_MB * 1024 * 1024) { this.error = `La imagen pesa más de ${MAX_MB} MB.`; input.value = ''; return; }
+    if (!original) return;
+    const problema = problemaFoto(original);
+    if (problema) { this.error = problema; return; }
+    this.preparando = true;
+    const archivo = await comprimirImagen(original, PARA_COMPROBANTE);
+    this.preparando = false;
+    const pesada = despuesDeComprimir(archivo);
+    if (pesada) { this.error = pesada; return; }
     this.soltarVistaPrevia();
     this.archivo = archivo;
-    this.vistaPrevia = archivo.type.startsWith('image/') && !/heic|heif/i.test(archivo.type) ? URL.createObjectURL(archivo) : null;
+    this.vistaPrevia = archivo.type === 'image/jpeg' || (archivo.type.startsWith('image/') && !/heic|heif/i.test(archivo.type)) ? URL.createObjectURL(archivo) : null;
     this.emitir();
   }
 

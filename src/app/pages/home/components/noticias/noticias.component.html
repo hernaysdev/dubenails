@@ -1,36 +1,17 @@
 <section class="muro">
+    <!-- filtro por servicio -->
+    <div class="filtros" *ngIf="servicios.length" role="toolbar" aria-label="Filtrar por servicio">
+        <button type="button" [class.activo]="!filtro" (click)="filtrar(null)">Todos</button>
+        <button type="button" *ngFor="let s of servicios" [class.activo]="filtro?.id === s.id" (click)="filtrar(s)">{{ s.nombre }}</button>
+    </div>
+
     <p class="msg-ok" *ngIf="mensajeOk" role="status">{{ mensajeOk }}</p>
     <p class="msg-error" *ngIf="mensajeError" role="alert">{{ mensajeError }}</p>
-    <p class="vacio" *ngIf="!datas.length">Aún no hay publicaciones.</p>
+    <p class="meta" *ngIf="cargando">Cargando…</p>
+    <p class="vacio" *ngIf="!cargando && !datas.length">{{ filtro ? 'Aún no hay publicaciones de ' + filtro.nombre + '.' : 'Aún no hay publicaciones.' }}</p>
 
-    <article class="post" *ngFor="let data of datas">
-        <header class="cabecera">
-            <img class="avatar" [src]="autor(data).foto" alt="" referrerpolicy="no-referrer">
-            <div class="quien">
-                <strong>{{ autor(data).nombre }}</strong>
-                <span class="cuando">{{ haceCuanto(data) }}</span>
-            </div>
-            <button *ngIf="rol === 'admin'" type="button" class="mas" (click)="activarMenu(data.id)" aria-label="Opciones de la publicación">⋯</button>
-        </header>
-
-        <div class="opciones" *ngIf="rol === 'admin' && activeMenu && idElement === data.id">
-            <ng-container *ngIf="confirmandoBorrar !== data.id; else confirmar">
-                <button type="button" class="peligro-texto" (click)="confirmandoBorrar = data.id">Eliminar publicación</button>
-            </ng-container>
-            <ng-template #confirmar>
-                <span>¿Eliminar esta publicación?</span>
-                <button type="button" (click)="confirmandoBorrar = null; activeMenu = false">No</button>
-                <button type="button" class="peligro" (click)="borrarArticulo(data.id)">Sí, eliminar</button>
-            </ng-template>
-        </div>
-
-        <img class="foto" [src]="data.img" [alt]="data.nombre" loading="lazy">
-
-        <div class="texto">
-            <h2>{{ data.nombre }}</h2>
-            <p>{{ data.descripcion }}</p>
-        </div>
-    </article>
+    <app-post *ngFor="let p of datas; trackBy: porId" [post]="p" [rol]="rol" [logueado]="logueado" [destacada]="p.id === destacada"
+        (borrar)="borrarArticulo($event)" (filtrar)="filtrar($event)"></app-post>
 
     <button *ngIf="hayMas" type="button" class="ver-mas" (click)="verMas()" [disabled]="cargandoMas">
         {{ cargandoMas ? 'Cargando…' : 'Ver más publicaciones' }}

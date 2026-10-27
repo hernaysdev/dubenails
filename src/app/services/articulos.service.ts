@@ -14,8 +14,9 @@ export class ArticulosService {
   ) {}
 
 
-  getArticulos(limit:Number){
-    return this.http.get<any>(`${this.url}/${limit}`)
+  // servicio: id para filtrar el Muro por servicio
+  getArticulos(limit:Number, servicio?: string | null){
+    return this.http.get<any>(`${this.url}/${limit}`, servicio ? { params: { servicio } } : {})
     .pipe(map((data) => {
       return data;
   })
@@ -51,4 +52,31 @@ export class ArticulosService {
     )
   }
 
+
+  // ---------- Muro: una publicacion, me gusta y comentarios ----------
+
+  getArticulo(id: string) {
+    return this.http.get<any>(`${this.url}/post/${id}`);
+  }
+
+  meGusta(id: string) {
+    return this.http.post<{ meGustas: number; meGusta: boolean }>(`${this.url}/${id}/like`, {})
+      .pipe(catchError((e) => throwError(() => e?.error?.msg || 'No pudimos guardar tu me gusta.')));
+  }
+
+  comentarios(id: string) {
+    return this.http.get<ComentarioMuro[]>(`${this.url}/${id}/comentarios`);
+  }
+
+  comentar(id: string, texto: string) {
+    return this.http.post<ComentarioMuro>(`${this.url}/${id}/comentarios`, { texto })
+      .pipe(catchError((e) => throwError(() => e?.error?.msg || 'No pudimos guardar el comentario.')));
+  }
+
+  borrarComentario(id: string) {
+    return this.http.delete<any>(`${this.url}/comentarios/${id}`)
+      .pipe(catchError((e) => throwError(() => e?.error?.msg || 'No pudimos borrar el comentario.')));
+  }
 }
+
+export interface ComentarioMuro { id: string; texto: string; creado: string; autor: string; foto: string | null; esAdmin: boolean; puedeBorrar: boolean; }

@@ -1,0 +1,64 @@
+<article class="post" [class.destacada]="destacada" [attr.id]="'post-' + post.id">
+  <header class="cabecera">
+    <img class="avatar" [src]="autor.foto" alt="" referrerpolicy="no-referrer">
+    <div class="quien"><strong>{{ autor.nombre }}</strong><span>{{ cuando }}</span></div>
+    <button *ngIf="rol === 'admin'" type="button" class="icono" (click)="menu = !menu; confirmandoBorrar = false" aria-label="Opciones">⋯</button>
+  </header>
+
+  <div class="opciones" *ngIf="menu">
+    <button *ngIf="!confirmandoBorrar" type="button" class="rojo" (click)="confirmandoBorrar = true">Eliminar publicación</button>
+    <ng-container *ngIf="confirmandoBorrar">
+      <span>¿Eliminar esta publicación?</span>
+      <button type="button" (click)="menu = false">No</button>
+      <button type="button" class="lleno" (click)="borrar.emit(post.id)">Sí, eliminar</button>
+    </ng-container>
+  </div>
+
+  <!-- carrusel: se desliza con el dedo; los puntos muestran cual se ve -->
+  <div class="fotos" #fotos (scroll)="alDeslizar(fotos)">
+    <img *ngFor="let img of post.imgs; let i = index" [src]="img" [alt]="post.nombre + (post.imgs.length > 1 ? ' (' + (i + 1) + ')' : '')" loading="lazy">
+  </div>
+  <div class="puntos" *ngIf="post.imgs.length > 1">
+    <button *ngFor="let img of post.imgs; let i = index" type="button" [class.activo]="i === foto" (click)="irAFoto(fotos, i)" [attr.aria-label]="'Foto ' + (i + 1)"></button>
+  </div>
+
+  <div class="acciones">
+    <button type="button" class="accion" [class.gusta]="post.meGusta" (click)="meGusta()" [attr.aria-pressed]="post.meGusta" aria-label="Me gusta">
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.4C1.5 7.9 3.7 4.5 7.2 4.5c2 0 3.6 1.1 4.8 2.8 1.2-1.7 2.8-2.8 4.8-2.8 3.5 0 5.7 3.4 4.5 6.6-1.8 4.8-9.3 9.4-9.3 9.4z"/></svg>
+      <span>{{ post.meGustas }}</span>
+    </button>
+    <button type="button" class="accion" (click)="alternarComentarios()" [attr.aria-expanded]="verComentarios" aria-label="Comentarios">
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z" class="linea"/></svg>
+      <span>{{ post.comentarios }}</span>
+    </button>
+    <button type="button" class="accion" (click)="compartir()" aria-label="Compartir">
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 12v7h16v-7M12 3v12M7 8l5-5 5 5" class="linea"/></svg>
+    </button>
+  </div>
+  <p class="aviso" *ngIf="aviso">{{ aviso }}</p>
+
+  <div class="texto">
+    <h2>{{ post.nombre }}</h2>
+    <p>{{ post.descripcion }}</p>
+  </div>
+
+  <div class="servicios" *ngIf="post.servicios.length">
+    <button type="button" class="chip" *ngFor="let s of post.servicios" (click)="filtrar.emit(s)">{{ s.nombre }}</button>
+    <button type="button" class="quiero" (click)="quieroEsteDiseno()">Quiero este diseño</button>
+  </div>
+
+  <section class="comentarios" *ngIf="verComentarios">
+    <p class="meta" *ngIf="cargandoComentarios">Cargando…</p>
+    <p class="meta" *ngIf="!cargandoComentarios && !comentarios.length">Sé la primera en comentar.</p>
+    <div class="comentario" *ngFor="let c of comentarios">
+      <p><strong>{{ c.autor }}</strong> {{ c.texto }}</p>
+      <span class="meta">{{ haceCuanto(fechaDeId(c.id)) }}</span>
+      <button *ngIf="c.puedeBorrar" type="button" class="borrar" (click)="borrarComentario(c)">Borrar</button>
+    </div>
+    <form *ngIf="logueado; else entrar" (submit)="$event.preventDefault(); comentar()" class="nuevo">
+      <input type="text" maxlength="300" placeholder="Escribe un comentario…" [value]="nuevoComentario" (input)="nuevoComentario = $any($event.target).value" aria-label="Escribe un comentario">
+      <button type="submit" [disabled]="enviando || !nuevoComentario.trim()">Enviar</button>
+    </form>
+    <ng-template #entrar><p class="meta">Inicia sesión para comentar.</p></ng-template>
+  </section>
+</article>

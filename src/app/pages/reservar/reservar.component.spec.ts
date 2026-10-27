@@ -273,4 +273,10 @@ describe('ReservarComponent (reserva guiada)', () => {
       expect(c.pagoEnviado).toBeFalse();
     });
   });
+
+  it('"Quiero este diseño" del Muro (?marcar=k1,p1) deja marcados varios servicios', () => {
+    crear(null, true, null, 'k1,p1');
+    expect(c.paso).toBe('servicio');
+    expect(c.elegidos.map(s => s.id)).toEqual(['k1', 'p1']);
+  });
 });

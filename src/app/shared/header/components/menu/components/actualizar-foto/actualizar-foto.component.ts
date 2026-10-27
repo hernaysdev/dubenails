@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { EventsService } from 'src/app/services/events.service';
-import { problemaFoto } from 'src/app/shared/validar-foto';
+import { despuesDeComprimir, problemaFoto } from 'src/app/shared/validar-foto';
+import { comprimirImagen, PARA_PERFIL } from 'src/app/shared/comprimir-imagen';
 
 @Component({
   selector: 'app-actualizar-foto',
@@ -21,12 +22,17 @@ export class ActualizarFotoComponent implements OnInit {
   }
 
 
-  cargarImg(event:any){
+  // la foto se comprime en el navegador antes de subirla (cualquier foto sirve)
+  async cargarImg(event:any){
     const archivo: File | undefined = event.target.files?.[0];
+    event.target.value = '';
     this.mensajeError = problemaFoto(archivo);
-    // una foto que no sirve no se guarda (y se puede volver a elegir la misma)
-    this.img = this.mensajeError ? null : archivo;
-    if (this.mensajeError) event.target.value = '';
+    if (this.mensajeError || !archivo) { this.img = null; return; }
+    this.subiendo = true;
+    const comprimida = await comprimirImagen(archivo, PARA_PERFIL);
+    this.subiendo = false;
+    this.mensajeError = despuesDeComprimir(comprimida);
+    this.img = this.mensajeError ? null : comprimida;
   }
 
   mensajeOk = '';

@@ -24,7 +24,7 @@
     <!-- solo image/*: con extensiones (.heic) Android abre "Archivos" en vez de la galeria y la camara -->
     <input type="file" accept="image/*" (change)="elegirArchivo($event)">
     <span>Elegir imagen</span>
-    <small class="meta">Foto o captura de pantalla del comprobante (hasta 10 MB)</small>
+    <small class="meta">{{ preparando ? 'Preparando la foto…' : 'Foto o captura de pantalla del comprobante' }}</small>
   </label>
   <div class="archivo" *ngIf="archivo">
     <img *ngIf="vistaPrevia" [src]="vistaPrevia" alt="Vista previa de la captura">

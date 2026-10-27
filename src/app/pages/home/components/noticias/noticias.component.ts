@@ -1,154 +1,126 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { NovedadesService } from 'src/app/services/novedades.service';
 import { ArticulosService } from 'src/app/services/articulos.service';
 import { EventsService } from 'src/app/services/events.service';
 import { SharedService } from 'src/app/services/shared.service';
-import { Router } from '@angular/router';
+import { DisponibilidadService, Servicio } from 'src/app/services/disponibilidad.service';
+import { PostMuro } from '../post/post.component';
+
+// Muro: publicaciones (con me gusta, comentarios y "Quiero este diseño"), filtro por servicio,
+// "Ver mas" y link compartido (/articulos?p=<id> la muestra destacada arriba).
 @Component({
   selector: 'app-noticias',
   templateUrl: './noticias.component.html',
   styleUrls: ['./noticias.component.scss']
 })
 export class NoticiasComponent implements OnInit, OnDestroy {
-   public datas : any[] = [];
-   public activeMenu : boolean = false;
-   public rol : string = '';
-   public idElement : string = '';
-   // cuantas publicaciones se piden (la API entrega hasta 50); "Ver mas" suma de a 10
-   public limite = 10;
-   public hayMas = false;
-   public cargandoMas = false;
-   public confirmandoBorrar: string | null = null;
-   private readonly LOGO = 'https://res.cloudinary.com/mas58/image/upload/v1721692094/usuariosPerfil/tmp-2-1721692094727_cfyyxz.jpg';
+  datas: PostMuro[] = [];
+  rol = '';
+  logueado = false;
+  // cuantas publicaciones se piden (la API entrega hasta 50); "Ver mas" suma de a 10
+  limite = 10;
+  hayMas = false;
+  cargando = true;
+  cargandoMas = false;
+  servicios: Servicio[] = [];
+  filtro: { id: string; nombre: string } | null = null;
+  destacada: string | null = null;
+  mensajeOk = '';
+  mensajeError = '';
+  private subs: Subscription[] = [];
+
   constructor(
-    private articulosService : ArticulosService,
-    private eventsService : EventsService,
-    private sharedService :SharedService,
-    private router :Router,
-    private novedades: NovedadesService
+    private articulosService: ArticulosService,
+    private eventsService: EventsService,
+    private sharedService: SharedService,
+    private route: ActivatedRoute,
+    private novedades: NovedadesService,
+    private disponibilidad: DisponibilidadService,
   ) { }
 
-  private subNovedades?: Subscription;
-
   ngOnInit(): void {
-   this.sharedService.getRolUser().subscribe((data) => {
-    this.rol = data?.rol;
-   });
-    this.traerArticulos();
-    this.cargaArticulosAsync();
+    this.subs.push(this.sharedService.getRolUser().subscribe((data) => {
+      this.rol = data?.rol || '';
+      this.logueado = !!localStorage.getItem('token');
+    }));
+    this.destacada = this.route.snapshot.queryParamMap.get('p');
+    this.disponibilidad.servicios().subscribe({ next: (s) => this.servicios = s, error: () => this.servicios = [] });
+    this.cargar();
+    // publicacion nueva desde el formulario del menu
+    this.subs.push(this.eventsService.cargaArticulos.subscribe((nuevo: any) => {
+      this.datas.unshift(this.mapear(nuevo));
+    }));
     // abrio el Muro: el globo del menu vuelve a cero; si alguien publica mientras lo mira, se agrega solo
     this.novedades.marcarMuroVisto();
-    this.subNovedades = this.novedades.cambios$.subscribe(c => {
+    this.subs.push(this.novedades.cambios$.subscribe(c => {
       if (c !== 'muro') return;
-      this.recargar();
+      this.cargar(true);
       this.novedades.marcarMuroVisto();
-    });
+    }));
   }
 
-  ngOnDestroy(): void { this.subNovedades?.unsubscribe(); }
+  ngOnDestroy(): void { this.subs.forEach(s => s.unsubscribe()); }
 
-  // trae las ultimas publicaciones de la API (sin la copia guardada)
-  recargar() {
-    this.articulosService.getArticulos(this.limite).subscribe({ next: (data) => {
-      this.cargandoMas = false;
-      this.datas = data.map((element: any) => this.mapear(element));
-      this.hayMas = data.length >= this.limite && this.limite < 50;
-      this.sharedService.setArticulos(this.datas);
-    }, error: () => { this.cargandoMas = false; } });
-  }
-
-
-
-
-
-  // la API trae el autor (nombre, foto, rol); la foto se pide en jpg
-  private mapear(element: any) {
-    const img = element.img.split('.');
+  // la API entrega el autor, las fotos (carrusel), los servicios, los me gusta y los comentarios
+  private mapear(a: any): PostMuro {
+    const fotos: string[] = (a.imgs?.length ? a.imgs : [a.img]).filter(Boolean);
     return {
-      nombre: element.nombre.trim(), fecha: element.fecha, usuario: element.usuario, descripcion: element.descripcion,
-      img: img[0] + '.' + img[1] + '.' + img[2] + '.jpg', id: element._id,
+      id: a._id || a.id, nombre: String(a.nombre || '').trim(), descripcion: a.descripcion, fecha: a.fecha,
+      // las fotos se piden en jpg (los HEIC del iPhone no se ven en todos los navegadores)
+      imgs: fotos.map(url => url.replace(/\.[a-z0-9]+$/i, '.jpg')),
+      servicios: a.servicios || [], meGustas: a.meGustas || 0, meGusta: !!a.meGusta, comentarios: a.comentarios || 0,
+      usuario: a.usuario,
     };
   }
 
-  // la admin publica como "DubeNails" con el logo; el resto con su nombre y su foto
-  autor(data: any) {
-    const u = data.usuario;
-    if (!u || typeof u !== 'object' || u.rol === 'admin') return { nombre: 'DubeNails', foto: this.LOGO };
-    return { nombre: u.nombre || 'Clienta', foto: u.image || this.LOGO };
+  porId(_: number, p: PostMuro) { return p.id; }
+
+  cargar(silencioso = false) {
+    if (!silencioso) this.cargando = true;
+    this.articulosService.getArticulos(this.limite, this.filtro?.id).subscribe({
+      next: (data: any[]) => {
+        this.cargando = false; this.cargandoMas = false;
+        this.datas = data.map(a => this.mapear(a));
+        this.hayMas = data.length >= this.limite && this.limite < 50;
+        this.mostrarDestacada();
+      },
+      error: () => { this.cargando = false; this.cargandoMas = false; this.mensajeError = 'No pudimos cargar el Muro. Intenta de nuevo.'; },
+    });
   }
 
-  // "hace 5 min", "hace 3 h", "ayer", "hace 4 días" o "23 de abril" (por la fecha de creacion del id)
-  haceCuanto(data: any) {
-    const id = String(data.id || '');
-    const creado = /^[0-9a-f]{24}$/.test(id) ? new Date(parseInt(id.slice(0, 8), 16) * 1000) : null;
-    if (!creado) return data.fecha || '';
-    const min = Math.floor((Date.now() - creado.getTime()) / 60000);
-    if (min < 1) return 'ahora';
-    if (min < 60) return `hace ${min} min`;
-    const h = Math.floor(min / 60);
-    if (h < 24) return `hace ${h} h`;
-    const dias = Math.floor(h / 24);
-    if (dias === 1) return 'ayer';
-    if (dias < 7) return `hace ${dias} días`;
-    const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-    const mismoAnio = creado.getFullYear() === new Date().getFullYear();
-    return `${creado.getDate()} de ${meses[creado.getMonth()]}${mismoAnio ? '' : ' de ' + creado.getFullYear()}`;
+  // link compartido: si la publicacion no esta entre las ultimas, se trae y se pone arriba
+  private mostrarDestacada() {
+    const id = this.destacada;
+    if (!id) return;
+    const ir = () => setTimeout(() => document.getElementById('post-' + id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    if (this.datas.some(p => p.id === id)) { ir(); return; }
+    this.articulosService.getArticulo(id).subscribe({
+      next: (a) => { this.datas.unshift(this.mapear(a)); ir(); },
+      error: () => { this.mensajeError = 'Esa publicación ya no está en el Muro.'; this.destacada = null; },
+    });
+  }
+
+  filtrar(s: { id: string; nombre: string } | null) {
+    this.filtro = s && s.id !== this.filtro?.id ? { id: String(s.id), nombre: s.nombre } : null;
+    this.limite = 10;
+    this.destacada = null;
+    this.cargar();
+    document.querySelector('.muro')?.scrollIntoView({ behavior: 'smooth' });
   }
 
   verMas() {
     this.limite = Math.min(this.limite + 10, 50);
     this.cargandoMas = true;
-    this.recargar();
+    this.cargar(true);
   }
 
-  traerArticulos(){
-    const limit = this.limite;
-
-     this.sharedService.getArticulos().subscribe(data => {
-      if(data === null){
-        this.articulosService.getArticulos(limit).subscribe({next:(data) =>{
-          this.datas = data.map((element: any) => this.mapear(element));
-          this.hayMas = data.length >= this.limite && this.limite < 50;
-          this.sharedService.setArticulos(this.datas);
-        },error: (error)=>{
-        console.log(error)
-        }})
-      }else{
-       this.sharedService.getArticulos().subscribe(data => {
-        this.datas = data;
-        })
-      }
-     })
-  }
-
-  cargaArticulosAsync(){
-   this.eventsService.cargaArticulos.subscribe(data => {
-    data.id = data._id;
-    this.datas.unshift(data);
-    this.sharedService.setArticulos(this.datas);
-   })
-  }
-
-  activarMenu(id:string){
-    this.idElement = id;
-    this.activeMenu = !this.activeMenu;
-  }
-
-  mensajeOk = '';
-  mensajeError = '';
-
-  borrarArticulo(id:string){
+  borrarArticulo(id: string) {
     this.mensajeOk = ''; this.mensajeError = '';
-    this.articulosService.deleteArticulos(id).subscribe({next:() => {
-        this.datas = this.datas.filter(e => e.id !== id);
-        this.activeMenu = false;
-        this.confirmandoBorrar = null;
-        this.mensajeOk = 'La publicación se borró del Muro.';
-    },error:()=> {
-       this.activeMenu = false;
-       this.mensajeError = 'No pudimos borrar la publicación. Intenta de nuevo.';
-    }})
+    this.articulosService.deleteArticulos(id).subscribe({
+      next: () => { this.datas = this.datas.filter(e => e.id !== id); this.mensajeOk = 'La publicación se borró del Muro.'; },
+      error: () => { this.mensajeError = 'No pudimos borrar la publicación. Intenta de nuevo.'; },
+    });
   }
-
 }
