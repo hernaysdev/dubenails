@@ -67,8 +67,9 @@ export class MenuComponent implements OnInit {
   validarRol() {
     this.sharedService.getRolUser().subscribe((data: any) => {
       this.rolUser = data?.rol;
-      if (data === null) {
-        const token = localStorage.getItem('token') as string;
+      const token = localStorage.getItem('token');
+      // sin sesion no hay nada que consultar (la clienta que abre el link de confirmar)
+      if (data === null && token) {
         this.usuariosService.autorizarToken(token).subscribe({
           next: (data: any) => {
             this.rolUser = data.rol;
@@ -173,8 +174,8 @@ export class MenuComponent implements OnInit {
 
   getusuario() {
     this.router
-    const id = localStorage.getItem('token') as string;
-
+    const id = localStorage.getItem('token');
+    if (!id) return;
     this.usuariosService.getUsuario(id).subscribe({
       next: (data: UsuarioData) => {
         this.sharedService.setDataUsuario(data)
