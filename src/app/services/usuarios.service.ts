@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { catchError, map, throwError } from 'rxjs';
+import { catchError, map, throwError, timeout } from 'rxjs';
+import { ESPERA_SUBIDA_MS } from '../shared/validar-foto';
 import { SharedService } from './shared.service';
 
 @Injectable({
@@ -92,7 +93,10 @@ export class UsuariosService {
   }
 
   cargaImg(formData:any , id:string){
-    return this.http.put<any>(`${this.url}usuarioImg/${id}`, formData);
+    return this.http.put<any>(`${this.url}usuarioImg/${id}`, formData).pipe(
+      timeout(ESPERA_SUBIDA_MS),
+      catchError((error) => throwError(() => error?.name === 'TimeoutError' ? 'El servidor tardó demasiado. Revisa tu conexión e intenta de nuevo.' : error)),
+    );
   }
 
   actualizarUsuario(body:any , id:string){

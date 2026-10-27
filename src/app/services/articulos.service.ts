@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { catchError, map, throwError } from 'rxjs';
+import { catchError, map, throwError, timeout } from 'rxjs';
+import { ESPERA_SUBIDA_MS } from '../shared/validar-foto';
 
 @Injectable({
   providedIn: 'root'
@@ -28,11 +29,13 @@ export class ArticulosService {
 
   saveArticulos(formData:any){
     return this.http.post<any>(`${this.url}`, formData)
-    .pipe(map((data) => {
+    .pipe(timeout(ESPERA_SUBIDA_MS), map((data) => {
         return data;
     })
     ,catchError((error) => {
-      return throwError(() => error.error.msg)
+      // sin respuesta a tiempo o error sin mensaje (ej. el proxy cortó): mensaje claro
+      if (error?.name === 'TimeoutError') return throwError(() => 'El servidor tardó demasiado. Revisa tu conexión e intenta de nuevo.');
+      return throwError(() => error?.error?.msg || '')
     })
     )
   }

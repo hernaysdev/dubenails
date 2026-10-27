@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { EventsService } from 'src/app/services/events.service';
+import { problemaFoto } from 'src/app/shared/validar-foto';
 
 @Component({
   selector: 'app-actualizar-foto',
@@ -21,7 +22,11 @@ export class ActualizarFotoComponent implements OnInit {
 
 
   cargarImg(event:any){
-    this.img = event.target.files[0];
+    const archivo: File | undefined = event.target.files?.[0];
+    this.mensajeError = problemaFoto(archivo);
+    // una foto que no sirve no se guarda (y se puede volver a elegir la misma)
+    this.img = this.mensajeError ? null : archivo;
+    if (this.mensajeError) event.target.value = '';
   }
 
   mensajeOk = '';
