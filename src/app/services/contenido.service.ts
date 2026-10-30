@@ -25,6 +25,32 @@ const DIA_HABIL: DiaHorario = { abre: 9, cierra: 22, almuerzo: [13, 14] };
 /** El de siempre (lun-sab 9 a 22, almuerzo 13 a 14, domingo cerrado): rige mientras no llegue el de la API. */
 export const HORARIO_POR_DEFECTO: Horario = { dias: [null, DIA_HABIL, DIA_HABIL, DIA_HABIL, DIA_HABIL, DIA_HABIL, DIA_HABIL] };
 
+const NOMBRES_DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+const hora = (h: number) => `${Math.floor(h)}:${h % 1 ? '30' : '00'}`;
+const mayuscula = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+
+/**
+ * Horario en una linea para la portada: junta los dias seguidos con el mismo horario (la semana parte el lunes).
+ * El de siempre: "Lunes a sábado · 9:00 a 22:00".
+ */
+export const resumenHorario = (h: Horario): string => {
+  const orden = [1, 2, 3, 4, 5, 6, 0];
+  const grupos: { desde: number; hasta: number; abre: number; cierra: number }[] = [];
+  for (const i of orden) {
+    const d = h.dias[i];
+    if (!d) continue;
+    const ultimo = grupos.at(-1);
+    const seguido = ultimo && orden.indexOf(ultimo.hasta) === orden.indexOf(i) - 1;
+    if (ultimo && seguido && ultimo.abre === d.abre && ultimo.cierra === d.cierra) ultimo.hasta = i;
+    else grupos.push({ desde: i, hasta: i, abre: d.abre, cierra: d.cierra });
+  }
+  const textos = grupos.map(g => {
+    const dias = g.desde === g.hasta ? mayuscula(NOMBRES_DIAS[g.desde]) : `${mayuscula(NOMBRES_DIAS[g.desde])} a ${NOMBRES_DIAS[g.hasta]}`;
+    return `${dias} · ${hora(g.abre)} a ${hora(g.cierra)}`;
+  });
+  return textos.join(' · ');
+};
+
 // contenido editable por la admin (lectura publica; el token lo agrega AuthInterceptor)
 @Injectable({ providedIn: 'root' })
 export class ContenidoService {

@@ -3,7 +3,7 @@
     <h1>Reserva tu hora en minutos</h1>
     <p>Elige el servicio, el día y la hora que te acomoden.</p>
     <a class="reservar" routerLink="/reservar">Reservar hora</a>
-    <p class="horario">Lunes a sábado · 9:00 a 22:00</p>
+    <p class="horario">{{ horario }}</p>
   </div>
 
   <div class="servicios" *ngIf="servicios.length">

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ContenidoService, HORARIO_POR_DEFECTO, resumenHorario } from 'src/app/services/contenido.service';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
@@ -15,7 +16,7 @@ describe('MenuComponent (servicios de la portada)', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [MenuComponent],
-      providers: [provideRouter([]), { provide: DisponibilidadService, useValue: { servicios: () => of(servicios) } }],
+      providers: [provideRouter([]), { provide: DisponibilidadService, useValue: { servicios: () => of(servicios) } }, { provide: ContenidoService, useValue: { horario: () => of(HORARIO_POR_DEFECTO) } }],
     }).compileComponents();
     fixture = TestBed.createComponent(MenuComponent);
     fixture.detectChanges();
@@ -65,5 +66,17 @@ describe('MenuComponent (servicios de la portada)', () => {
     tarjetas()[0].click(); fixture.detectChanges();
     el().querySelector<HTMLElement>('.modal h3')!.click(); fixture.detectChanges();
     expect(el().querySelector('[role="dialog"]')).not.toBeNull();
+  });
+
+  describe('resumenHorario', () => {
+    const d = (abre: number, cierra: number) => ({ abre, cierra, almuerzo: null });
+    it('el de siempre sale igual que antes', () => {
+      expect(resumenHorario(HORARIO_POR_DEFECTO)).toBe('Lunes a sábado · 9:00 a 22:00');
+    });
+    it('junta los dias seguidos con el mismo horario y separa los distintos', () => {
+      expect(resumenHorario({ dias: [d(11, 16), d(9, 22), d(9, 22), d(9, 22), d(9, 22), d(9, 22), d(9, 15.5)] }))
+        .toBe('Lunes a viernes · 9:00 a 22:00 · Sábado · 9:00 a 15:30 · Domingo · 11:00 a 16:00');
+      expect(resumenHorario({ dias: [null, d(10, 19), null, d(10, 19), null, null, null] })).toBe('Lunes · 10:00 a 19:00 · Miércoles · 10:00 a 19:00');
+    });
   });
 });

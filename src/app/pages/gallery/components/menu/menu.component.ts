@@ -2,6 +2,7 @@ import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DisponibilidadService, Servicio, formatoDuracion, partesNombre } from 'src/app/services/disponibilidad.service';
+import { ContenidoService, HORARIO_POR_DEFECTO, resumenHorario } from 'src/app/services/contenido.service';
 
 // Portada: invita a reservar. Sin precios (se ven al elegir el servicio en /reservar).
 // Cada servicio abre un modal con su descripcion (la escribe la admin en Productos).
@@ -14,17 +15,20 @@ import { DisponibilidadService, Servicio, formatoDuracion, partesNombre } from '
 })
 export class MenuComponent implements OnInit {
   servicios: Servicio[] = [];
+  /** horario de atencion en una linea (el que guardo la admin; mientras carga, el de siempre) */
+  horario = resumenHorario(HORARIO_POR_DEFECTO);
   abierto: Servicio | null = null;
   readonly duracion = formatoDuracion;
   readonly partes = partesNombre;
   @ViewChild('botonCerrar') botonCerrar?: ElementRef<HTMLButtonElement>;
   private origen: HTMLElement | null = null;
 
-  constructor(private disponibilidad: DisponibilidadService) { }
+  constructor(private disponibilidad: DisponibilidadService, private contenido: ContenidoService) { }
 
   ngOnInit(): void {
     // si la API falla, la portada igual muestra el boton para reservar
     this.disponibilidad.servicios().subscribe({ next: (s) => this.servicios = s, error: () => this.servicios = [] });
+    this.contenido.horario().subscribe(h => this.horario = resumenHorario(h));
   }
 
   abrir(s: Servicio) {
