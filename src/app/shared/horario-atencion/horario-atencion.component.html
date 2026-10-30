@@ -1,5 +1,5 @@
-<section class="horario" aria-labelledby="t-horario">
-  <h2 id="t-horario">Horario de atención</h2>
+<section class="horario" [class.en-menu]="enMenu" [attr.aria-labelledby]="enMenu ? null : 't-horario'" [attr.aria-label]="enMenu ? 'Horario de atención' : null">
+  <h2 id="t-horario" *ngIf="!enMenu">Horario de atención</h2>
   <p class="meta">Las clientas solo pueden reservar en estos días y horas. Tú puedes agendar fuera de horario. Las citas ya agendadas no cambian.</p>
   <p class="meta" *ngIf="cargando">Cargando…</p>
 

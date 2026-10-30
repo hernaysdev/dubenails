@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ContenidoService, DiaHorario, Horario } from 'src/app/services/contenido.service';
 
@@ -32,6 +32,8 @@ export const revisarSemana = (filas: Fila[]): string => {
   styleUrls: ['./horario-atencion.component.scss']
 })
 export class HorarioAtencionComponent implements OnInit {
+  /** dentro del menu del perfil: sin titulo ni borde (el menu ya muestra "Horario de atención") */
+  @Input() enMenu = false;
   filas: Fila[] = [];
   cargando = true;
   guardando = false;

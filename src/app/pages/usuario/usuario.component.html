@@ -50,9 +50,6 @@
     </div>
   </form>
 
-  <!-- admin: dias y horas en que las clientas pueden reservar -->
-  <app-horario-atencion *ngIf="esAdmin && !editando"></app-horario-atencion>
-
   <!-- admin: medios de pago que ve la clienta al reservar -->
   <app-datos-pago *ngIf="esAdmin && !editando"></app-datos-pago>
 </section>

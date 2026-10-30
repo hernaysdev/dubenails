@@ -29,6 +29,7 @@ export class MenuComponent implements OnInit {
   public showRegistro: boolean = false;
   public showRecuperarClave: boolean = false;
   public lista: boolean = false;
+  public showHorario: boolean = false;
   public showlogin: boolean = false;
   public showRegistroArticulos: boolean = false;
   public usuarioActivo: boolean = false;
@@ -154,7 +155,7 @@ export class MenuComponent implements OnInit {
 
   private ocultarSecciones() {
     this.showRegistro = this.showlogin = this.showActualizarFoto = this.showRegistroArticulos = false;
-    this.showActualizarUser = this.showGift = this.showProductos = this.showRecuperarClave = false;
+    this.showActualizarUser = this.showGift = this.showProductos = this.showRecuperarClave = this.showHorario = false;
   }
 
   private enHistorial(nivel: 'menu' | 'seccion') {
@@ -268,6 +269,12 @@ export class MenuComponent implements OnInit {
 
   cargaArticulo(event: any) {
     this.cerrarModal();
+  }
+
+  // admin: dias y horas en que las clientas pueden reservar
+  horario() {
+    this.abrirSeccion('Horario de atención');
+    this.showHorario = true;
   }
 
   crearGiftCard() {

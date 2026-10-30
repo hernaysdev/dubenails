@@ -17,6 +17,7 @@ import { RegistrarArticulosComponent } from './header/components/menu/components
 import { GiftcardComponent } from './header/components/menu/components/giftcard/giftcard.component';
 import { RecuperarClaveComponent } from "./header/components/menu/components/recuperar-clave/recuperar-clave.component";
 import { RouterModule } from '@angular/router';
+import { HorarioAtencionComponent } from './horario-atencion/horario-atencion.component';
 
 
 
@@ -42,7 +43,8 @@ import { RouterModule } from '@angular/router';
     SpinnerModule,
     FormsModule,
     RecuperarClaveComponent,
-    RouterModule
+    RouterModule,
+    HorarioAtencionComponent
 ],
   exports:[
     FooterComponent,

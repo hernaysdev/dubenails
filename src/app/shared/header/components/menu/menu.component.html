@@ -65,6 +65,9 @@
                             <li><button type="button" (click)="crearGiftCard()">
                                 <svg viewBox="0 0 24 24"><rect x="3.5" y="8" width="17" height="12" rx="2"/><path d="M12 8v12M3.5 12h17M12 8C9 4 6 5 7.5 8M12 8c3-4 6-3 4.5 0"/></svg>
                                 Crear GiftCard</button></li>
+                            <li><button type="button" (click)="horario()">
+                                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+                                Horario de atención</button></li>
                             <li><button type="button" (click)="productos()">
                                 <svg viewBox="0 0 24 24"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>
                                 Productos</button></li>
@@ -77,6 +80,7 @@
                 <app-actualizar-foto [idUser]="id" (imgUser)="imgUserCargada($event)" *ngIf="showActualizarFoto"></app-actualizar-foto>
                 <app-actualizar-user class="f" *ngIf="showActualizarUser"></app-actualizar-user>
                 <app-giftcard *ngIf="showGift"></app-giftcard>
+                <app-horario-atencion *ngIf="showHorario" [enMenu]="true"></app-horario-atencion>
                 <app-productos *ngIf="showProductos"></app-productos>
             </ng-container>
         </div>

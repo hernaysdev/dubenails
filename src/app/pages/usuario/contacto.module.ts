@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { ContactoRoutes } from './contacto-routing-module';
 import { UsuarioComponent } from './usuario.component';
 import { DatosPagoComponent } from './datos-pago/datos-pago.component';
-import { HorarioAtencionComponent } from './horario-atencion/horario-atencion.component';
 
 
 
@@ -16,8 +15,7 @@ import { HorarioAtencionComponent } from './horario-atencion/horario-atencion.co
     CommonModule,
     ReactiveFormsModule,
     ContactoRoutes,
-    DatosPagoComponent,
-    HorarioAtencionComponent
+    DatosPagoComponent
   ]
 })
 export class ContactoModule { }
