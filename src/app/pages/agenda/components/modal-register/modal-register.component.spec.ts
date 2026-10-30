@@ -2,7 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { of, Subject, throwError } from 'rxjs';
 
-import { ModalRegisterComponent } from './modal-register.component';
+import { horasDelDia, ModalRegisterComponent } from './modal-register.component';
+import { ContenidoService } from 'src/app/services/contenido.service';
 import { AgendaService } from 'src/app/services/agenda.service';
 import { EventsService } from 'src/app/services/events.service';
 import { SharedService } from 'src/app/services/shared.service';
@@ -15,6 +16,7 @@ describe('ModalRegisterComponent (year al agendar)', () => {
   let agendaService: jasmine.SpyObj<AgendaService>;
   let router: jasmine.SpyObj<Router>;
   let usuariosService: jasmine.SpyObj<UsuariosService>;
+  const contenido = new ContenidoService({} as any);
 
   beforeEach(() => {
     jasmine.clock().install();
@@ -38,6 +40,7 @@ describe('ModalRegisterComponent (year al agendar)', () => {
         { provide: UsuariosService, useValue: usuariosService },
         { provide: ProductosService, useValue: {} },
         { provide: Router, useValue: router },
+        { provide: ContenidoService, useValue: contenido },
       ],
     }).overrideTemplate(ModalRegisterComponent, '');
 
@@ -124,6 +127,21 @@ describe('ModalRegisterComponent (year al agendar)', () => {
       component.cerrarSugerencias();
       jasmine.clock().tick(250);
       expect(component.listEmail).toEqual([]);
+    });
+  });
+
+  describe('horas de la lista al agendar', () => {
+    afterEach(() => (contenido.horarioVigente = { dias: [null, ...Array(6).fill({ abre: 9, cierra: 22, almuerzo: [13, 14] })] }));
+
+    it('salen del horario de ese dia (de la apertura a media hora antes del cierre)', () => {
+      contenido.horarioVigente = { dias: [null, { abre: 10, cierra: 12, almuerzo: null }, null, null, null, null, null] };
+      // 21 de diciembre de 2026 es lunes
+      expect(horasDelDia(contenido, { day: 21, month: 11, year: 2026 })).toEqual(['10', '10.5', '11', '11.5']);
+    });
+
+    it('dia cerrado o sin fecha: queda la lista de siempre (la admin agenda fuera de horario)', () => {
+      expect(horasDelDia(contenido, { day: 20, month: 11, year: 2026 })).toBeNull(); // domingo
+      expect(horasDelDia(contenido, undefined)).toBeNull();
     });
   });
 });

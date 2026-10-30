@@ -26,7 +26,7 @@
             [class.filter]="colorFilterDia.includes(diaAgenda.dia.toString())"
             [class.hoy]="esHoy(diaAgenda.dia)"
             [class.ocupado]="desfaseMes < 0 || diaAgenda.dia < day && mesActual === mesAgenda && yearActual === year
-            || diaAgenda.diaName === 'domingo'  || diaAgenda.dia  < day +1 && rolUsuario !== 'admin' && mesActual === mesAgenda && yearActual === year"
+            || diaCerrado(diaAgenda.diaName) || diaAgenda.dia  < day +1 && rolUsuario !== 'admin' && mesActual === mesAgenda && yearActual === year"
             [attr.aria-label]="diaAgenda.diaName + ' ' + diaAgenda.dia"
             (click)="modalAgenda(diaAgenda.dia , mesAgenda , diaAgenda.diaName,  day, mesActual, mesAgenda)">
             {{ diaAgenda.dia }}

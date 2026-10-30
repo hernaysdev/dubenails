@@ -9,11 +9,15 @@ import { CalendarioComponent } from './calendario.component';
 import { AgendaService } from 'src/app/services/agenda.service';
 import { SharedService } from 'src/app/services/shared.service';
 import { EventsService } from 'src/app/services/events.service';
+import { ContenidoService, HORARIO_POR_DEFECTO, Horario } from 'src/app/services/contenido.service';
+
+const HORARIO_SIN_SABADO: Horario = { dias: [{ abre: 11, cierra: 16, almuerzo: null }, ...HORARIO_POR_DEFECTO.dias.slice(1, 6), null] };
 
 describe('CalendarioComponent (agenda con year)', () => {
   let component: CalendarioComponent;
   let shared: SharedService;
   let agendaService: jasmine.SpyObj<AgendaService>;
+  let contenido: ContenidoService;
 
   // "hoy" = 15 de diciembre de 2026
   const crear = (hoy = new Date(2026, 11, 15)) => {
@@ -22,6 +26,8 @@ describe('CalendarioComponent (agenda con year)', () => {
     agendaService = jasmine.createSpyObj('AgendaService', ['getTotalValorMes', 'getUsersMes']);
     agendaService.getTotalValorMes.and.returnValue(of(0) as any);
     agendaService.getUsersMes.and.returnValue(of([]) as any);
+    // horario guardado por la admin: abre el domingo y cierra el sabado
+    contenido = new ContenidoService({ get: () => of(HORARIO_SIN_SABADO), put: () => of(HORARIO_SIN_SABADO) } as any);
 
     TestBed.configureTestingModule({
       declarations: [CalendarioComponent],
@@ -31,6 +37,7 @@ describe('CalendarioComponent (agenda con year)', () => {
         { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigateByUrl']) },
         SharedService,
         EventsService,
+        { provide: ContenidoService, useValue: contenido },
       ],
     }).overrideTemplate(CalendarioComponent, '');
 
@@ -151,5 +158,16 @@ describe('CalendarioComponent (agenda con year)', () => {
     shared.setRolUser({ rol: 'admin' } as any);
     shared.setRolUser('');
     expect(component.rolUsuario).toBe('');
+  });
+
+  it('los dias cerrados salen del horario que guardo la admin', () => {
+    crear();
+    expect(component.diaCerrado('domingo')).toBeTrue();   // antes de cargar: el de siempre
+    component.ngOnInit();
+    expect(component.diaCerrado('domingo')).toBeFalse();
+    expect(component.diaCerrado('sábado')).toBeTrue();
+    expect(component.diaCerrado('lunes')).toBeFalse();
+    // la clienta no abre un dia cerrado; la admin si
+    expect(component.modalAgenda(20, '11', 'sábado', 15, 11, 11)).toBeFalse();
   });
 });

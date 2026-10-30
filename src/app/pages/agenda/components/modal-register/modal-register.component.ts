@@ -9,6 +9,20 @@ import { UsuariosService } from 'src/app/services/usuarios.service';
 import { animate, animation, keyframes, state, style, transition, trigger, ɵBrowserAnimationBuilder } from '@angular/animations';
 import { ProductosService } from 'src/app/services/productos.service';
 import { Router } from '@angular/router';
+import { ContenidoService } from 'src/app/services/contenido.service';
+
+/**
+ * Horas que ofrece la lista al agendar: del horario de ese dia (de la apertura a media hora antes del cierre).
+ * Dia cerrado o sin fecha: null (queda la lista de siempre; la admin puede agendar fuera de horario).
+ */
+export const horasDelDia = (contenido: ContenidoService, dia: any): string[] | null => {
+  if (!dia || dia.day === undefined || dia.month === undefined) return null;
+  const h = contenido.horarioDelDia(Number(dia.year ?? moment().year()), Number(dia.month), Number(dia.day));
+  if (!h) return null;
+  const horas: string[] = [];
+  for (let x = h.abre; x < h.cierra; x += 0.5) horas.push(String(x));
+  return horas;
+};
 
 @Component({
   selector: 'app-modal-register',
@@ -97,7 +111,8 @@ export class ModalRegisterComponent implements OnInit {
     private sharedService: SharedService,
     private usuariosService: UsuariosService,
     private _productosService: ProductosService,
-    private router: Router
+    private router: Router,
+    private contenido: ContenidoService
   ) {
     moment.locale('es');
     this.formGroup = this.formBuilder.group({
@@ -113,6 +128,7 @@ export class ModalRegisterComponent implements OnInit {
     this.cambiosForm();
     this.setDataCliente();
     this.getProductos()
+    this.listaHora = horasDelDia(this.contenido, this.dia) ?? this.listaHora;
 
     let contador = 0.5;
     this.horas.forEach((h: any) => {

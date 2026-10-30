@@ -8,6 +8,7 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { EventsService } from 'src/app/services/events.service';
 import { firstValueFrom } from 'rxjs';
+import { ContenidoService } from 'src/app/services/contenido.service';
 
 @Component({
   selector: 'app-calendario',
@@ -65,7 +66,8 @@ export class CalendarioComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private router: Router,
     public eventsService: EventsService,
-    private novedades: NovedadesService
+    private novedades: NovedadesService,
+    private contenido: ContenidoService
   ) {
 
     this.form = this.formBuilder.group({
@@ -82,6 +84,8 @@ export class CalendarioComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void { this.subNovedades?.unsubscribe(); }
 
   ngOnInit() {
+    // horario de atencion editable (Contacto → Horario): marca los dias cerrados y arma las horas al agendar
+    this.contenido.horario().subscribe();
     // una clienta agendo o cancelo: se actualizan el total del mes y el detalle del dia abierto
     // la esta viendo: el globo de Agenda vuelve a cero (tambien si llega algo mientras mira)
     this.novedades.marcarAgendaVista();
@@ -195,12 +199,18 @@ export class CalendarioComponent implements OnInit, OnDestroy {
     this.showModalDetalle = false;
   }
 
+  /** dia sin atencion segun el horario vigente (por nombre: 'domingo', 'lunes'…) */
+  diaCerrado(diaName: string): boolean {
+    const i = this.nombresDias.indexOf(String(diaName || '').toLowerCase());
+    return i >= 0 && !this.contenido.horarioVigente.dias[i];
+  }
+
   modalAgenda(day: any, month: string, diaName: string, eventday: any, mesActual: any, mesAgenda: any): any {
 
     const esMesEnCurso = mesActual === mesAgenda && this.yearActual === this.year;
     if (day < eventday && esMesEnCurso && this.rolUsuario !== 'admin'
       || day < eventday + 1 && this.rolUsuario !== 'admin' && esMesEnCurso
-      || diaName === 'domingo' && this.rolUsuario !== 'admin') {
+      || this.diaCerrado(diaName) && this.rolUsuario !== 'admin') {
       this.desabilitarDia = true;
       return false;
     }

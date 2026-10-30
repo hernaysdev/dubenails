@@ -1,0 +1,48 @@
+<section class="horario" aria-labelledby="t-horario">
+  <h2 id="t-horario">Horario de atención</h2>
+  <p class="meta">Las clientas solo pueden reservar en estos días y horas. Tú puedes agendar fuera de horario. Las citas ya agendadas no cambian.</p>
+  <p class="meta" *ngIf="cargando">Cargando…</p>
+
+  <div class="dia" *ngFor="let f of filas" [class.cerrado]="!f.abierto">
+    <label class="fila">
+      <input type="checkbox" [checked]="f.abierto" (change)="alternar(f)">
+      <strong>{{ f.nombre }}</strong>
+      <span class="estado">{{ f.abierto ? 'Abierto' : 'Cerrado' }}</span>
+    </label>
+    <ng-container *ngIf="f.abierto">
+      <div class="horas">
+        <label>Abre
+          <select [value]="f.abre" (change)="elegir(f, 'abre', $event)" [attr.aria-label]="f.nombre + ' abre'">
+            <option *ngFor="let h of opciones" [value]="h" [selected]="h === f.abre">{{ texto(h) }}</option>
+          </select>
+        </label>
+        <label>Cierra
+          <select [value]="f.cierra" (change)="elegir(f, 'cierra', $event)" [attr.aria-label]="f.nombre + ' cierra'">
+            <option *ngFor="let h of opciones" [value]="h" [selected]="h === f.cierra">{{ texto(h) }}</option>
+          </select>
+        </label>
+      </div>
+      <label class="fila chica">
+        <input type="checkbox" [checked]="f.conAlmuerzo" (change)="alternarAlmuerzo(f)">
+        Almuerzo (sin reservas)
+      </label>
+      <div class="horas" *ngIf="f.conAlmuerzo">
+        <label>De
+          <select (change)="elegir(f, 'almuerzo0', $event)" [attr.aria-label]="f.nombre + ' almuerzo desde'">
+            <option *ngFor="let h of opciones" [value]="h" [selected]="h === f.almuerzo[0]">{{ texto(h) }}</option>
+          </select>
+        </label>
+        <label>A
+          <select (change)="elegir(f, 'almuerzo1', $event)" [attr.aria-label]="f.nombre + ' almuerzo hasta'">
+            <option *ngFor="let h of opciones" [value]="h" [selected]="h === f.almuerzo[1]">{{ texto(h) }}</option>
+          </select>
+        </label>
+      </div>
+    </ng-container>
+  </div>
+
+  <button type="button" class="secundario" (click)="copiarLunes()" *ngIf="!cargando">Copiar el lunes a martes–sábado</button>
+  <p class="msg-ok" *ngIf="mensajeOk" role="status">{{ mensajeOk }}</p>
+  <p class="msg-error" *ngIf="mensajeError" role="alert">{{ mensajeError }}</p>
+  <button type="button" class="principal" (click)="guardar()" [disabled]="guardando || cargando">{{ guardando ? 'Guardando…' : 'Guardar horario' }}</button>
+</section>
